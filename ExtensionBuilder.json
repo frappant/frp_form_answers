@@ -1,0 +1,131 @@
+{
+    "modules": [
+        {
+            "config": {
+                "position": [
+                    694,
+                    159
+                ]
+            },
+            "name": "New Model Object",
+            "value": {
+                "actionGroup": {
+                    "_default0_list": true,
+                    "_default1_show": true,
+                    "_default2_new_create": false,
+                    "_default3_edit_update": false,
+                    "_default4_delete": false,
+                    "customActions": []
+                },
+                "name": "FormEntry",
+                "objectsettings": {
+                    "addDeletedField": true,
+                    "addHiddenField": false,
+                    "addStarttimeEndtimeFields": false,
+                    "aggregateRoot": true,
+                    "categorizable": false,
+                    "description": "",
+                    "mapToTable": "",
+                    "parentClass": "",
+                    "sorting": false,
+                    "type": "Entity",
+                    "uid": "802910370206"
+                },
+                "propertyGroup": {
+                    "properties": [
+                        {
+                            "allowedFileTypes": "",
+                            "maxItems": "1",
+                            "propertyDescription": "",
+                            "propertyIsExcludeField": true,
+                            "propertyIsRequired": false,
+                            "propertyName": "answers",
+                            "propertyType": "Text",
+                            "uid": "406148326358"
+                        },
+                        {
+                            "allowedFileTypes": "",
+                            "maxItems": "1",
+                            "propertyDescription": "",
+                            "propertyIsExcludeField": true,
+                            "propertyIsRequired": false,
+                            "propertyName": "fieldHash",
+                            "propertyType": "String",
+                            "uid": "819597765252"
+                        },
+                        {
+                            "allowedFileTypes": "",
+                            "maxItems": "1",
+                            "propertyDescription": "",
+                            "propertyIsExcludeField": true,
+                            "propertyIsRequired": false,
+                            "propertyName": "form",
+                            "propertyType": "String",
+                            "uid": "276206351257"
+                        },
+                        {
+                            "allowedFileTypes": "",
+                            "maxItems": "1",
+                            "propertyDescription": "",
+                            "propertyIsExcludeField": true,
+                            "propertyIsRequired": false,
+                            "propertyName": "exported",
+                            "propertyType": "Boolean",
+                            "uid": "415697692284"
+                        }
+                    ]
+                },
+                "relationGroup": {
+                    "relations": []
+                }
+            }
+        }
+    ],
+    "properties": {
+        "backendModules": [
+            {
+                "actions": {
+                    "controllerActionCombinations": "FormEntry => list,show"
+                },
+                "description": "Lists form answers",
+                "key": "formansers",
+                "mainModule": "web",
+                "name": "Form Answers",
+                "tabLabel": "Form Answers"
+            }
+        ],
+        "description": "Adds the possibility, as a finisher, to save the form entries from customers",
+        "emConf": {
+            "category": "module",
+            "custom_category": "",
+            "dependsOn": "typo3 => 7.6.0-7.6.99\n",
+            "disableLocalization": true,
+            "disableVersioning": true,
+            "skipGenerateDocumentationTemplate": true,
+            "sourceLanguage": "en",
+            "state": "alpha",
+            "targetVersion": "7.6.0-7.6.99",
+            "version": "1.0.0"
+        },
+        "extensionKey": "frp_form_answers",
+        "name": "Form Answer Saver",
+        "originalExtensionKey": "",
+        "originalVendorName": "",
+        "persons": [
+            {
+                "company": "",
+                "email": "support@frappant.ch",
+                "name": "!frappant",
+                "role": "Developer"
+            }
+        ],
+        "plugins": [],
+        "vendorName": "Frappant"
+    },
+    "wires": [],
+    "log": {
+        "last_modified": "2017-05-16 12:42",
+        "extension_builder_version": "7.6.18",
+        "be_user": "!frappant (27)"
+    }
+}

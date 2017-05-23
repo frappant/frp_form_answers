@@ -1,0 +1,46 @@
+
+<f:layout name="Default" />
+
+This Template is responsible for creating a table of domain objects.
+
+If you modify this template, do not forget to change the overwrite settings
+in /Configuration/ExtensionBuilder/settings.yaml:
+  Resources:
+    Private:
+      Templates:
+        List.html: keep
+
+Otherwise your changes will be overwritten the next time you save the extension in the extension builder
+
+<f:section name="content">
+<h1>Export Form Answers</h1>
+<f:flashMessages />
+
+<f:form action="export" method="POST">
+<table class="table table-striped table-hover">
+    <tr>
+        <td>
+            <label class="t3js-formengine-label">
+                Gewählte eingaben
+            </label>
+            <div class="t3js-formengine-field-item">
+                <f:form.select name="selectAll" options="{1: 'Alle exportieren', 0: 'Nur neue exportieren'}" />
+            </div>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <label class="t3js-formengine-label">
+                Gewählte Felder
+            </label>
+            <div class="t3js-formengine-field-item">
+               <f:form.select name="allPids" options="{1: 'Alle Seiten exportieren', 0: 'Nur diese Seite exportieren'}" />
+            </div>
+        </td>
+    </tr>
+    <tr>
+        <td><f:form.submit class="btn btn-sm btn-default " value="Exportieren" /></td>
+    </tr>
+</table>
+</f:form>
+</f:section>

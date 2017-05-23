@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<xliff version="1.0">
+	<file source-language="en" datatype="plaintext" original="messages" date="2017-05-16T12:42:22Z" product-name="frp_form_answers">
+		<header/>
+		<body>
+			<trans-unit id="mlang_tabs_tab">
+				<source>Form Answers</source>
+			</trans-unit>
+			<trans-unit id="mlang_labels_tabdescr">
+				<source>Lists form answers</source>
+			</trans-unit>
+		</body>
+	</file>
+</xliff>

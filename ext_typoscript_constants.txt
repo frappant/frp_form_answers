@@ -1,0 +1,1 @@
+<INCLUDE_TYPOSCRIPT: source="FILE:EXT:frp_form_answers/Configuration/TypoScript/constants.ts">

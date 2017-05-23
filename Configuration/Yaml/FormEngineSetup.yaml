@@ -1,0 +1,21 @@
+TYPO3:
+  CMS:
+    Form:
+      prototypes:
+        standard:
+          formEngine:
+            translationFile:
+              10: 'EXT:form/Resources/Private/Language/Database.xlf'
+              20: 'EXT:frp_form_answers/Resources/Private/Language/Database.xlf'
+
+          ### FINISHERS ###
+          finishersDefinition:
+            # Flexform
+            SaveFormToDatabase:
+              FormEngine:
+                label: 'tt_content.finishersDefinition.SaveToDatabase.label'
+                elements:
+                  message:
+                    label: 'tt_content.finishersDefinition.SaveToDatabase.message.label'
+                    config:
+                      type: 'input'

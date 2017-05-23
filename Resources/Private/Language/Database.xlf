@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<xliff version="1.0">
+    <file source-language="en" datatype="plaintext" original="messages" date="2017-05-16T12:42:22Z" product-name="frp_form_answers">
+        <header/>
+        <body>
+            <trans-unit id="formEditor.elements.Form.editor.finishers.SaveToDatabase.label">
+                <source>Confirmation Message (FH)</source>
+            </trans-unit>
+            <trans-unit id="formEditor.elements.Form.finisher.SaveToDatabase.editor.message.label">
+                <source>Message (FH)</source>
+            </trans-unit>
+            <trans-unit id="tt_content.finishersDefinition.SaveToDatabase.label">
+                <source>Confirm Message 2 (FH)</source>
+            </trans-unit>
+            <trans-unit id="tt_content.finishersDefinition.SaveToDatabase.message.label">
+                <source>Message 2 (FH)</source>
+            </trans-unit>
+        </body>
+    </file>
+</xliff>
