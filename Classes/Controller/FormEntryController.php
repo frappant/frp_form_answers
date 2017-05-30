@@ -81,9 +81,9 @@ class FormEntryController extends \TYPO3\CMS\Extbase\Mvc\Controller\ActionContro
 
         if (count($formEntries) == 0) {
             $this->addFlashMessage('No entries found with your criteria',
-               'No Entries found', // [optional] the header
-               \TYPO3\CMS\Core\Messaging\FlashMessage::WARNING, // [optional] the severity defaults to \TYPO3\CMS\Core\Messaging\FlashMessage::OK
-               true // [optional] whether the message should be stored in the session or only in the \TYPO3\CMS\Core\Messaging\FlashMessageQueue object (default is false)
+               'No Entries found',
+               \TYPO3\CMS\Core\Messaging\FlashMessage::WARNING,
+               true
             );
             $this->redirect("prepareExport");
         }
