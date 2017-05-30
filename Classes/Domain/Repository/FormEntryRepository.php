@@ -17,4 +17,39 @@ namespace Frappant\FrpFormAnswers\Domain\Repository;
  */
 class FormEntryRepository extends \TYPO3\CMS\Extbase\Persistence\Repository
 {
+    /**
+     * Finds all FormEntries given by conf Array
+     * @param  [type] $config [description]
+     * @return [type]         [description]
+     */
+    public function findByConfig($config)
+    {
+        $querySettings = $this->objectManager->get('TYPO3\\CMS\\Extbase\\Persistence\\Generic\\Typo3QuerySettings');
+
+        if ($config['allPids']) {
+            $querySettings->setRespectStoragePage(false);
+        } else {
+            $querySettings->setRespectStoragePage(true);
+            $querySettings->setStoragePageIds(array((int)\TYPO3\CMS\Core\Utility\GeneralUtility::_GP('id')));
+        }
+
+        $this->setDefaultQuerySettings($querySettings);
+
+        $query = $this->createQuery();
+
+        $constraints = array();
+
+        if (!$config['selectAll']) {
+            $constraints[] = $query->equals('exported', false);
+        }
+
+        if ($config['form']) {
+            $constraints[] = $query->equals('formHash', $config['form']);
+        }
+
+        if (count($constraints)) {
+            $query->matching($query->logicalAnd($constraints));
+        }
+        return $query->execute();
     }
+}

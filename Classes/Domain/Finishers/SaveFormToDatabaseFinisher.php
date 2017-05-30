@@ -32,22 +32,25 @@ class SaveFormToDatabaseFinisher extends \TYPO3\CMS\Form\Domain\Finishers\Abstra
         // All values, with pages
         $valuesWithPages = $this->finisherContext->getFormValues();
 
-        // Goes trough all Pages - and there trough all PageElements (Questions)
+        // Goes trough all form-pages - and there trough all PageElements (Questions)
         foreach($this->finisherContext->getFormRuntime()->getPages() AS $key => $page){
             foreach($page->getElementsRecursively() AS $pageElem){
+
                 $fields[] = $pageElem->getIdentifier();
-                $values[$pageElem->getIdentifier()] = $valuesWithPages[$pageElem->getIdentifier()];
+                $values[$pageElem->getIdentifier()]['value'] = $valuesWithPages[$pageElem->getIdentifier()];
+                $values[$pageElem->getIdentifier()]['conf']['label'] = $pageElem->getLabel();
+                $values[$pageElem->getIdentifier()]['conf']['inputType'] = $pageElem->getType();
             }
         }
 
         $formEntry = $this->objectManager->get('Frappant\\FrpFormAnswers\\Domain\\Model\\FormEntry');
         $formEntry->setExported(false);
         $formEntry->setAnswers(json_encode($values));
-        //$formEntry->setFieldHash(serialize($fields));
+
         $formEntry->setForm($this->finisherContext->getFormRuntime()->getIdentifier());
         $formEntry->setPid($GLOBALS['TSFE']->id);
-        //\TYPO3\CMS\Extbase\Utility\DebuggerUtility::var_dump($formEntry);
-        //exit;
+
+
 
         $this->formEntryRepository->add($formEntry);
     }
