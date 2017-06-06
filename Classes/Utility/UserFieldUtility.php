@@ -6,14 +6,15 @@ class UserFieldUtility
     public function getStaticContent($PA, $fObj)
     {
         $out = '<ul>';
-        //\TYPO3\CMS\Extbase\Utility\DebuggerUtility::var_dump($PA);
-        //\TYPO3\CMS\Extbase\Utility\DebuggerUtility::var_dump($fObj);
 
-        $fieldValues = json_decode($PA['itemFormElValue']);
-        \TYPO3\CMS\Extbase\Utility\DebuggerUtility::var_dump($fieldValues);
+        $fieldValues = json_decode($PA['itemFormElValue'], true);
 
         foreach ($fieldValues as $fieldKey => $fieldValue) {
-            $out .= '<li>'.$fieldKey.' - '.$fieldValue.'</li>';
+            if ($fieldValue['conf']['label']) {
+                $out .= '<li>'.$fieldValue['conf']['label'].' - '.(is_array($fieldValue['value']) ? implode(",", $fieldValue['value']) : $fieldValue['value']).'</li>';
+            } else {
+                $out .= '<li>'.$fieldKey.' - '.(is_array($fieldValue['value']) ? implode(",", $fieldValue['value']) : $fieldValue['value']).'</li>';
+            }
         }
         $out .= '</ul>';
         return $out;

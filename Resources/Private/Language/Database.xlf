@@ -4,7 +4,7 @@
         <header/>
         <body>
             <trans-unit id="formEditor.elements.Form.editor.finishers.SaveToDatabase.label">
-                <source>Confirmation Message (FH)</source>
+                <source>Save Form to Database</source>
             </trans-unit>
             <trans-unit id="formEditor.elements.Form.finisher.SaveToDatabase.editor.message.label">
                 <source>Message (FH)</source>

@@ -15,7 +15,6 @@ Otherwise your changes will be overwritten the next time you save the extension 
 <f:section name="content">
 <h1>Export Form Answers</h1>
 <f:flashMessages />
-
 <f:form action="export" method="POST">
 <table class="table table-striped table-hover">
     <tr>
@@ -24,7 +23,7 @@ Otherwise your changes will be overwritten the next time you save the extension 
                 Gewählte eingaben
             </label>
             <div class="t3js-formengine-field-item">
-                <f:form.select name="selectAll" options="{1: 'Alle exportieren', 0: 'Nur neue exportieren'}" />
+                <f:form.select name="config[selectAll]" options="{1: 'Alle exportieren', 0: 'Nur neue exportieren'}" />
             </div>
         </td>
     </tr>
@@ -34,7 +33,77 @@ Otherwise your changes will be overwritten the next time you save the extension 
                 Gewählte Felder
             </label>
             <div class="t3js-formengine-field-item">
-               <f:form.select name="allPids" options="{1: 'Alle Seiten exportieren', 0: 'Nur diese Seite exportieren'}" />
+               <f:form.select name="config[allPids]" options="{1: 'Alle Seiten exportieren', 0: 'Nur diese Seite exportieren'}" />
+            </div>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <label class="t3js-formengine-label">
+                Dateiformat
+            </label>
+            <div class="t3js-formengine-field-item">
+               <f:form.select name="config[exportType]" options="{excel: 'Excel', csv: 'CSV', xml: 'XML'}" />
+            </div>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <label class="t3js-formengine-label">
+                Label für UID
+            </label>
+            <div class="t3js-formengine-field-item">
+               <f:form.textfield name="config[uidLabel]" value="uid" />
+            </div>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <label class="t3js-formengine-label">
+                Formulare
+            </label>
+            <div class="t3js-formengine-field-item">
+               <f:form.select name="config[form]" prependOptionLabel="Kein Spezifisches Formular" options="{formHashes}" />
+            </div>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <label class="t3js-formengine-label">
+                Dateiname
+            </label>
+            <div class="t3js-formengine-field-item">
+               <f:form.textfield name="config[fileName]" value="export" />
+            </div>
+        </td>
+    </tr>
+    <tr class="csvExport specific_type_config">
+        <td>
+            <label class="t3js-formengine-label">
+                Zeichensatz
+            </label>
+            <div class="t3js-formengine-field-item">
+                <f:form.select options="{UTF-8: 'UTF-8', UTF-F16: 'UTF-16LE', iso-8859-1: 'ISO-8859-1'}" name="config[charset]" />
+            </div>
+        </td>
+    </tr>
+    <tr class="csvExport specific_type_config">
+        <td>
+            <label class="t3js-formengine-label">
+                Trennzeichen (nur bei csv)
+            </label>
+            <div class="t3js-formengine-field-item">
+                <f:form.select options="{semikolon:';', komma: ',',tab: '[TAB]'}" name="config[delimiter]" />
+            </div>
+        </td>
+    </tr>
+    <tr class="csvExport specific_type_config">
+        <td>
+            <label class="t3js-formengine-label">
+                Text-Trennzeichen (nur bei csv)
+            </label>
+            <div class="t3js-formengine-field-item">
+                <f:form.select options="{double: '\"', single: '\''}" name="config[enclosure]" />
             </div>
         </td>
     </tr>

@@ -53,57 +53,52 @@ class FormEntryController extends \TYPO3\CMS\Extbase\Mvc\Controller\ActionContro
      */
     public function prepareExportAction()
     {
+        $formHashes = array();
+        $querySettings = $this->objectManager->get('TYPO3\\CMS\\Extbase\\Persistence\\Generic\\Typo3QuerySettings');
+        $querySettings->setRespectStoragePage(false);
+        $this->formEntryRepository->setDefaultQuerySettings($querySettings);
+
+        $forms = $this->formEntryRepository->findAll();
+
+        foreach ($forms as $form) {
+            $formHashes[$form->getFieldHash()] = $form->getFieldHash();
+        }
+        $this->view->assign('formHashes', $formHashes);
+    }
+
+    public function initializeExportAction()
+    {
     }
 
     /**
      * action export
-     * @param boolean $selectAll
-     * @param boolean $allPids
+     * @param array $config
      * @return file The Excel file with data
      */
-    public function exportAction($selectAll, $allPids)
+    public function exportAction($config)
     {
-        $formEntries = array();
-        $querySettings = $this->objectManager->get('TYPO3\\CMS\\Extbase\\Persistence\\Generic\\Typo3QuerySettings');
-        if ($allPids) {
-            $querySettings->setRespectStoragePage(false);
-        } else {
-            $querySettings->setStoragePageIds(array((int)\TYPO3\CMS\Core\Utility\GeneralUtility::_GP('id')));
+        $formEntries = $this->formEntryRepository->findByConfig($config);
+
+        if (count($formEntries) == 0) {
+            $this->addFlashMessage('No entries found with your criteria',
+               'No Entries found',
+               \TYPO3\CMS\Core\Messaging\FlashMessage::WARNING,
+               true
+            );
+            $this->redirect("prepareExport");
         }
 
-        $this->formEntryRepository->setDefaultQuerySettings($querySettings);
+        $exporter = $this->objectManager->get("Frappant\\FrpFormAnswers\\DataExporter\\DataExporter");
+        $exporter->getExport($config['exportType'], $formEntries, $config);
 
-        if ($selectAll) {
-            $formEntries = $this->formEntryRepository->findAll()->toArray();
-        } else {
-            $formEntries = $this->formEntryRepository->findByExported(false)->toArray();
+        foreach ($formEntries as $entry) {
+            $entry->setExported(true);
+            $this->formEntryRepository->update($entry);
         }
 
-        $exporter = $this->objectManager->get("Frappant\\FrpFormAnswers\\Utility\\FormExportUtility");
-
-        // Get Headers for File download
-        $exporter->export($formEntries);
-        $this->download_send_headers("formExport.xlsx");
+        $persistenceManager = $this->objectManager->get("TYPO3\\CMS\\Extbase\\Persistence\\Generic\\PersistenceManager");
+        $persistenceManager->persistAll();
 
         die();
-    }
-
-    private function download_send_headers($filename = "formExport.xls", $charset= "UTF-8")
-    {
-        // disable caching
-        $now = gmdate("D, d M Y H:i:s");
-        header("Expires: Tue, 03 Jul 2099 06:00:00 GMT");
-        header("Cache-Control: max-age=0, no-cache, must-revalidate, proxy-revalidate");
-        header("Last-Modified: {$now} GMT");
-
-        // force download
-        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-        header("Content-Type: application/force-download");
-        header("Content-Type: application/octet-stream");
-        header("Content-Type: application/download; charset=".$charset);
-
-        // disposition / encoding on response body
-        header("Content-Disposition: attachment;filename={$filename}");
-        header("Content-Transfer-Encoding: binary");
     }
 }
