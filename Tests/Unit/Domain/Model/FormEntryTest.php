@@ -33,22 +33,35 @@ class FormEntryTest extends \TYPO3\CMS\Core\Tests\UnitTestCase
             '',
             $this->subject->getAnswers()
         );
-
     }
 
     /**
      * @test
      */
-    public function setAnswersForStringSetsAnswers()
+    public function setAnswersGeneratesHash()
     {
-        $this->subject->setAnswers('Conceived at T3CON10');
+        $answersFixture1 = [
+            'field1' => ['value' => 'Answer1', 'conf' => []],
+            'field2' => ['value' => 'Answer2', 'conf' => []],
+            'field3' => ['value' => 'Answer3', 'conf' => []],
+        ];
+        $this->subject->setAnswers($answersFixture1);
+        $hash1 = $this->subject->getFieldHash();
 
-        self::assertAttributeEquals(
-            'Conceived at T3CON10',
-            'answers',
-            $this->subject
-        );
+        $answersFixture2 = [
+            'field3' => ['value' => 'Answer3', 'conf' => []],
+            'field1' => ['value' => 'Answer1', 'conf' => []],
+            'field2' => ['value' => 'Answer2', 'conf' => []],
+        ];
+        $this->subject->setAnswers($answersFixture2);
+        $hash2 = $this->subject->getFieldHash();
 
+        $this->assertSame($hash1, $hash2);
+        // self::assertAttributeEquals(
+        //     'Conceived at T3CON10',
+        //     'answers',
+        //     $this->subject
+        // );
     }
 
     /**
@@ -60,22 +73,6 @@ class FormEntryTest extends \TYPO3\CMS\Core\Tests\UnitTestCase
             '',
             $this->subject->getFieldHash()
         );
-
-    }
-
-    /**
-     * @test
-     */
-    public function setFieldHashForStringSetsFieldHash()
-    {
-        $this->subject->setFieldHash('Conceived at T3CON10');
-
-        self::assertAttributeEquals(
-            'Conceived at T3CON10',
-            'fieldHash',
-            $this->subject
-        );
-
     }
 
     /**
@@ -87,7 +84,6 @@ class FormEntryTest extends \TYPO3\CMS\Core\Tests\UnitTestCase
             '',
             $this->subject->getForm()
         );
-
     }
 
     /**
@@ -102,7 +98,6 @@ class FormEntryTest extends \TYPO3\CMS\Core\Tests\UnitTestCase
             'form',
             $this->subject
         );
-
     }
 
     /**
@@ -114,7 +109,6 @@ class FormEntryTest extends \TYPO3\CMS\Core\Tests\UnitTestCase
             false,
             $this->subject->getExported()
         );
-
     }
 
     /**
@@ -129,6 +123,5 @@ class FormEntryTest extends \TYPO3\CMS\Core\Tests\UnitTestCase
             'exported',
             $this->subject
         );
-
     }
 }

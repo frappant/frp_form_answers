@@ -32,26 +32,37 @@ class DataExporter
         $header = array();
         $headerKeys = (array)array_values(json_decode($rowAnswers[0]->getAnswers(), 1));
 
+        if ($config['uidLabel']) {
+            $header[] = $config['uidLabel'];
+        }
+
         foreach ($headerKeys as $field => $val) {
-            $header[] = ($val['conf']['label'] ? $val['conf']['label'] : $field);
+            if ($val['conf']['inputType'] != 'Fieldset' && $val['conf']['inputType'] != 'StaticText') {
+                $header[] = ($val['conf']['label'] ? $val['conf']['label'] : $field);
+            }
         }
 
         foreach ($rowAnswers as $key => $entry) {
+            if ($config['uidLabel']) {
+                $rows[$entry->getUid()][$config['uidLabel']] = $entry->getUid();
+            }
             foreach ((array)json_decode($entry->getAnswers(), true) as $fieldName => $field) {
-                $rows[$entry->getUid()][$fieldName] = (is_array($field['value']) ? implode(",", $field['value']) : $field['value']);
+                if (!preg_match('/^fieldset/', $fieldName) && !preg_match('/^statictext/', $fieldName)) {
+                    $rows[$entry->getUid()][$fieldName] = (is_array($field['value']) ? implode(",", $field['value']) : $field['value']);
+                }
             }
         }
 
         array_unshift($rows, $header);
 
-        $this->download_send_headers($config['fileName'].".".$this->fileTypes[strtolower($exportType)], ($config['charset'] ? $config['charset'] : null));
+        $this->downloadSendHeaders($config['fileName'].".".$this->fileTypes[strtolower($exportType)], ($config['charset'] ? $config['charset'] : null));
 
         // Get File Content
         $this->$exportClass->export($rows, $config);
     }
 
 
-    private function download_send_headers($filename, $charset= "UTF-8")
+    private function downloadSendHeaders($filename, $charset= "UTF-8")
     {
         // disable caching
         $now = gmdate("D, d M Y H:i:s");

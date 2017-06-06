@@ -35,14 +35,14 @@ class SaveFormToDatabaseFinisher extends \TYPO3\CMS\Form\Domain\Finishers\Abstra
         // Goes trough all form-pages - and there trough all PageElements (Questions)
         foreach($this->finisherContext->getFormRuntime()->getPages() AS $key => $page){
             foreach($page->getElementsRecursively() AS $pageElem){
-
-                $fields[] = $pageElem->getIdentifier();
-                $values[$pageElem->getIdentifier()]['value'] = $valuesWithPages[$pageElem->getIdentifier()];
-                $values[$pageElem->getIdentifier()]['conf']['label'] = $pageElem->getLabel();
-                $values[$pageElem->getIdentifier()]['conf']['inputType'] = $pageElem->getType();
+                if($pageElem->getType() != 'Honeypot'){
+                    $fields[] = $pageElem->getIdentifier();
+                    $values[$pageElem->getIdentifier()]['value'] = $valuesWithPages[$pageElem->getIdentifier()];
+                    $values[$pageElem->getIdentifier()]['conf']['label'] = $pageElem->getLabel();
+                    $values[$pageElem->getIdentifier()]['conf']['inputType'] = $pageElem->getType();
+                }
             }
         }
-
         $formEntry = $this->objectManager->get('Frappant\\FrpFormAnswers\\Domain\\Model\\FormEntry');
         $formEntry->setExported(false);
         $formEntry->setAnswers(json_encode($values));

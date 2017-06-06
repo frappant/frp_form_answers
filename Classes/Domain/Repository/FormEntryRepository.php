@@ -44,7 +44,7 @@ class FormEntryRepository extends \TYPO3\CMS\Extbase\Persistence\Repository
         }
 
         if ($config['form']) {
-            $constraints[] = $query->equals('formHash', $config['form']);
+            $constraints[] = $query->equals('fieldHash', $config['form']);
         }
 
         if (count($constraints)) {

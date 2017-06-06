@@ -36,7 +36,7 @@ class CsvExporter
             $this->fputcsv2($fields, $this->delimiter[$config['delimiter']], $this->enclosure[$config['enclosure']]);
         }
 
-        echo "\xEF\xBB\xBF"; // UTF-8 BOM
+        //echo "\xEF\xBB\xBF"; // UTF-8 BOM
     }
 
 
