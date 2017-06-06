@@ -58,15 +58,16 @@ class FormEntry extends \TYPO3\CMS\Extbase\DomainObject\AbstractEntity
     /**
      * Sets the answers
      *
-     * @param string $answers
+     * @param array $answers
      * @return void
      */
-    public function setAnswers($answers)
+    public function setAnswers(array $answers)
     {
-        $this->answers = $answers;
+        asort($answers);
+        $this->answers = json_encode($answers);
 
         $fields = "";
-        foreach (json_decode($answers) as $field => $value) {
+        foreach ($answers as $field => $value) {
             $fields .= $field;
         }
         $this->fieldHash = md5($fields);
