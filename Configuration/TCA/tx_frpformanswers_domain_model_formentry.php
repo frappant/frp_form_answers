@@ -10,7 +10,7 @@ return [
         'enablecolumns' => [
         ],
         'searchFields' => 'answers,field_hash,form,exported',
-        'iconfile' => 'EXT:frp_form_answers/Resources/Public/Icons/tx_frpformanswers_domain_model_formentry.gif'
+        'iconfile' => 'EXT:frp_form_answers/Resources/Public/Icons/tx_frpformanswers_domain_model_formentry.svg'
     ],
     'interface' => [
         'showRecordFieldList' => 'answers, field_hash, form, exported',
