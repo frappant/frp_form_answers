@@ -36,6 +36,7 @@ return [
             'config' => [
                 'type' => 'input',
                 'size' => 30,
+                'readOnly' =>1,
                 'eval' => 'trim'
             ],
         ],
@@ -45,6 +46,7 @@ return [
             'config' => [
                 'type' => 'input',
                 'size' => 30,
+                'readOnly' =>1,
                 'eval' => 'trim'
             ],
         ],
@@ -58,6 +60,7 @@ return [
                         '0' => 'LLL:EXT:lang/locallang_core.xlf:labels.enabled'
                     ]
                 ],
+                'readOnly' =>1,
                 'default' => 0
             ]
         ],
