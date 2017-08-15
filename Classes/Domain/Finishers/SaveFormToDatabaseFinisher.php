@@ -45,7 +45,7 @@ class SaveFormToDatabaseFinisher extends \TYPO3\CMS\Form\Domain\Finishers\Abstra
         }
         $formEntry = $this->objectManager->get('Frappant\\FrpFormAnswers\\Domain\\Model\\FormEntry');
         $formEntry->setExported(false);
-        $formEntry->setAnswers(json_encode($values));
+        $formEntry->setAnswers($values);
 
         $formEntry->setForm($this->finisherContext->getFormRuntime()->getIdentifier());
         $formEntry->setPid($GLOBALS['TSFE']->id);
