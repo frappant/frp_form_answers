@@ -4,10 +4,10 @@
 		<header/>
 		<body>
 			<trans-unit id="mlang_tabs_tab">
-				<source>Form Answers</source>
+				<source>Forms Export</source>
 			</trans-unit>
 			<trans-unit id="mlang_labels_tabdescr">
-				<source>Lists form answers</source>
+				<source>Adds the possibility, as a finisher, to save and export the form entries from customers</source>
 			</trans-unit>
 		</body>
 	</file>

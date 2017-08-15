@@ -7,15 +7,15 @@ call_user_func(
             \TYPO3\CMS\Extbase\Utility\ExtensionUtility::registerModule(
                 'Frappant.FrpFormAnswers',
                 'web', // Make module a submodule of 'web'
-                'formansers', // Submodule key
-                'formbuilder', // Position
+                'formanswers', // Submodule key
+                'after:FormFormbuilder', // Position
                 [
                     'FormEntry' => 'list, show, prepareExport, export'
                 ],
                 [
                     'access' => 'user,group',
-                    'icon'   => 'EXT:' . $extKey . '/Resources/Public/Icons/user_mod_formansers.svg',
-                    'labels' => 'LLL:EXT:' . $extKey . '/Resources/Private/Language/locallang_formansers.xlf',
+                    'icon'   => 'EXT:' . $extKey . '/Resources/Public/Icons/user_mod_formanswers.svg',
+                    'labels' => 'LLL:EXT:' . $extKey . '/Resources/Private/Language/locallang_formanswers.xlf',
                 ]
             );
         }

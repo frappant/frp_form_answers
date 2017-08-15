@@ -1,0 +1,2 @@
+
+mod.web_list.hideTables = tx_frpformanswers_domain_model_formentry

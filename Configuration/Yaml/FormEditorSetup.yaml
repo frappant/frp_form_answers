@@ -17,11 +17,13 @@ TYPO3:
           formElementsDefinition:
             Form:
               formEditor:
+                iconIdentifier: 'content-elements-mailform'
                 editors:
                   900:
                     selectOptions:
                       1491637029:
                         value: 'SaveFormToDatabase'
+                        iconIdentifier: 't3-form-icon-finisher'
                         label: 'formEditor.elements.Form.editor.finishers.SaveToDatabase.label'
 
                 propertyCollections:
@@ -38,3 +40,10 @@ TYPO3:
                           templateName: 'Inspector-TextEditor'
                           label: 'formEditor.elements.Form.finisher.SaveToDatabase.editor.message.label'
                           propertyPath: 'options.message'
+
+
+          finishersDefinition:
+            SaveFormToDatabase:
+              formEditor:
+                iconIdentifier: 't3-form-icon-finisher'
+
