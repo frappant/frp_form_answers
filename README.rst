@@ -62,21 +62,3 @@ Integration
 Simply install the extension and add the finisher to a form.
 
 * No TypoScript setup to include.
-
-
-Contributing
-------------
-
-Bug reports
-^^^^^^^^^^^
-
-Bug reports are welcome through `GitHub <https://github.com/r3h6/TYPO3.EXT.error404page/issues/>`_.
-
-Please submit with your issue the debug log. Enable it in the extension configuration and clear the frontend cache before reproducing the failure.
-
-Pull request
-^^^^^^^^^^^^
-
-Pull request are welcome through `GitHub <https://github.com/r3h6/TYPO3.EXT.error404page/>`_.
-
-Please not that pull requests to the *master* branch will be ignored. Please pull to the *develop* branch.
