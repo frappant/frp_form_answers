@@ -30,7 +30,7 @@ class FormEntryTest extends \TYPO3\CMS\Core\Tests\UnitTestCase
     public function getAnswersReturnsInitialValueForString()
     {
         self::assertSame(
-            '',
+            array(),
             $this->subject->getAnswers()
         );
     }
