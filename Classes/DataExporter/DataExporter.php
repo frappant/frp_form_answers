@@ -8,7 +8,7 @@ class DataExporter
     {
         $rows = array();
         $header = array();
-        $headerKeys = (array)array_values(json_decode($rowAnswers[0]->getAnswers(), 1));
+        $headerKeys = (array)array_values($rowAnswers[0]->getAnswers());
 
         if ($formEntryDemand->getUidLabel()) {
             $header[] = $formEntryDemand->getUidLabel();
@@ -24,7 +24,7 @@ class DataExporter
             if ($formEntryDemand->getUidLabel()) {
                 $rows[$entry->getUid()][$formEntryDemand->getUidLabel()] = $entry->getUid();
             }
-            foreach ((array)json_decode($entry->getAnswers(), true) as $fieldName => $field) {
+            foreach ($entry->getAnswers() as $fieldName => $field) {
                 if (!preg_match('/^fieldset/', $fieldName) && !preg_match('/^statictext/', $fieldName)) {
                     $rows[$entry->getUid()][$fieldName] = (is_array($field['value']) ? implode(",", $field['value']) : $field['value']);
                 }

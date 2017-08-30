@@ -48,11 +48,11 @@ class FormEntry extends \TYPO3\CMS\Extbase\DomainObject\AbstractEntity
     /**
      * Returns the answers
      *
-     * @return string $answers
+     * @return array $answers
      */
     public function getAnswers()
     {
-        return $this->answers;
+        return json_decode($this->answers, 1);
     }
 
     /**
@@ -63,8 +63,8 @@ class FormEntry extends \TYPO3\CMS\Extbase\DomainObject\AbstractEntity
      */
     public function setAnswers(array $answers)
     {
-        asort($answers);
         $this->answers = json_encode($answers);
+        ksort($answers);
 
         $fields = "";
         foreach ($answers as $field => $value) {

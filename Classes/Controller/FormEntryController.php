@@ -68,7 +68,9 @@ class FormEntryController extends \TYPO3\CMS\Extbase\Mvc\Controller\ActionContro
         unset($pageIds[(int)\TYPO3\CMS\Core\Utility\GeneralUtility::_GP('id')]);
 
         $this->view->assign("formNames", $formNames);
-        $this->view->assign('subPagesWithFormEntries', $this->pageRepository->getMenuForPages($pageIds));
+        if (count($pageIds) > 0) {
+            $this->view->assign('subPagesWithFormEntries', $this->pageRepository->getMenuForPages($pageIds));
+        }
         $this->view->assign("pid", (int)\TYPO3\CMS\Core\Utility\GeneralUtility::_GP('id'));
     }
 
