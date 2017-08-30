@@ -26,18 +26,21 @@ Screenshots
    :width: 400px
    :align: center
 
+-----------
 
 .. figure:: ./Documentation/Images/Module_Formanswers_Subpages.png
    :alt: List subpages with form answers in module Form Answers.
    :width: 400px
    :align: center
 
+-----------
 
 .. figure:: ./Documentation/Images/Module_Formanswers_ListAnswers.png
    :alt: List form answers of given pid in module Form Answers
    :width: 400px
    :align: center
 
+-----------
 
 .. figure:: ./Documentation/Images/Module_Formanswers_Exportform.png
    :alt: Form for custom export in module  Form Answers
@@ -45,6 +48,7 @@ Screenshots
    :width: 400px
    :align: center
 
+-----------
 
 Installation
 ------------
