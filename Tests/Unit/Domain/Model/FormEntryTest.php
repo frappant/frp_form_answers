@@ -27,7 +27,7 @@ class FormEntryTest extends \TYPO3\CMS\Core\Tests\UnitTestCase
     /**
      * @test
      */
-    public function getAnswersReturnsInitialValueForString()
+    public function getAnswersReturnsInitialValueForArray()
     {
         self::assertSame(
             array(),
