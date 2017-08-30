@@ -35,11 +35,6 @@ TYPO3:
                           10: 'TYPO3.CMS.Form.mixins.formElementMixins.BaseCollectionEditorsMixin'
                         100:
                           label: 'formEditor.elements.Form.finisher.SaveToDatabase.editor.header.label'
-                        200:
-                          identifier: 'message'
-                          templateName: 'Inspector-TextEditor'
-                          label: 'formEditor.elements.Form.finisher.SaveToDatabase.editor.message.label'
-                          propertyPath: 'options.message'
 
 
           finishersDefinition:
