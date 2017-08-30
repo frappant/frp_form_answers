@@ -27,17 +27,6 @@ class FormEntryTest extends \TYPO3\CMS\Core\Tests\UnitTestCase
     /**
      * @test
      */
-    public function getAnswersReturnsInitialValueForString()
-    {
-        self::assertSame(
-            '',
-            $this->subject->getAnswers()
-        );
-    }
-
-    /**
-     * @test
-     */
     public function setAnswersGeneratesHash()
     {
         $answersFixture1 = [
