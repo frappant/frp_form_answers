@@ -11,12 +11,12 @@
  ***************************************************************/
 
 $EM_CONF[$_EXTKEY] = [
-    'title' => 'Form Answer Saver',
-    'description' => 'Adds the possibility, as a finisher, to save the form entries from customers',
+    'title' => 'Forms Export',
+    'description' => 'Adds the possibility, as a finisher, to save and export the form entries from customers',
     'category' => 'module',
     'author' => '!frappant',
     'author_email' => 'support@frappant.ch',
-    'state' => 'alpha',
+    'state' => 'stable',
     'internal' => '',
     'uploadfolder' => '0',
     'createDirs' => '',

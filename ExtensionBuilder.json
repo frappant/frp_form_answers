@@ -87,11 +87,11 @@
                 "actions": {
                     "controllerActionCombinations": "FormEntry => list,show"
                 },
-                "description": "Lists form answers",
-                "key": "formansers",
+                "description": "Adds the possibility, as a finisher, to save and export the form entries from customers",
+                "key": "formanswers",
                 "mainModule": "web",
-                "name": "Form Answers",
-                "tabLabel": "Form Answers"
+                "name": "Forms Export",
+                "tabLabel": "Forms Export"
             }
         ],
         "description": "Adds the possibility, as a finisher, to save the form entries from customers",
