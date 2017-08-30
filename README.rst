@@ -33,7 +33,7 @@ Screenshots
    :align: center
 
 
-   .. figure:: ./Documentation/Images/Module_Formanswers_ListAnswers.png
+.. figure:: ./Documentation/Images/Module_Formanswers_ListAnswers.png
    :alt: List form answers of given pid in module Form Answers
    :width: 400px
    :align: center
@@ -41,6 +41,7 @@ Screenshots
 
 .. figure:: ./Documentation/Images/Module_Formanswers_Exportform.png
    :alt: Form for custom export in module  Form Answers
+   :scale: 70 %
    :width: 400px
    :align: center
 
