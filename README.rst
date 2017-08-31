@@ -66,14 +66,14 @@ Contributing
 Bug reports
 ^^^^^^^^^^^
 
-Bug reports are welcome through `GitLab <https://gitlab.com/frappant/typo3/extension/frp_form_answers>`_.
+Bug reports are welcome through `GitHub <https://github.com/frappant/frp_form_answers>`_.
 
 Please submit with your issue the debug log.
 
 Pull request
 ^^^^^^^^^^^^
 
-Pull request are welcome through `GitLab <https://gitlab.com/frappant/typo3/extension/frp_form_answers>`_.
+Pull request are welcome through `GitHub <https://github.com/frappant/frp_form_answers>`_.
 
 Please note that pull requests to the *master* branch will be ignored. Please pull to the *develop* branch.
 
