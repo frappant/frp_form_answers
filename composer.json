@@ -3,10 +3,10 @@
     "type": "typo3-cms-extension",
     "description": "Adds the possibility, as a finisher, to save and export the form entries from customers.",
     "homepage": "https://frappant.ch",
-    "version": "1.0.0",
     "require": {
         "typo3/cms": "~8.7.0"
     },
+    "license": "GPL-2.0+",
     "require-dev": {
         "mikey179/vfsStream": "~1.6.0",
         "phpunit/phpunit": "^5.6",
