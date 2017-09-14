@@ -19,31 +19,28 @@ class SaveFormToDatabaseFinisher extends \TYPO3\CMS\Form\Domain\Finishers\Abstra
     protected $formEntryRepository = null;
 
     /**
+     * signalSlotDispatcher
+     *
+     * @var \TYPO3\CMS\Extbase\SignalSlot\Dispatcher
+     * @inject
+     */
+    protected $signalSlotDispatcher = null;
+
+    /**
      * Executes this finisher
      * @see AbstractFinisher::execute()
      */
     protected function executeInternal()
     {
         // All fields, in array
-        $fields = array();
+        $fields = [];
         // Values of all fields, getFormValues() also gives pages,
         // so it will be filled in foreach
-        $values = array();
-        // All values, with pages
-        $valuesWithPages = $this->finisherContext->getFormValues();
+        $values = $this->getFormValues();
 
-        // Goes trough all form-pages - and there trough all PageElements (Questions)
-        foreach($this->finisherContext->getFormRuntime()->getPages() AS $key => $page){
-            foreach($page->getElementsRecursively() AS $pageElem){
-                if($pageElem->getType() != 'Honeypot'){
-                    $fields[] = $pageElem->getIdentifier();
-                    $values[$pageElem->getIdentifier()]['value'] = $valuesWithPages[$pageElem->getIdentifier()];
-                    $values[$pageElem->getIdentifier()]['conf']['label'] = $pageElem->getLabel();
-                    $values[$pageElem->getIdentifier()]['conf']['inputType'] = $pageElem->getType();
-                }
-            }
-        }
-        $formEntry = $this->objectManager->get('Frappant\\FrpFormAnswers\\Domain\\Model\\FormEntry');
+        $this->signalSlotDispatcher->dispatch(__CLASS__, 'preInsertSignal', array(&$values));
+
+        $formEntry = $this->objectManager->get(\Frappant\FrpFormAnswers\Domain\Model\FormEntry::class);
         $formEntry->setExported(false);
         $formEntry->setAnswers($values);
 
@@ -62,7 +59,22 @@ class SaveFormToDatabaseFinisher extends \TYPO3\CMS\Form\Domain\Finishers\Abstra
      */
     protected function getFormValues(): array
     {
-        return $this->finisherContext->getFormValues();
+        // All values, with pages
+        $valuesWithPages = $this->finisherContext->getFormValues();
+        $values = [];
+
+        // Goes trough all form-pages - and there trough all PageElements (Questions)
+        foreach ($this->finisherContext->getFormRuntime()->getPages() as $key => $page) {
+            foreach ($page->getElementsRecursively() as $pageElem) {
+                if ($pageElem->getType() != 'Honeypot') {
+                    $fields[] = $pageElem->getIdentifier();
+                    $values[$pageElem->getIdentifier()]['value'] = $valuesWithPages[$pageElem->getIdentifier()];
+                    $values[$pageElem->getIdentifier()]['conf']['label'] = $pageElem->getLabel();
+                    $values[$pageElem->getIdentifier()]['conf']['inputType'] = $pageElem->getType();
+                }
+            }
+        }
+        return $values;
     }
 
     /**
