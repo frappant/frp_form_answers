@@ -1,6 +1,6 @@
 
 # Module configuration
-module.tx_frpformanswers_web_frpformanswersformanswers {
+module.tx_frpformanswers {
   persistence {
     storagePid = {$module.tx_frpformanswers_formanswers.persistence.storagePid}
   }
