@@ -59,6 +59,31 @@ Simply install the extension and add the finisher to a form.
 
 * No TypoScript setup to include.
 
+Signals
+-------
+
+There is a signal included in the finisher, after filling up the values in an array. It gives you the array so you
+can modify or add several fields, like IP address, Client information, time stamps or other information.
+
+The fields are inserted by the identifier each field has from the form extension. The data structure looks like this:
+
+array[
+   'value' => $value,
+   'conf' => array[
+      'label' => $label,
+      'inputType' => $inputType
+   ]
+]
+
+$value
+The value of the field. Values with several options are comma-separatet
+
+$label
+Label of the field - will be used in detail view in the backend
+
+$inputType
+Inputtype of the field, as configured in Module Forms. EXT:forms includes some hidden/bnous fields like fieldsets and a honeypot, we need the inputType to separate them in export.
+
 
 Contributing
 ------------
