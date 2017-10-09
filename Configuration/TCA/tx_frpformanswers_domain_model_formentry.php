@@ -25,9 +25,6 @@ return [
             'config' => [
                 'type' => 'user',
                 'userFunc' => 'Frappant\\FrpFormAnswers\\Utility\\UserFieldUtility->getStaticContent',
-                /*'cols' => 40,
-                'rows' => 15,
-                'eval' => 'trim'*/
             ]
         ],
         'field_hash' => [

@@ -12,5 +12,6 @@ class BeUserHasAccessRights extends \TYPO3\CMS\Core\Configuration\TypoScript\Con
      */
     public function matchCondition(beUser $beUser, string $moduleName)
     {
+        return $beUser->check('modules', $moduleName);
     }
 }
