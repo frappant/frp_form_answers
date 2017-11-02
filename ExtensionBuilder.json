@@ -105,7 +105,7 @@
             "sourceLanguage": "en",
             "state": "alpha",
             "targetVersion": "7.6.0-7.6.99",
-            "version": "1.0.0"
+            "version": "1.0.3"
         },
         "extensionKey": "frp_form_answers",
         "name": "Form Answer Saver",
