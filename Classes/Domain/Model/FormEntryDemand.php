@@ -88,6 +88,13 @@ class FormEntryDemand extends \TYPO3\CMS\Extbase\DomainObject\AbstractEntity
     protected $enclosure = '';
 
     /**
+     * uidField
+     *
+     * @var string
+     */
+    protected $uidField = '';
+
+    /**
      * Returns the selectAll
      *
      * @return bool $selectAll
@@ -315,5 +322,26 @@ class FormEntryDemand extends \TYPO3\CMS\Extbase\DomainObject\AbstractEntity
     public function setEnclosure($enclosure)
     {
         $this->enclosure = $enclosure;
+    }
+
+    /**
+     * Returns the uidField
+     *
+     * @return string $uidField
+     */
+    public function getUidField()
+    {
+        return $this->uidField;
+    }
+
+    /**
+     * Sets the uidField
+     *
+     * @param string $uidField
+     * @return void
+     */
+    public function setUidField($uidField)
+    {
+        $this->uidField = $uidField;
     }
 }

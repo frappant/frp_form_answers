@@ -1,0 +1,2 @@
+# cat=basic/enable; type=boolean; label=Use the submit uid per form (yaml file) instead of uid (per table - all formAnswers)
+useSubmitUid = false

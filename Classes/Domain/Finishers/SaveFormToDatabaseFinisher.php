@@ -37,6 +37,10 @@ class SaveFormToDatabaseFinisher extends \TYPO3\CMS\Form\Domain\Finishers\Abstra
         // Values of all fields, getFormValues() also gives pages,
         // so it will be filled in foreach
         $values = $this->getFormValues();
+        // Identifier for the yaml file of the form
+        $identifier = $this->finisherContext->getFormRuntime()->getIdentifier();
+        // Default Value is new Form
+        $lastFormUid = 1;
 
         $this->signalSlotDispatcher->dispatch(__CLASS__, 'preInsertSignal', array(&$values));
 
@@ -44,10 +48,17 @@ class SaveFormToDatabaseFinisher extends \TYPO3\CMS\Form\Domain\Finishers\Abstra
         $formEntry->setExported(false);
         $formEntry->setAnswers($values);
 
-        $formEntry->setForm($this->finisherContext->getFormRuntime()->getIdentifier());
+        $formEntry->setForm($identifier);
         $formEntry->setPid($GLOBALS['TSFE']->id);
 
+        $lastForm = $this->formEntryRepository->getLastFormAnswersByIdentifyer($identifier);
+        // If there already exists a formAnswers, override lastFormUid
+        if ($lastForm->getFirst()) {
+            $lastFormUid += $lastForm->getFirst()->getSubmitUid();
+        }
 
+
+        $formEntry->setSubmitUid($lastFormUid);
 
         $this->formEntryRepository->add($formEntry);
     }

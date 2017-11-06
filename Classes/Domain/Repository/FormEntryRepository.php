@@ -33,8 +33,8 @@ class FormEntryRepository extends \TYPO3\CMS\Extbase\Persistence\Repository
     }
     /**
      * Finds all FormEntries given by conf Array
-     * @param  [type] $config [description]
-     * @return [type]         [description]
+     * @param  \Frappant\FrpFormAnswers\Domain\Model\FormEntryDemand $formEntryDemand
+     * @return QueryResult
      */
     public function findByDemand(\Frappant\FrpFormAnswers\Domain\Model\FormEntryDemand $formEntryDemand)
     {
@@ -89,6 +89,28 @@ class FormEntryRepository extends \TYPO3\CMS\Extbase\Persistence\Repository
             }
         }
         $query->setOrderings(['pid' => QueryInterface::ORDER_ASCENDING]);
+
+        return $query->execute();
+    }
+
+    /**
+     * Finds the last Form Entry of a given yaml File (form) - used to set the submitUid in SaveFormToDatabaseFinisher
+     *
+     * @param String $form
+     * @return QueryResult
+     */
+    public function getLastFormAnswersByIdentifyer($form)
+    {
+        $query = $this->createQuery();
+        $query->getQuerySettings()->setRespectStoragePage(false);
+        $query->setOrderings(
+            array(
+                'submitUid' => \TYPO3\CMS\Extbase\Persistence\QueryInterface::ORDER_DESCENDING
+            )
+        );
+
+        $query->matching($query->equals('form', $form));
+        $query->setLimit(1);
 
         return $query->execute();
     }

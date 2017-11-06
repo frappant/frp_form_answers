@@ -12,8 +12,8 @@
 			<trans-unit id="form.description">
 				<source>form</source>
 			</trans-unit>
-			<trans-unit id="exported.description">
-				<source>exported</source>
+			<trans-unit id="exported.submit_uid">
+				<source>form submit uid</source>
 			</trans-unit>
 		</body>
 	</file>

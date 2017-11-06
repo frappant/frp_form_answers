@@ -46,6 +46,13 @@ class FormEntry extends \TYPO3\CMS\Extbase\DomainObject\AbstractEntity
     protected $exported = false;
 
     /**
+     * exported
+     *
+     * @var int
+     */
+    protected $submitUid = '';
+
+    /**
      * Returns the answers
      *
      * @return array $answers
@@ -144,5 +151,26 @@ class FormEntry extends \TYPO3\CMS\Extbase\DomainObject\AbstractEntity
     public function isExported()
     {
         return $this->exported;
+    }
+
+    /**
+     * Sets the submitUid
+     *
+     * @param int $submitUid
+     * @return void
+     */
+    public function setSubmitUid($submitUid)
+    {
+        $this->submitUid = $submitUid;
+    }
+
+    /**
+     * Returns the submitUid
+     *
+     * @return int
+     */
+    public function getSubmitUid()
+    {
+        return $this->submitUid;
     }
 }
