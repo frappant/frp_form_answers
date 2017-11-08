@@ -13,7 +13,6 @@ class BeUserHasAccessRightsCondition extends AbstractCondition
      */
     public function matchCondition(array $conditionParameters)
     {
-        return true;
-        return $conditionParameters[0]->check('modules', 'web_formAnswers');
+        return $GLOBALS['BE_USER']->check('modules', 'web_formAnswers');
     }
 }

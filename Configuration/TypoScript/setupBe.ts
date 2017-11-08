@@ -14,6 +14,8 @@ module.tx_frpformanswers {
   }
 }
 
+
+[Frappant\FrpFormAnswers\Condition\BeUserHasAccessRightsCondition]
 module.tx_form {
     settings {
         yamlConfigurations {
@@ -23,3 +25,4 @@ module.tx_form {
         }
     }
 }
+[end]

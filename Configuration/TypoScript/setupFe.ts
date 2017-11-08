@@ -1,3 +1,4 @@
+[Frappant\FrpFormAnswers\Condition\BeUserHasAccessRightsCondition]
 plugin.tx_form {
     settings {
         yamlConfigurations {
@@ -11,3 +12,4 @@ plugin.tx_form {
         }
     }
 }
+[end]

@@ -58,6 +58,8 @@ class FormEntryController extends \TYPO3\CMS\Extbase\Mvc\Controller\ActionContro
             $formNames[$answer->getForm()] = $answer->getForm();
         }
 
+        $this->view->assign("settings", $this->settings);
+
         // Get a List from FormEntries in subpages
         $formEntriesInSubPages = $this->formEntryRepository->findAllInPidAndRootline((int)\TYPO3\CMS\Core\Utility\GeneralUtility::_GP('id'));
         // Get all Pids with a formEntry list
@@ -93,9 +95,6 @@ class FormEntryController extends \TYPO3\CMS\Extbase\Mvc\Controller\ActionContro
     public function prepareExportAction()
     {
         $formHashes = array();
-        $querySettings = $this->objectManager->get('TYPO3\\CMS\\Extbase\\Persistence\\Generic\\Typo3QuerySettings');
-        $querySettings->setRespectStoragePage(false);
-        $this->formEntryRepository->setDefaultQuerySettings($querySettings);
 
         $demandObject = $this->objectManager->get(\Frappant\FrpFormAnswers\Domain\Model\FormEntryDemand::class);
         $this->view->assign('formEntryDemand', $demandObject);
@@ -129,7 +128,11 @@ class FormEntryController extends \TYPO3\CMS\Extbase\Mvc\Controller\ActionContro
             $this->redirect("list");
         }
 
-        $exportData = $this->dataExporter->getExport($formEntries, $formEntryDemand);
+        /** @var \TYPO3\CMS\Extensionmanager\Utility\ConfigurationUtility $configurationUtility */
+        $configurationUtility = $this->objectManager->get('TYPO3\CMS\Extensionmanager\Utility\ConfigurationUtility');
+        $extensionConfiguration = $configurationUtility->getCurrentConfiguration('frp_form_answers');
+
+        $exportData = $this->dataExporter->getExport($formEntries, $formEntryDemand, $extensionConfiguration['useSubmitUid']['value']);
 
         $this->view->assign("rows", $exportData);
         $this->view->assign('formEntryDemand', $formEntryDemand);
