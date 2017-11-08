@@ -113,9 +113,11 @@ class ext_update
      *
      * @return bool
      */
-    public function access($what = 'all')
+    public function access()
     {
-        return true;
+        $this->initUpdate();
+        $row = $this->databaseConnection->exec_SELECTcountRows('*', 'tx_frpformanswers_domain_model_formentry', 'submit_uid > 0');
+        return ($row === 0);
     }
 
     /**
