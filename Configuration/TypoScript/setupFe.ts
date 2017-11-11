@@ -11,3 +11,11 @@ plugin.tx_form {
         }
     }
 }
+
+config.tx_extbase.persistence.classes {
+    Frappant\FrpFormAnswers\Domain\Model\FormEntry {
+        mapping {
+            columns.crdate.mapOnProperty = crdate
+        }
+    }
+}

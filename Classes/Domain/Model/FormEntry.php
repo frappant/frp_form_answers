@@ -46,6 +46,11 @@ class FormEntry extends \TYPO3\CMS\Extbase\DomainObject\AbstractEntity
     protected $exported = false;
 
     /**
+     * @var \DateTime
+     */
+    protected $crdate;
+
+    /**
      * Returns the answers
      *
      * @return array $answers
@@ -144,5 +149,25 @@ class FormEntry extends \TYPO3\CMS\Extbase\DomainObject\AbstractEntity
     public function isExported()
     {
         return $this->exported;
+    }
+
+    /**
+     * Set creation date
+     *
+     * @param int $crdate
+     */
+    public function setCrdate($crdate)
+    {
+        $this->crdate = $crdate;
+    }
+
+    /**
+     * Get creation date
+     *
+     * @return int
+     */
+    public function getCrdate()
+    {
+        return $this->crdate;
     }
 }
