@@ -43,37 +43,29 @@ class FormEntryController extends \TYPO3\CMS\Extbase\Mvc\Controller\ActionContro
     protected $dataExporter = null;
 
     /**
+     * formAnswersUtility
+     *
+     * @var \Frappant\FrpFormAnswers\Utility\FormAnswersUtility
+     * @inject
+     */
+    protected $formAnswersUtility = null;
+
+    /**
      * action list
      *
      * @return void
      */
     public function listAction()
     {
-        // get All FormAnswers from this Page
-        $allFormAnswers = $this->formEntryRepository->findAll();
-        $formNames = array();
+        $pageIds = $this->formAnswersUtility->prepareFormAnswersArray();
 
-        // Get FormNames from this page. We will separate them in the list View
-        foreach ($allFormAnswers as $answer) {
-            $formNames[$answer->getForm()] = $answer->getForm();
-        }
-
-        $this->view->assign("settings", $this->settings);
-
-        // Get a List from FormEntries in subpages
-        $formEntriesInSubPages = $this->formEntryRepository->findAllInPidAndRootline((int)\TYPO3\CMS\Core\Utility\GeneralUtility::_GP('id'));
-        // Get all Pids with a formEntry list
-        $pageIds = array();
-        foreach ($formEntriesInSubPages as $formEntry) {
-            $pageIds[$formEntry->getPid()] = $formEntry->getPid();
-        }
-        unset($pageIds[(int)\TYPO3\CMS\Core\Utility\GeneralUtility::_GP('id')]);
-
-        $this->view->assign("formNames", $formNames);
         if (count($pageIds) > 0) {
-            $this->view->assign('subPagesWithFormEntries', $this->pageRepository->getMenuForPages($pageIds));
+            $this->view->assign('subPagesWithFormEntries', $this->pageRepository->getMenuForPages(array_keys($pageIds)));
+            $this->view->assign('formEntriesStatus', $pageIds);
         }
         $this->view->assign("pid", (int)\TYPO3\CMS\Core\Utility\GeneralUtility::_GP('id'));
+        $this->view->assign("formNames", $this->formAnswersUtility->getAllFormNames());
+        $this->view->assign("settings", $this->settings);
     }
 
     /**
@@ -94,20 +86,10 @@ class FormEntryController extends \TYPO3\CMS\Extbase\Mvc\Controller\ActionContro
      */
     public function prepareExportAction()
     {
-        $formHashes = array();
-
         $demandObject = $this->objectManager->get(\Frappant\FrpFormAnswers\Domain\Model\FormEntryDemand::class);
+
         $this->view->assign('formEntryDemand', $demandObject);
-        $forms = $this->formEntryRepository->findAll();
-
-        foreach ($forms as $form) {
-            $formHashes[$form->getFieldHash()] = $form->getFieldHash();
-        }
-        $this->view->assign('formHashes', $formHashes);
-    }
-
-    public function initializeExportAction()
-    {
+        $this->view->assign('formHashes', $this->formAnswersUtility->getAllFormHashes());
     }
 
     /**
@@ -134,15 +116,9 @@ class FormEntryController extends \TYPO3\CMS\Extbase\Mvc\Controller\ActionContro
 
         $exportData = $this->dataExporter->getExport($formEntries, $formEntryDemand, $extensionConfiguration['useSubmitUid']['value']);
 
+        $this->formEntryRepository->setFormsToExported($formEntries);
+
         $this->view->assign("rows", $exportData);
         $this->view->assign('formEntryDemand', $formEntryDemand);
-
-        foreach ($formEntries as $entry) {
-            $entry->setExported(true);
-            $this->formEntryRepository->update($entry);
-        }
-
-        $persistenceManager = $this->objectManager->get("TYPO3\\CMS\\Extbase\\Persistence\\Generic\\PersistenceManager");
-        $persistenceManager->persistAll();
     }
 }

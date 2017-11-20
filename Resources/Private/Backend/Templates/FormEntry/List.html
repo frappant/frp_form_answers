@@ -1,4 +1,5 @@
 {namespace frp=Frappant\FrpFormAnswers\ViewHelpers\Be\Link}
+{namespace core = TYPO3\CMS\Core\ViewHelpers}
 <f:layout name="Default" />
 
 This Template is responsible for creating a table of domain objects.
@@ -34,15 +35,19 @@ Otherwise your changes will be overwritten the next time you save the extension 
 
 <f:if condition="{subPagesWithFormEntries}">
     <h2>Subpages with FormEntries</h2>
-    <ul>
+    <ul style="list-style: none;">
         <f:for each="{subPagesWithFormEntries}" as="page">
             <li>
-                <frp:beLink title="{page.title}" pageUid="{page.uid}">{page.title} ({page.uid})</frp:beLink>
+                <core:icon identifier="apps-pagetree-page-default" size="small" /> <frp:beLink title="{page.title}" pageUid="{page.uid}">{page.title} ({page.uid})</frp:beLink>
+                <ul>
+                    <li><f:translate key="tx_frpformanswers_domain_model_formentry.tot" /> : <f:format.number decimals="0">{formEntriesStatus.{page.uid}.tot}</f:format.number></li>
+                    <li><f:translate key="tx_frpformanswers_domain_model_formentry.new" /> : <f:format.number decimals="0">{formEntriesStatus.{page.uid}.new}</f:format.number></li>
+                </ul>
             </li>
             <f:comment>
-            <li><a title="id={page.uid}" onclick="top.loadEditId({page.uid},&quot;&amp;SET[language]=0&quot;); return false;" href="#" >
-                {page.title}
-            </a></li>
+            <li><a title="id={page.uid}" onclick="top.loadEditId({page.uid},&quot;&amp;SET[language]=0&quot;); return false;" href="#" >{page.title}</a>
+
+            </li>
             </f:comment>
         </f:for>
     </ul>

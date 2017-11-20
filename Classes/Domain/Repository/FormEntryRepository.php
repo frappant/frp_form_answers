@@ -89,7 +89,6 @@ class FormEntryRepository extends \TYPO3\CMS\Extbase\Persistence\Repository
         $query = $this->createQuery();
         $query->getQuerySettings()->setRespectStoragePage(false);
 
-        // if ($pid > 0) {
         $queryGenerator = GeneralUtility::makeInstance(QueryGenerator::class);
         $pids = GeneralUtility::trimExplode(',', $queryGenerator->getTreeList($pid, 20, 0, 1), true);
 
@@ -97,7 +96,10 @@ class FormEntryRepository extends \TYPO3\CMS\Extbase\Persistence\Repository
             $pids = BackendUtility::filterPagesForAccess($pids);
         }
 
-        $query->matching($query->in('pid', $pids));
+        if (is_array($pids) && count($pids)) {
+            $query->matching($query->in('pid', $pids));
+        }
+
         $query->setOrderings(['pid' => QueryInterface::ORDER_ASCENDING]);
 
         return $query->execute();
@@ -123,5 +125,16 @@ class FormEntryRepository extends \TYPO3\CMS\Extbase\Persistence\Repository
         $query->setLimit(1);
 
         return $query->execute();
+    }
+
+    public function setFormsToExported($forms)
+    {
+        foreach ($formEntries as $entry) {
+            $entry->setExported(true);
+            $this->update($entry);
+        }
+
+        $persistenceManager = $this->objectManager->get("TYPO3\\CMS\\Extbase\\Persistence\\Generic\\PersistenceManager");
+        $persistenceManager->persistAll();
     }
 }
