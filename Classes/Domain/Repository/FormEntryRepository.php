@@ -129,7 +129,7 @@ class FormEntryRepository extends \TYPO3\CMS\Extbase\Persistence\Repository
 
     public function setFormsToExported($forms)
     {
-        foreach ($formEntries as $entry) {
+        foreach ($forms as $entry) {
             $entry->setExported(true);
             $this->update($entry);
         }
