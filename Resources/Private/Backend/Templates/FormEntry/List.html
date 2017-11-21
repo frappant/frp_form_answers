@@ -32,16 +32,22 @@ Otherwise your changes will be overwritten the next time you save the extension 
 </f:form>
     <f:be.tableList tableName="tx_frpformanswers_domain_model_formentry" filter="{formName}" fieldList="{0:'uid', 1: 'crdate', 2: 'exported'}" storagePid="{pid}" clickTitleMode="edit" />
 </f:for>
-
 <f:if condition="{subPagesWithFormEntries}">
     <h2>Subpages with FormEntries</h2>
     <ul style="list-style: none;">
         <f:for each="{subPagesWithFormEntries}" as="page">
-            <li>
+            <li style="margin-bottom: 15px;">
                 <core:icon identifier="apps-pagetree-page-default" size="small" /> <frp:beLink title="{page.title}" pageUid="{page.uid}">{page.title} ({page.uid})</frp:beLink>
                 <ul>
-                    <li><f:translate key="tx_frpformanswers_domain_model_formentry.tot" /> : <f:format.number decimals="0">{formEntriesStatus.{page.uid}.tot}</f:format.number></li>
-                    <li><f:translate key="tx_frpformanswers_domain_model_formentry.new" /> : <f:format.number decimals="0">{formEntriesStatus.{page.uid}.new}</f:format.number></li>
+                    <f:for each="{formEntriesStatus.{page.uid}}" as="formData" key="formName">
+                        <li>
+                            Form: {formName}
+                            <ul>
+                                <li><f:translate key="tx_frpformanswers_domain_model_formentry.tot" /> : <f:format.number decimals="0">{formData.tot}</f:format.number></li>
+                                <li><f:translate key="tx_frpformanswers_domain_model_formentry.new" /> : <f:format.number decimals="0">{formData.new}</f:format.number></li>
+                            </ul>
+                        </li>
+                    </f:for>
                 </ul>
             </li>
         </f:for>

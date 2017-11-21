@@ -34,10 +34,10 @@ class FormAnswersUtility
 
         // Get all Pids with a formEntry list
         foreach ($this->formEntryRepository->findAllInPidAndRootline($pageId) as $formEntry) {
-            $pageIds[$formEntry->getPid()]['tot'] += 1;
+            $pageIds[$formEntry->getPid()][$formEntry->getForm()]['tot'] += 1;
 
             if (!$formEntry->isExported()) {
-                $pageIds[$formEntry->getPid()]['new'] += 1;//$formEntry->getPid();
+                $pageIds[$formEntry->getPid()][$formEntry->getForm()]['new'] += 1;//$formEntry->getPid();
             }
         }
         unset($pageIds[(int)\TYPO3\CMS\Core\Utility\GeneralUtility::_GP('id')]);
