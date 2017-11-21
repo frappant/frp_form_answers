@@ -32,8 +32,6 @@ class SaveFormToDatabaseFinisher extends \TYPO3\CMS\Form\Domain\Finishers\Abstra
      */
     protected function executeInternal()
     {
-        // All fields, in array
-        $fields = [];
         // Values of all fields, getFormValues() also gives pages,
         // so it will be filled in foreach
         $values = $this->getFormValues();
@@ -51,10 +49,10 @@ class SaveFormToDatabaseFinisher extends \TYPO3\CMS\Form\Domain\Finishers\Abstra
         $formEntry->setForm($identifier);
         $formEntry->setPid($GLOBALS['TSFE']->id);
 
-        $lastForm = $this->formEntryRepository->getLastFormAnswersByIdentifyer($identifier);
+        $lastForm = $this->formEntryRepository->getLastFormAnswerByIdentifyer($identifier);
         // If there already exists a formAnswers, override lastFormUid
-        if ($lastForm->getFirst()) {
-            $lastFormUid += $lastForm->getFirst()->getSubmitUid();
+        if ($lastForm instanceof \Frappant\FrpFormAnswers\Domain\Model\FormEntry) {
+            $lastFormUid += $lastForm->getSubmitUid();
         }
 
 
@@ -75,10 +73,9 @@ class SaveFormToDatabaseFinisher extends \TYPO3\CMS\Form\Domain\Finishers\Abstra
         $values = [];
 
         // Goes trough all form-pages - and there trough all PageElements (Questions)
-        foreach ($this->finisherContext->getFormRuntime()->getPages() as $key => $page) {
+        foreach ($this->finisherContext->getFormRuntime()->getPages() as $page) {
             foreach ($page->getElementsRecursively() as $pageElem) {
                 if ($pageElem->getType() != 'Honeypot') {
-                    $fields[] = $pageElem->getIdentifier();
                     $values[$pageElem->getIdentifier()]['value'] = $valuesWithPages[$pageElem->getIdentifier()];
                     $values[$pageElem->getIdentifier()]['conf']['label'] = $pageElem->getLabel();
                     $values[$pageElem->getIdentifier()]['conf']['inputType'] = $pageElem->getType();

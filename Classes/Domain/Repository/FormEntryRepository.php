@@ -111,7 +111,7 @@ class FormEntryRepository extends \TYPO3\CMS\Extbase\Persistence\Repository
      * @param String $form
      * @return QueryResult
      */
-    public function getLastFormAnswersByIdentifyer($form)
+    public function getLastFormAnswerByIdentifyer($form)
     {
         $query = $this->createQuery();
         $query->getQuerySettings()->setRespectStoragePage(false);
@@ -124,7 +124,7 @@ class FormEntryRepository extends \TYPO3\CMS\Extbase\Persistence\Repository
         $query->matching($query->equals('form', $form));
         $query->setLimit(1);
 
-        return $query->execute();
+        return $query->execute()->getFirst();
     }
 
     public function setFormsToExported($forms)

@@ -30,7 +30,7 @@ Otherwise your changes will be overwritten the next time you save the extension 
         <f:form.submit class="btn btn-sm btn-default " value="Exportieren" />
     </div>
 </f:form>
-    <f:be.tableList tableName="tx_frpformanswers_domain_model_formentry" filter="{formName}" fieldList="{0:'uid', 1: 'crdate'}" storagePid="{pid}" clickTitleMode="edit" />
+    <f:be.tableList tableName="tx_frpformanswers_domain_model_formentry" filter="{formName}" fieldList="{0:'uid', 1: 'crdate', 2: 'exported'}" storagePid="{pid}" clickTitleMode="edit" />
 </f:for>
 
 <f:if condition="{subPagesWithFormEntries}">
@@ -44,16 +44,14 @@ Otherwise your changes will be overwritten the next time you save the extension 
                     <li><f:translate key="tx_frpformanswers_domain_model_formentry.new" /> : <f:format.number decimals="0">{formEntriesStatus.{page.uid}.new}</f:format.number></li>
                 </ul>
             </li>
-            <f:comment>
-            <li><a title="id={page.uid}" onclick="top.loadEditId({page.uid},&quot;&amp;SET[language]=0&quot;); return false;" href="#" >{page.title}</a>
-
-            </li>
-            </f:comment>
         </f:for>
     </ul>
 </f:if>
 
 <f:if condition="{subPagesWithFormEntries ->f:count()} == 0 && {formNames->f:count()} == 0">
     No saved formEntries
+    <f:if condition="{pid} == 0">
+        <p>If you have several Domains, try them separately.<br /> The Root (pid=0) only shows the first domain entries.</p>
+    </f:if>
 </f:if>
 </f:section>
