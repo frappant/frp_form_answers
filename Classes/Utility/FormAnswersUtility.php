@@ -31,7 +31,6 @@ class FormAnswersUtility
 
         // Get a List from FormEntries in subpages
         $startPointPids = ($act_pid > 0 ? [$act_pid] : $GLOBALS['BE_USER']->returnWebmounts());
-        \TYPO3\CMS\Extbase\Utility\DebuggerUtility::var_dump($this->pageRepository->findByIsSiteroot(1));
         // Get all Pids with a formEntry list
         foreach ($startPointPids as $pageId) {
             foreach ($this->formEntryRepository->findAllInPidAndRootline($pageId) as $formEntry) {
