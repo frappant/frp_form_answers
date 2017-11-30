@@ -30,21 +30,23 @@ class FormAnswersUtility
         $pageIds = array();
 
         // Get a List from FormEntries in subpages
-        $pageId = ($act_pid > 0 ? $act_pid : $this->pageRepository->getFirstWebpage($act_pid));
-
+        $startPointPids = ($act_pid > 0 ? [$act_pid] : $GLOBALS['BE_USER']->returnWebmounts());
+        \TYPO3\CMS\Extbase\Utility\DebuggerUtility::var_dump($this->pageRepository->findByIsSiteroot(1));
         // Get all Pids with a formEntry list
-        foreach ($this->formEntryRepository->findAllInPidAndRootline($pageId) as $formEntry) {
-            $pageIds[$formEntry->getPid()][$formEntry->getForm()]['tot'] += 1;
+        foreach ($startPointPids as $pageId) {
+            foreach ($this->formEntryRepository->findAllInPidAndRootline($pageId) as $formEntry) {
+                $pageIds[$formEntry->getPid()][$formEntry->getForm()]['tot'] += 1;
 
-            if (!$formEntry->isExported()) {
-                $pageIds[$formEntry->getPid()][$formEntry->getForm()]['new'] += 1;//$formEntry->getPid();
+                if (!$formEntry->isExported()) {
+                    $pageIds[$formEntry->getPid()][$formEntry->getForm()]['new'] += 1;
+                }
             }
         }
+
         unset($pageIds[(int)\TYPO3\CMS\Core\Utility\GeneralUtility::_GP('id')]);
 
         return $pageIds;
     }
-
     /**
      * Get all names of the saved Forms
      * @return array Formnames
