@@ -20,7 +20,7 @@ Otherwise your changes will be overwritten the next time you save the extension 
 
 <f:for each="{formNames}" as="formName" >
     <f:form action="export" class="form-inline" method="POST" object="{formEntryDemand}" format="xls" objectName="formEntryDemand">
-    <f:form.hidden property="allPids" value="1" />
+    <f:form.hidden property="allPids" value="0" />
     <f:form.hidden property="uidLabel" value="uid" />
     <f:form.hidden property="formName" value="{formName}" />
     <div class="form-group">
