@@ -57,7 +57,7 @@ Otherwise your changes will be overwritten the next time you save the extension 
 <f:if condition="{subPagesWithFormEntries ->f:count()} == 0 && {formNames->f:count()} == 0">
     No saved formEntries
     <f:if condition="{pid} == 0">
-        <p>If you have several Domains, try them separately.<br /> The Root (pid=0) only shows the first domain entries.</p>
+        <p>If you have several Domains, try them separately.<br /> The Root (pid=0) only shows the domain entries where the mount point is assigned to the user.</p>
     </f:if>
 </f:if>
 </f:section>
