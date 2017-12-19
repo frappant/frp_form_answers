@@ -20,27 +20,35 @@ Otherwise your changes will be overwritten the next time you save the extension 
     <tr>
         <td>
             <label class="t3js-formengine-label">
-                Gewählte eingaben
+                <f:translate key="LLL:EXT:frp_form_answers/Resources/Private/Language/locallang_be.xlf:tx_frpformanswers_backend_templates_formentry_prepareexport.selectedentries"/>
             </label>
             <div class="t3js-formengine-field-item">
-                <f:form.select property="selectAll" options="{1: 'Alle exportieren', 0: 'Nur neue exportieren'}" />
+                <f:form.select property="selectAll" options="{
+                    1: '{f:translate(key:\'LLL:EXT:frp_form_answers/Resources/Private/Language/locallang_be.xlf:tx_frpformanswers_backend_templates_formentry_prepareexport.exportall\')}',
+                    0: '{f:translate(key:\'LLL:EXT:frp_form_answers/Resources/Private/Language/locallang_be.xlf:tx_frpformanswers_backend_templates_formentry_prepareexport.exportnew\')}'
+                    }"
+                />
             </div>
         </td>
     </tr>
     <tr>
         <td>
             <label class="t3js-formengine-label">
-                Gewählte Felder
+                <f:translate key="LLL:EXT:frp_form_answers/Resources/Private/Language/locallang_be.xlf:tx_frpformanswers_backend_templates_formentry_prepareexport.selectedfields"/>
             </label>
             <div class="t3js-formengine-field-item">
-               <f:form.select property="allPids" options="{1: 'Alle Seiten exportieren', 0: 'Nur diese Seite exportieren'}" />
+               <f:form.select property="allPids" options="{
+                    1: '{f:translate(key:\'LLL:EXT:frp_form_answers/Resources/Private/Language/locallang_be.xlf:tx_frpformanswers_backend_templates_formentry_prepareexport.exportallpages\')}',
+                    0: '{f:translate(key:\'LLL:EXT:frp_form_answers/Resources/Private/Language/locallang_be.xlf:tx_frpformanswers_backend_templates_formentry_prepareexport.exportonlythispage\')}'
+                    }"
+               />
             </div>
         </td>
     </tr>
     <tr>
         <td>
             <label class="t3js-formengine-label">
-                Dateiformat
+                <f:translate key="LLL:EXT:frp_form_answers/Resources/Private/Language/locallang_be.xlf:tx_frpformanswers_backend_templates_formentry_prepareexport.fileformat"/>
             </label>
             <div class="t3js-formengine-field-item">
                <f:form.select name="format" options="{xls: 'Excel', csv: 'CSV', xml: 'XML'}" />
@@ -50,7 +58,7 @@ Otherwise your changes will be overwritten the next time you save the extension 
     <tr>
         <td>
             <label class="t3js-formengine-label">
-                Label für UID
+                <f:translate key="LLL:EXT:frp_form_answers/Resources/Private/Language/locallang_be.xlf:tx_frpformanswers_backend_templates_formentry_prepareexport.labelforuid"/>
             </label>
             <div class="t3js-formengine-field-item">
                <f:form.textfield property="uidLabel" value="uid" />
@@ -60,17 +68,20 @@ Otherwise your changes will be overwritten the next time you save the extension 
     <tr>
         <td>
             <label class="t3js-formengine-label">
-                Formulare
+                <f:translate key="LLL:EXT:frp_form_answers/Resources/Private/Language/locallang_be.xlf:tx_frpformanswers_backend_templates_formentry_prepareexport.form"/>
             </label>
             <div class="t3js-formengine-field-item">
-               <f:form.select property="form" prependOptionLabel="Kein Spezifisches Formular" options="{formHashes}" />
+               <f:form.select property="form" prependOptionLabel="
+                    {f:translate(key:'LLL:EXT:frp_form_answers/Resources/Private/Language/locallang_be.xlf:tx_frpformanswers_backend_templates_formentry_prepareexport.formnotspecified')}
+                    " options="{formHashes}" />
             </div>
         </td>
     </tr>
     <tr>
         <td>
             <label class="t3js-formengine-label">
-                Dateiname
+                <f:translate
+                        key="LLL:EXT:frp_form_answers/Resources/Private/Language/locallang_be.xlf:tx_frpformanswers_backend_templates_formentry_prepareexport.filename"/>
             </label>
             <div class="t3js-formengine-field-item">
                <f:form.textfield property="fileName" value="export" />
@@ -80,7 +91,7 @@ Otherwise your changes will be overwritten the next time you save the extension 
     <tr class="csvExport specific_type_config">
         <td>
             <label class="t3js-formengine-label">
-                Zeichensatz
+                <f:translate key="LLL:EXT:frp_form_answers/Resources/Private/Language/locallang_be.xlf:tx_frpformanswers_backend_templates_formentry_prepareexport.charset"/>
             </label>
             <div class="t3js-formengine-field-item">
                 <f:form.select options="{iso-8859-1: 'ISO-8859-1', UTF-8: 'UTF-8', UTF-F16: 'UTF-16LE'}" property="charset" />
@@ -90,7 +101,7 @@ Otherwise your changes will be overwritten the next time you save the extension 
     <tr class="csvExport specific_type_config">
         <td>
             <label class="t3js-formengine-label">
-                Trennzeichen (nur bei csv)
+                <f:translate key="LLL:EXT:frp_form_answers/Resources/Private/Language/locallang_be.xlf:tx_frpformanswers_backend_templates_formentry_prepareexport.separator"/>
             </label>
             <div class="t3js-formengine-field-item">
                 <f:form.select options="{semikolon:';', komma: ',',tab: '[TAB]'}" property="delimiter" />
@@ -100,7 +111,7 @@ Otherwise your changes will be overwritten the next time you save the extension 
     <tr class="csvExport specific_type_config">
         <td>
             <label class="t3js-formengine-label">
-                Text-Trennzeichen (nur bei csv)
+                <f:translate key="LLL:EXT:frp_form_answers/Resources/Private/Language/locallang_be.xlf:tx_frpformanswers_backend_templates_formentry_prepareexport.textseparator"/>
             </label>
             <div class="t3js-formengine-field-item">
                 <f:form.select options="{double: '\"', single: '\''}" property="enclosure" />
@@ -108,7 +119,7 @@ Otherwise your changes will be overwritten the next time you save the extension 
         </td>
     </tr>
     <tr>
-        <td><f:form.submit class="btn btn-sm btn-default " value="Exportieren" /></td>
+        <td><f:form.submit class="btn btn-sm btn-default " value="{f:translate(key:'LLL:EXT:frp_form_answers/Resources/Private/Language/locallang_be.xlf:tx_frpformanswers_backend_templates_formentry_prepareexport.export')}" /></td>
     </tr>
 </table>
 </f:form>
