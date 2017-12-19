@@ -13,10 +13,9 @@ List.html: keep
 Otherwise your changes will be overwritten the next time you save the extension in the extension builder
 
 <f:section name="content">
-
     <h1>
-        <f:translate key="LLL:EXT:frp_form_answers/Resources/Private/Language/locallang_be.xlf:tx_frpformanswers_backend_templates_formentry_list.listh1"/>
-
+        <f:translate
+                key="LLL:EXT:frp_form_answers/Resources/Private/Language/locallang_be.xlf:tx_frpformanswers_backend_templates_formentry_list.listh1"/>
     </h1>
     <f:flashMessages/>
 
@@ -45,7 +44,8 @@ Otherwise your changes will be overwritten the next time you save the extension 
 
     <f:if condition="{subPagesWithFormEntries}">
         <h2>
-            <f:translate key="LLL:EXT:frp_form_answers/Resources/Private/Language/locallang_be.xlf:tx_frpformanswers_backend_templates_formentry_list.listh2"/>
+            <f:translate
+                    key="LLL:EXT:frp_form_answers/Resources/Private/Language/locallang_be.xlf:tx_frpformanswers_backend_templates_formentry_list.listh2"/>
         </h2>
         <ul>
             <f:for each="{subPagesWithFormEntries}" as="page">
@@ -64,7 +64,8 @@ Otherwise your changes will be overwritten the next time you save the extension 
     </f:if>
 
     <f:if condition="{subPagesWithFormEntries ->f:count()} == 0 && {formNames->f:count()} == 0">
-        <f:translate key="LLL:EXT:frp_form_answers/Resources/Private/Language/locallang_be.xlf:tx_frpformanswers_backend_templates_formentry_list.nothingsaved"/>
+        <f:translate
+                key="LLL:EXT:frp_form_answers/Resources/Private/Language/locallang_be.xlf:tx_frpformanswers_backend_templates_formentry_list.nothingsaved"/>
 
     </f:if>
 </f:section>
