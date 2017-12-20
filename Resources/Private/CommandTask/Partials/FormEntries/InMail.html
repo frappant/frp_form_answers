@@ -10,13 +10,14 @@
 <div class="container-fluid" style="padding-left: 0px; padding-right: 0px;">
     <span>Check out recently sent mails:<br><br></span>
     <f:for each="{mails}" as="mailItem">
-        <span style="font-size: 30px;font-style: inherit";>
+        <span style="font-size: 30px;font-style: inherit" ;>
 		    Subject: {mailItem.answers.subject.value}<br>
 	    </span>
-            <f:format.date format="d.m.Y H:i">{mailItem.crdate}</f:format.date><br>
-            Form name: {mailItem.form}<br>
-            From: {mailItem.answers.name.value} - {mailItem.answers.email.value}<br>
-            Message: {mailItem.answers.message.value}<br>
+        <f:format.date format="d.m.Y H:i">{mailItem.crdate}</f:format.date>
+        <br>
+        Form name: {mailItem.form}<br>
+        From: {mailItem.answers.name.value} - {mailItem.answers.email.value}<br>
+        Message: {mailItem.answers.message.value}<br>
         <br>
     </f:for>
 

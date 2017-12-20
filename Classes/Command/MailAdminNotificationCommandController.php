@@ -2,7 +2,6 @@
 
 namespace Frappant\FrpFormAnswers\Command;
 
-use PhpParser\Error;
 use TYPO3\CMS\Core\Exception;
 use TYPO3\CMS\Extbase\Mvc\Controller\CommandController;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
