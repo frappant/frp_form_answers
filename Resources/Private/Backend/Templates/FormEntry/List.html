@@ -47,18 +47,20 @@ Otherwise your changes will be overwritten the next time you save the extension 
             <f:translate
                     key="LLL:EXT:frp_form_answers/Resources/Private/Language/locallang_be.xlf:tx_frpformanswers_backend_templates_formentry_list.listh2"/>
         </h2>
-        <ul>
+        <ul style="list-style-type: none;">
             <f:for each="{subPagesWithFormEntries}" as="page">
                 <li>
-                    <frp:beLink title="{page.title}" pageUid="{page.uid}">{page.title} ({page.uid})</frp:beLink>
+                    <core:icon identifier="apps-pagetree-page-default" size="small" /> <frp:beLink title="{page.title}" pageUid="{page.uid}">{page.title} ({page.uid})</frp:beLink>
+                     <f:for each="{formEntriesStatus.{page.uid}}" as="formData" key="formName">
+                        <li style="margin-bottom: 15px;">
+                            Form: {formName}
+                            <ul>
+                                <li><f:translate key="tx_frpformanswers_domain_model_formentry.tot" /> : <f:format.number decimals="0">{formData.tot}</f:format.number></li>
+                                <li><f:translate key="tx_frpformanswers_domain_model_formentry.new" /> : <f:format.number decimals="0">{formData.new}</f:format.number></li>
+                            </ul>
+                        </li>
+                    </f:for>
                 </li>
-                <f:comment>
-                    <li><a title="id={page.uid}"
-                           onclick="top.loadEditId({page.uid},&quot;&amp;SET[language]=0&quot;); return false;"
-                           href="#">
-                        {page.title}
-                    </a></li>
-                </f:comment>
             </f:for>
         </ul>
     </f:if>
