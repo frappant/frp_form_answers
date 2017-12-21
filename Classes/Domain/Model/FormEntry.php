@@ -46,11 +46,9 @@ class FormEntry extends \TYPO3\CMS\Extbase\DomainObject\AbstractEntity
     protected $exported = false;
 
     /**
-     * exported
-     *
-     * @var int
+     * @var \DateTime
      */
-    protected $submitUid = '';
+    protected $crdate;
 
     /**
      * Returns the answers
@@ -154,23 +152,22 @@ class FormEntry extends \TYPO3\CMS\Extbase\DomainObject\AbstractEntity
     }
 
     /**
-     * Sets the submitUid
+     * Set creation date
      *
-     * @param int $submitUid
-     * @return void
+     * @param int $crdate
      */
-    public function setSubmitUid($submitUid)
+    public function setCrdate($crdate)
     {
-        $this->submitUid = $submitUid;
+        $this->crdate = $crdate;
     }
 
     /**
-     * Returns the submitUid
+     * Get creation date
      *
      * @return int
      */
-    public function getSubmitUid()
+    public function getCrdate()
     {
-        return $this->submitUid;
+        return $this->crdate;
     }
 }

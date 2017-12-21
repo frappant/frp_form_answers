@@ -1,115 +1,138 @@
-
-<f:layout name="Default" />
+<f:layout name="Default"/>
 
 This Template is responsible for creating a table of domain objects.
 
 If you modify this template, do not forget to change the overwrite settings
 in /Configuration/ExtensionBuilder/settings.yaml:
-  Resources:
-    Private:
-      Templates:
-        List.html: keep
+Resources:
+Private:
+Templates:
+List.html: keep
 
 Otherwise your changes will be overwritten the next time you save the extension in the extension builder
 
 <f:section name="content">
-<h1>Forms Export</h1>
-<f:flashMessages />
-<f:form action="export" method="POST" object="{formEntryDemand}" objectName="formEntryDemand">
-<table class="table table-striped table-hover">
-    <tr>
-        <td>
-            <label class="t3js-formengine-label">
-                Gewählte eingaben
-            </label>
-            <div class="t3js-formengine-field-item">
-                <f:form.select property="selectAll" options="{1: 'Alle exportieren', 0: 'Nur neue exportieren'}" />
-            </div>
-        </td>
-    </tr>
-    <tr>
-        <td>
-            <label class="t3js-formengine-label">
-                Gewählte Felder
-            </label>
-            <div class="t3js-formengine-field-item">
-               <f:form.select property="allPids" options="{1: 'Alle Seiten exportieren', 0: 'Nur diese Seite exportieren'}" />
-            </div>
-        </td>
-    </tr>
-    <tr>
-        <td>
-            <label class="t3js-formengine-label">
-                Dateiformat
-            </label>
-            <div class="t3js-formengine-field-item">
-               <f:form.select name="format" options="{xls: 'Excel', csv: 'CSV', xml: 'XML'}" />
-            </div>
-        </td>
-    </tr>
-    <tr>
-        <td>
-            <label class="t3js-formengine-label">
-                Label für UID
-            </label>
-            <div class="t3js-formengine-field-item">
-               <f:form.textfield property="uidLabel" value="uid" />
-            </div>
-        </td>
-    </tr>
-    <tr>
-        <td>
-            <label class="t3js-formengine-label">
-                Formulare
-            </label>
-            <div class="t3js-formengine-field-item">
-               <f:form.select property="form" prependOptionLabel="Kein Spezifisches Formular" options="{formHashes}" />
-            </div>
-        </td>
-    </tr>
-    <tr>
-        <td>
-            <label class="t3js-formengine-label">
-                Dateiname
-            </label>
-            <div class="t3js-formengine-field-item">
-               <f:form.textfield property="fileName" value="export" />
-            </div>
-        </td>
-    </tr>
-    <tr class="csvExport specific_type_config">
-        <td>
-            <label class="t3js-formengine-label">
-                Zeichensatz
-            </label>
-            <div class="t3js-formengine-field-item">
-                <f:form.select options="{iso-8859-1: 'ISO-8859-1', UTF-8: 'UTF-8', UTF-F16: 'UTF-16LE'}" property="charset" />
-            </div>
-        </td>
-    </tr>
-    <tr class="csvExport specific_type_config">
-        <td>
-            <label class="t3js-formengine-label">
-                Trennzeichen (nur bei csv)
-            </label>
-            <div class="t3js-formengine-field-item">
-                <f:form.select options="{semikolon:';', komma: ',',tab: '[TAB]'}" property="delimiter" />
-            </div>
-        </td>
-    </tr>
-    <tr class="csvExport specific_type_config">
-        <td>
-            <label class="t3js-formengine-label">
-                Text-Trennzeichen (nur bei csv)
-            </label>
-            <div class="t3js-formengine-field-item">
-                <f:form.select options="{double: '\"', single: '\''}" property="enclosure" />
-            </div>
-        </td>
-    </tr>
-    <tr>
-        <td><f:form.submit class="btn btn-sm btn-default " value="Exportieren" /></td>
-    </tr>
-</table>
-</f:form>
+    <h1>Forms Export</h1>
+    <f:flashMessages/>
+    <f:form action="export" method="POST" object="{formEntryDemand}" objectName="formEntryDemand">
+        <table class="table table-striped table-hover">
+            <tr>
+                <td>
+                    <label class="t3js-formengine-label">
+                        <f:translate
+                                key="LLL:EXT:frp_form_answers/Resources/Private/Language/locallang_be.xlf:tx_frpformanswers_backend_templates_formentry_prepareexport.selectedentries"/>
+                    </label>
+                    <div class="t3js-formengine-field-item">
+                        <f:form.select property="selectAll" options="{
+                    1: '{f:translate(key:\'LLL:EXT:frp_form_answers/Resources/Private/Language/locallang_be.xlf:tx_frpformanswers_backend_templates_formentry_prepareexport.exportall\')}',
+                    0: '{f:translate(key:\'LLL:EXT:frp_form_answers/Resources/Private/Language/locallang_be.xlf:tx_frpformanswers_backend_templates_formentry_prepareexport.exportnew\')}'
+                    }"
+                        />
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <label class="t3js-formengine-label">
+                        <f:translate
+                                key="LLL:EXT:frp_form_answers/Resources/Private/Language/locallang_be.xlf:tx_frpformanswers_backend_templates_formentry_prepareexport.selectedfields"/>
+                    </label>
+                    <div class="t3js-formengine-field-item">
+                        <f:form.select property="allPids" options="{
+                    1: '{f:translate(key:\'LLL:EXT:frp_form_answers/Resources/Private/Language/locallang_be.xlf:tx_frpformanswers_backend_templates_formentry_prepareexport.exportallpages\')}',
+                    0: '{f:translate(key:\'LLL:EXT:frp_form_answers/Resources/Private/Language/locallang_be.xlf:tx_frpformanswers_backend_templates_formentry_prepareexport.exportonlythispage\')}'
+                    }"
+                        />
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <label class="t3js-formengine-label">
+                        <f:translate
+                                key="LLL:EXT:frp_form_answers/Resources/Private/Language/locallang_be.xlf:tx_frpformanswers_backend_templates_formentry_prepareexport.fileformat"/>
+                    </label>
+                    <div class="t3js-formengine-field-item">
+                        <f:form.select name="format" options="{xls: 'Excel', csv: 'CSV', xml: 'XML'}"/>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <label class="t3js-formengine-label">
+                        <f:translate
+                                key="LLL:EXT:frp_form_answers/Resources/Private/Language/locallang_be.xlf:tx_frpformanswers_backend_templates_formentry_prepareexport.labelforuid"/>
+                    </label>
+                    <div class="t3js-formengine-field-item">
+                        <f:form.textfield property="uidLabel" value="uid"/>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <label class="t3js-formengine-label">
+                        <f:translate
+                                key="LLL:EXT:frp_form_answers/Resources/Private/Language/locallang_be.xlf:tx_frpformanswers_backend_templates_formentry_prepareexport.form"/>
+                    </label>
+                    <div class="t3js-formengine-field-item">
+                        <f:form.select property="form" prependOptionLabel="
+                    {f:translate(key:'LLL:EXT:frp_form_answers/Resources/Private/Language/locallang_be.xlf:tx_frpformanswers_backend_templates_formentry_prepareexport.formnotspecified')}
+                    " options="{formHashes}"/>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <label class="t3js-formengine-label">
+                        <f:translate
+                                key="LLL:EXT:frp_form_answers/Resources/Private/Language/locallang_be.xlf:tx_frpformanswers_backend_templates_formentry_prepareexport.filename"/>
+                    </label>
+                    <div class="t3js-formengine-field-item">
+                        <f:form.textfield property="fileName" value="export"/>
+                    </div>
+                </td>
+            </tr>
+            <tr class="csvExport specific_type_config">
+                <td>
+                    <label class="t3js-formengine-label">
+                        <f:translate
+                                key="LLL:EXT:frp_form_answers/Resources/Private/Language/locallang_be.xlf:tx_frpformanswers_backend_templates_formentry_prepareexport.charset"/>
+                    </label>
+                    <div class="t3js-formengine-field-item">
+                        <f:form.select options="{iso-8859-1: 'ISO-8859-1', UTF-8: 'UTF-8', UTF-F16: 'UTF-16LE'}"
+                                       property="charset"/>
+                    </div>
+                </td>
+            </tr>
+            <tr class="csvExport specific_type_config">
+                <td>
+                    <label class="t3js-formengine-label">
+                        <f:translate
+                                key="LLL:EXT:frp_form_answers/Resources/Private/Language/locallang_be.xlf:tx_frpformanswers_backend_templates_formentry_prepareexport.separator"/>
+                    </label>
+                    <div class="t3js-formengine-field-item">
+                        <f:form.select options="{semikolon:';', komma: ',',tab: '[TAB]'}" property="delimiter"/>
+                    </div>
+                </td>
+            </tr>
+            <tr class="csvExport specific_type_config">
+                <td>
+                    <label class="t3js-formengine-label">
+                        <f:translate
+                                key="LLL:EXT:frp_form_answers/Resources/Private/Language/locallang_be.xlf:tx_frpformanswers_backend_templates_formentry_prepareexport.textseparator"/>
+                    </label>
+                    <div class="t3js-formengine-field-item">
+                        <f:form.select options="{double: '\"
+                        ', single: '\''}" property="enclosure" />
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <f:form.submit class="btn btn-sm btn-default "
+                                   value="{f:translate(key:'LLL:EXT:frp_form_answers/Resources/Private/Language/locallang_be.xlf:tx_frpformanswers_backend_templates_formentry_prepareexport.export')}"/>
+                </td>
+            </tr>
+        </table>
+    </f:form>
 </f:section>

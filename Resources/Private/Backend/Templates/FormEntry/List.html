@@ -1,63 +1,71 @@
 {namespace frp=Frappant\FrpFormAnswers\ViewHelpers\Be\Link}
-{namespace core = TYPO3\CMS\Core\ViewHelpers}
-<f:layout name="Default" />
+<f:layout name="Default"/>
 
 This Template is responsible for creating a table of domain objects.
 
 If you modify this template, do not forget to change the overwrite settings
 in /Configuration/ExtensionBuilder/settings.yaml:
-  Resources:
-    Private:
-      Templates:
-        List.html: keep
+Resources:
+Private:
+Templates:
+List.html: keep
 
 Otherwise your changes will be overwritten the next time you save the extension in the extension builder
 
 <f:section name="content">
+    <h1>
+        <f:translate
+                key="LLL:EXT:frp_form_answers/Resources/Private/Language/locallang_be.xlf:tx_frpformanswers_backend_templates_formentry_list.listh1"/>
+    </h1>
+    <f:flashMessages/>
 
-<h1>Form entry List</h1>
-<f:flashMessages />
+    <f:for each="{formNames}" as="formName">
+        <f:form action="export" class="form-inline" method="POST" object="{formEntryDemand}" format="xls"
+                objectName="formEntryDemand">
+            <f:form.hidden property="allPids" value="1"/>
+            <f:form.hidden property="uidLabel" value="uid"/>
+            <f:form.hidden property="formName" value="{formName}"/>
+            <div class="form-group">
+                <f:form.select property="selectAll" class="form-control" options="{
+                    1: '{f:translate(key:\'LLL:EXT:frp_form_answers/Resources/Private/Language/locallang_be.xlf:tx_frpformanswers_backend_templates_formentry_prepareexport.exportall\')}',
+                    0: '{f:translate(key:\'LLL:EXT:frp_form_answers/Resources/Private/Language/locallang_be.xlf:tx_frpformanswers_backend_templates_formentry_prepareexport.exportnew\')}'
+                    }"
+                />
+            </div>
+            <div class="form-group">
+                <f:form.submit class="btn btn-sm btn-default "
+                               value="{f:translate(key:'LLL:EXT:frp_form_answers/Resources/Private/Language/locallang_be.xlf:tx_frpformanswers_backend_templates_formentry_prepareexport.export')}"
+                />
+            </div>
+        </f:form>
+        <f:be.tableList tableName="tx_frpformanswers_domain_model_formentry" filter="{formName}"
+                        fieldList="{0:'uid', 1: 'crdate'}" storagePid="{pid}" clickTitleMode="edit"/>
+    </f:for>
 
-<f:for each="{formNames}" as="formName" >
-    <f:form action="export" class="form-inline" method="POST" object="{formEntryDemand}" format="xls" objectName="formEntryDemand">
-    <f:form.hidden property="allPids" value="0" />
-    <f:form.hidden property="uidLabel" value="uid" />
-    <f:form.hidden property="formName" value="{formName}" />
-    <div class="form-group">
-        <f:form.select property="selectAll" class="form-control" options="{1: 'Alle exportieren', 0: 'Nur neue exportieren'}" />
-    </div>
-    <div class="form-group">
-        <f:form.submit class="btn btn-sm btn-default " value="Exportieren" />
-    </div>
-</f:form>
-    <f:be.tableList tableName="tx_frpformanswers_domain_model_formentry" filter="{formName}" fieldList="{0:'uid', 1: 'crdate', 2: 'exported'}" storagePid="{pid}" clickTitleMode="edit" />
-</f:for>
-<f:if condition="{subPagesWithFormEntries}">
-    <h2>Subpages with FormEntries</h2>
-    <ul style="list-style: none;">
-        <f:for each="{subPagesWithFormEntries}" as="page">
-            <li style="margin-bottom: 15px;">
-                <core:icon identifier="apps-pagetree-page-default" size="small" /> <frp:beLink title="{page.title}" pageUid="{page.uid}">{page.title} ({page.uid})</frp:beLink>
-                <ul>
-                    <f:for each="{formEntriesStatus.{page.uid}}" as="formData" key="formName">
-                        <li>
-                            Form: {formName}
-                            <ul>
-                                <li><f:translate key="tx_frpformanswers_domain_model_formentry.tot" /> : <f:format.number decimals="0">{formData.tot}</f:format.number></li>
-                                <li><f:translate key="tx_frpformanswers_domain_model_formentry.new" /> : <f:format.number decimals="0">{formData.new}</f:format.number></li>
-                            </ul>
-                        </li>
-                    </f:for>
-                </ul>
-            </li>
-        </f:for>
-    </ul>
-</f:if>
-
-<f:if condition="{subPagesWithFormEntries ->f:count()} == 0 && {formNames->f:count()} == 0">
-    No saved formEntries
-    <f:if condition="{pid} == 0">
-        <p>If you have several Domains, try them separately.<br /> The Root (pid=0) only shows the domain entries where the mount point is assigned to the user.</p>
+    <f:if condition="{subPagesWithFormEntries}">
+        <h2>
+            <f:translate
+                    key="LLL:EXT:frp_form_answers/Resources/Private/Language/locallang_be.xlf:tx_frpformanswers_backend_templates_formentry_list.listh2"/>
+        </h2>
+        <ul>
+            <f:for each="{subPagesWithFormEntries}" as="page">
+                <li>
+                    <frp:beLink title="{page.title}" pageUid="{page.uid}">{page.title} ({page.uid})</frp:beLink>
+                </li>
+                <f:comment>
+                    <li><a title="id={page.uid}"
+                           onclick="top.loadEditId({page.uid},&quot;&amp;SET[language]=0&quot;); return false;"
+                           href="#">
+                        {page.title}
+                    </a></li>
+                </f:comment>
+            </f:for>
+        </ul>
     </f:if>
-</f:if>
+
+    <f:if condition="{subPagesWithFormEntries ->f:count()} == 0 && {formNames->f:count()} == 0">
+        <f:translate
+                key="LLL:EXT:frp_form_answers/Resources/Private/Language/locallang_be.xlf:tx_frpformanswers_backend_templates_formentry_list.nothingsaved"/>
+
+    </f:if>
 </f:section>
