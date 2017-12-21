@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<xliff version="1.0">
+    <file source-language="en" datatype="plaintext" original="messages" date="2017-05-16T12:42:22Z" product-name="frp_form_answers">
+        <header/>
+        <body>
+            <trans-unit id="tx_frpformanswers_domain_model_formentry">
+                <source>Form Entry</source>
+            </trans-unit>
+            <trans-unit id="tx_frpformanswers_domain_model_formentry.answers">
+                <source>Answers</source>
+            </trans-unit>
+            <trans-unit id="tx_frpformanswers_domain_model_formentry.field_hash">
+                <source>Field Hash</source>
+            </trans-unit>
+            <trans-unit id="tx_frpformanswers_domain_model_formentry.form">
+                <source>Form</source>
+            </trans-unit>
+            <trans-unit id="tx_frpformanswers_domain_model_formentry.exported">
+                <source>Exported</source>
+            </trans-unit>
+            <trans-unit id="tx_frpformanswers_backend_templates_formentry_show.singleviewh1">
+                <source>Single View for FormEntry</source>
+            </trans-unit>
+			<trans-unit id="tx_frpformanswers_backend_templates_formentry_show.create">
+                <source>New FormEntry</source>
+            </trans-unit>
+            <trans-unit id="tx_frpformanswers_backend_templates_formentry_show.list">
+                <source>Back to list</source>
+            </trans-unit>
+            <trans-unit id="tx_frpformanswers_backend_templates_formentry_prepareexport.selectedentries">
+                <source>Selected entries</source>
+            </trans-unit>
+            <trans-unit id="tx_frpformanswers_backend_templates_formentry_prepareexport.selectedfields">
+                <source>Selected fields</source>
+            </trans-unit>
+            <trans-unit id="tx_frpformanswers_backend_templates_formentry_prepareexport.fileformat">
+                <source>File format</source>
+            </trans-unit>
+            <trans-unit id="tx_frpformanswers_backend_templates_formentry_prepareexport.labelforuid">
+                <source>Label for UID</source>
+            </trans-unit>
+            <trans-unit id="tx_frpformanswers_backend_templates_formentry_prepareexport.form">
+                <source>Form</source>
+            </trans-unit>
+            <trans-unit id="tx_frpformanswers_backend_templates_formentry_prepareexport.filename">
+                <source>Filename</source>
+            </trans-unit>
+            <trans-unit id="tx_frpformanswers_backend_templates_formentry_prepareexport.charset">
+                <source>Character set</source>
+            </trans-unit>
+            <trans-unit id="tx_frpformanswers_backend_templates_formentry_prepareexport.separator">
+                <source>Separator (only for csv)</source>
+            </trans-unit>
+            <trans-unit id="tx_frpformanswers_backend_templates_formentry_prepareexport.textseparator">
+                <source>Text Separator (only for csv)</source>
+            </trans-unit>
+            <trans-unit id="tx_frpformanswers_backend_templates_formentry_prepareexport.export">
+                <source>Export</source>
+            </trans-unit>
+            <trans-unit id="tx_frpformanswers_backend_templates_formentry_prepareexport.formnotspecified">
+                <source>Form not specified</source>
+            </trans-unit>
+            <trans-unit id="tx_frpformanswers_backend_templates_formentry_prepareexport.exportall">
+                <source>Export all</source>
+            </trans-unit>
+            <trans-unit id="tx_frpformanswers_backend_templates_formentry_prepareexport.exportnew">
+                <source>Export only new</source>
+            </trans-unit>
+            <trans-unit id="tx_frpformanswers_backend_templates_formentry_prepareexport.exportallpages">
+                <source>Export all pages</source>
+            </trans-unit>
+            <trans-unit id="tx_frpformanswers_backend_templates_formentry_prepareexport.exportonlythispage">
+                <source>Export only this page</source>
+            </trans-unit>
+            <trans-unit id="tx_frpformanswers_backend_templates_formentry_list.listh1">
+                <source>Form entry List</source>
+            </trans-unit>
+            <trans-unit id="tx_frpformanswers_backend_templates_formentry_list.listh2">
+                <source>Subpages with FormEntries</source>
+            </trans-unit>
+            <trans-unit id="tx_frpformanswers_backend_templates_formentry_list.nothingsaved">
+                <source>No saved formEntries</source>
+            </trans-unit>
+        </body>
+    </file>
+</xliff>
