@@ -1,3 +1,6 @@
+.. image:: https://travis-ci.org/frappant/frp_form_answers.svg?branch=master
+    :target: https://travis-ci.org/frappant/frp_form_answers
+
 =============
 Documentation
 =============
@@ -105,5 +108,5 @@ Please note that pull requests to the *master* branch will be ignored. Please pu
 
 Changelog
 ---------
-
+:1.1.0: Several Bugfixes, better overview of subpages with formAnswers, labels translatet
 :1.0.0: First release
