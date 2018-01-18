@@ -6,6 +6,9 @@
 			<trans-unit id="tx_frpformanswers_domain_model_formentry">
 				<source>Form Entry</source>
 			</trans-unit>
+			<trans-unit id="tx_frpformanswers_domain_model_formentry.submit_uid">
+				<source>Submit Uid</source>
+			</trans-unit>
 			<trans-unit id="tx_frpformanswers_domain_model_formentry.answers">
 				<source>Answers</source>
 			</trans-unit>

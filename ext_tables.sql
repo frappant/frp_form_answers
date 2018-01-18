@@ -6,6 +6,7 @@ CREATE TABLE tx_frpformanswers_domain_model_formentry (
 	uid int(11) NOT NULL auto_increment,
 	pid int(11) DEFAULT '0' NOT NULL,
 
+	submit_uid int(11) DEFAULT '0' NOT NULL,
 	answers text NOT NULL,
 	field_hash varchar(255) DEFAULT '' NOT NULL,
 	form varchar(255) DEFAULT '' NOT NULL,

@@ -60,7 +60,7 @@ class SaveFormToDatabaseFinisherTest extends \TYPO3\CMS\Core\Tests\UnitTestCase
         $signalSlotDispatcher = $objectManager->get(Dispatcher::class);
         $this->inject($this->subject, 'signalSlotDispatcher', $signalSlotDispatcher);
 
-        $formEntryRepositoryMock = $this->getMock(FormEntryRepository::class, ['add'], [], '', false);
+        $formEntryRepositoryMock = $this->getMock(FormEntryRepository::class, ['add', 'getLastFormAnswerByIdentifyer'], [], '', false);
         $this->inject($this->subject, 'formEntryRepository', $formEntryRepositoryMock);
 
         $this->subject
@@ -75,6 +75,13 @@ class SaveFormToDatabaseFinisherTest extends \TYPO3\CMS\Core\Tests\UnitTestCase
             ->with($this->callback(function ($formEntry) {
                 return key_exists('test', $formEntry->getAnswers());
             }));
+
+
+        $formEntryRepositoryMock
+            ->expects($this->once())
+            ->method('getLastFormAnswerByIdentifyer')
+            ->will($this->returnValue(null));
+
 
         $signalSlotDispatcher->connect(
             SaveFormToDatabaseFinisher::class,

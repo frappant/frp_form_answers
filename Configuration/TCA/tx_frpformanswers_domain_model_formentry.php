@@ -13,10 +13,10 @@ return [
         'iconfile' => 'EXT:frp_form_answers/Resources/Public/Icons/tx_frpformanswers_domain_model_formentry.svg'
     ],
     'interface' => [
-        'showRecordFieldList' => 'answers, field_hash, form, exported',
+        'showRecordFieldList' => 'submit_uid, answers, field_hash, form, exported',
     ],
     'types' => [
-        '1' => ['showitem' => 'answers, field_hash, form, exported'],
+        '1' => ['showitem' => 'submit_uid, answers, field_hash, form, exported'],
     ],
     'columns' => [
         'answers' => [
@@ -26,6 +26,16 @@ return [
                 'type' => 'user',
                 'userFunc' => 'Frappant\\FrpFormAnswers\\Utility\\UserFieldUtility->getStaticContent',
             ]
+        ],
+        'submit_uid' => [
+            'exclude' => true,
+            'label' => 'LLL:EXT:frp_form_answers/Resources/Private/Language/locallang_db.xlf:tx_frpformanswers_domain_model_formentry.submit_uid',
+            'config' => [
+                'type' => 'input',
+                'size' => 30,
+                'readOnly' =>1,
+                'eval' => 'trim, int'
+            ],
         ],
         'field_hash' => [
             'exclude' => true,

@@ -36,11 +36,11 @@ class BackendUtility extends BackendUtilityCore
     public static function filterPagesForAccess(array $pids)
     {
         if (!self::isBackendAdmin()) {
-            $pageRepository = GeneralUtility::makeInstance(PageRepository::class);
+            $pageRepository = GeneralUtility::makeInstance(\TYPO3\CMS\Frontend\Page\PageRepository::class);
             $newPids = [];
             foreach ($pids as $pid) {
-                $properties = $pageRepository->getPropertiesFromUid($pid);
-                if (self::getBackendUserAuthentication()->doesUserHaveAccess($properties, 1)) {
+                $page = $pageRepository->getPage($pid);
+                if (self::getBackendUserAuthentication()->doesUserHaveAccess($page, 1)) {
                     $newPids[] = $pid;
                 }
             }

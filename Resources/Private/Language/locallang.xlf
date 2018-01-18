@@ -18,6 +18,12 @@
 			<trans-unit id="tx_frpformanswers_domain_model_formentry.exported">
 				<source>Exported</source>
 			</trans-unit>
+			<trans-unit id="tx_frpformanswers_domain_model_formentry.tot">
+				<source>Total</source>
+			</trans-unit>
+			<trans-unit id="tx_frpformanswers_domain_model_formentry.new">
+				<source>New</source>
+			</trans-unit>
 		</body>
 	</file>
 </xliff>
