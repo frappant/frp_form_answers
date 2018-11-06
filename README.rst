@@ -108,5 +108,6 @@ Please note that pull requests to the *master* branch will be ignored. Please pu
 
 Changelog
 ---------
+:1.2.0: Several Bugfixes, Mail notification as cronjob
 :1.1.0: Several Bugfixes, better overview of subpages with formAnswers, labels translated. Added possibility to add a separate uid-list for each form (submit_uid) -> option set in extension settings.
 :1.0.0: First release
