@@ -13,12 +13,3 @@ TYPO3:
           finishersDefinition:
               SaveFormToDatabase:
                 implementationClassName: 'Frappant\FrpFormAnswers\Domain\Finishers\SaveFormToDatabaseFinisher'
-                elements:
-                  <elementIdentifier>:
-                    mapOnDatabaseColumn: <databaseColumnName>
-                    saveFileIdentifierInsteadOfUid: false
-                    skipIfValueIsEmpty: false
-                databaseColumnMappings:
-                  <databaseColumnName>:
-                    value: 'someValue'
-                    skipIfValueIsEmpty: false

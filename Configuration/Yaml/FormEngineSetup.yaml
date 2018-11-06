@@ -14,8 +14,3 @@ TYPO3:
             SaveFormToDatabase:
               FormEngine:
                 label: 'tt_content.finishersDefinition.SaveToDatabase.label'
-                elements:
-                  message:
-                    label: 'tt_content.finishersDefinition.SaveToDatabase.message.label'
-                    config:
-                      type: 'input'
