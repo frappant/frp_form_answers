@@ -110,9 +110,13 @@ class FormEntryController extends \TYPO3\CMS\Extbase\Mvc\Controller\ActionContro
             $this->redirect("list");
         }
 
-        /** @var \TYPO3\CMS\Extensionmanager\Utility\ConfigurationUtility $configurationUtility */
-        $configurationUtility = $this->objectManager->get('TYPO3\CMS\Extensionmanager\Utility\ConfigurationUtility');
-        $extensionConfiguration = $configurationUtility->getCurrentConfiguration('frp_form_answers');
+        if(class_exists('\TYPO3\CMS\Extensionmanager\Utility\ConfigurationUtility')) {
+            /** @var \TYPO3\CMS\Extensionmanager\Utility\ConfigurationUtility $configurationUtility */
+            $configurationUtility = $this->objectManager->get('TYPO3\CMS\Extensionmanager\Utility\ConfigurationUtility');
+            $extensionConfiguration = $configurationUtility->getCurrentConfiguration('frp_form_answers');
+        } else {
+            $extensionConfiguration = $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['your_extension_key'];
+        }
 
         $exportData = $this->dataExporter->getExport($formEntries, $formEntryDemand, $extensionConfiguration['useSubmitUid']['value']);
 
