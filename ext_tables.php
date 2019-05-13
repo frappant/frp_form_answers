@@ -27,5 +27,5 @@ call_user_func(
 );
 
 if (!class_exists('PHPExcel', true)) {
-    require_once 'phar://'.\TYPO3\CMS\Core\Utility\GeneralUtility::getFileAbsFileName('EXT:'.$_EXTKEY.'/Resources/Private/Vendors/phpexcel.phar/vendor/autoload.php');
+    require_once 'phar://'.\TYPO3\CMS\Core\Utility\ExtensionManagementUtility::extPath('EXT:'.$_EXTKEY.'/Resources/Private/Vendors/phpexcel.phar/vendor/autoload.php');
 }
