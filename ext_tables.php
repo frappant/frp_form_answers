@@ -25,7 +25,3 @@ call_user_func(
     },
     $_EXTKEY
 );
-
-if (!class_exists('PHPExcel', true)) {
-    require_once 'phar://'.\TYPO3\CMS\Core\Utility\ExtensionManagementUtility::extPath('EXT:'.$_EXTKEY.'/Resources/Private/Vendors/phpexcel.phar/vendor/autoload.php');
-}
