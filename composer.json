@@ -8,14 +8,16 @@
     },
     "license": "GPL-2.0+",
     "require-dev": {
-        "mikey179/vfsStream": "~1.6.0",
+        "mikey179/vfsstream": "~1.6.0",
         "phpunit/phpunit": "^5.6",
         "phplint/phplint": "^0.0.1",
         "nimut/testing-framework": "^1.1"
     },
     "autoload": {
         "psr-4": {
-            "Frappant\\FrpFormAnswers\\": "Classes"
+            "Frappant\\FrpFormAnswers\\": "Classes",
+            "PhpOffice\\PhpSpreadsheet\\": "Resources/Private/Vendors/PhpSpreadsheet/src/PhpSpreadsheet",
+            "Psr\\SimpleCache\\": "Resources/Private/Vendors/SimpleCache/src/"
         }
     },
     "autoload-dev": {
@@ -23,10 +25,6 @@
             "Frappant\\FrpFormAnswers\\Tests\\": "Tests",
             "TYPO3\\CMS\\Core\\Tests\\": ".Build/vendor/typo3/cms/typo3/sysext/core/Tests/"
         }
-    },
-    "replace": {
-        "frp_form_answers": "self.version",
-        "typo3-ter/frp-form-answers": "self.version"
     },
     "config": {
         "vendor-dir": ".Build/vendor",

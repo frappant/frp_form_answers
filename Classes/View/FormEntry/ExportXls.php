@@ -1,6 +1,10 @@
 <?php
 namespace Frappant\FrpFormAnswers\View\FormEntry;
 
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+use TYPO3\CMS\Extbase\Mvc\View\AbstractView;
+
 /***************************************************************
  *
  *  Copyright notice
@@ -29,25 +33,30 @@ namespace Frappant\FrpFormAnswers\View\FormEntry;
 /**
  * ExportXls
  */
-class ExportXls extends \TYPO3\CMS\Extbase\Mvc\View\AbstractView
+class ExportXls extends AbstractView
 {
 
-    /**
-     * PHPExcel
-     *
-     * @var \PHPExcel
-     * @inject
-     */
-    private $phpExcel = null;
+	/**
+	 * Spreadsheet
+	 *
+	 * @var \PhpOffice\PhpSpreadsheet\Spreadsheet
+	 * @inject
+	 */
+	private $spreadsheet;
 
     public function initializeView()
     {
         $this->controllerContext->getResponse()->setHeader('Content-Type', 'application/force-download');
         $this->controllerContext->getResponse()->setHeader('Content-Disposition', 'attachment;filename=export.xls');
-        $this->controllerContext->getResponse()->setHeader("Content-Type", "application/download; charset=$this->variables['formEntryDemand']->getCharset()");
+        $this->controllerContext->getResponse()->setHeader('Content-Type', 'application/download; charset=$this->variables[\'formEntryDemand\']->getCharset()');
     }
 
-    public function render()
+	/**
+	 * @return string|void
+	 * @throws \PhpOffice\PhpSpreadsheet\Exception
+	 * @throws \PhpOffice\PhpSpreadsheet\Writer\Exception
+	 */
+	public function render()
     {
         $rows = $this->variables['rows'];
         // PHPExcel does not work with associative arrays - then to indexed array
@@ -55,10 +64,9 @@ class ExportXls extends \TYPO3\CMS\Extbase\Mvc\View\AbstractView
             $this->setIndexedArray($rows[$key]);
         }
 
-        $this->phpExcel->setActiveSheetIndex(0);
-        $this->phpExcel->getActiveSheet()->fromArray($rows, null, 'A1');
+        $this->spreadsheet->getActiveSheet()->fromArray($rows, null, 'A1');
 
-        $objWriter = \PHPExcel_IOFactory::createWriter($this->phpExcel, 'Excel2007');
+        $objWriter = new Xlsx($this->spreadsheet);
         $objWriter->save('php://output');
     }
 

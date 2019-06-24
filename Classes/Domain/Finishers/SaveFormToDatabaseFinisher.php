@@ -1,14 +1,16 @@
 <?php
 namespace Frappant\FrpFormAnswers\Domain\Finishers;
 
+use Frappant\FrpFormAnswers\Domain\Model\FormEntry;
 use TYPO3\CMS\Form\Domain\Finishers;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Domain\Model\FileReference;
+use TYPO3\CMS\Form\Domain\Finishers\AbstractFinisher;
 use TYPO3\CMS\Form\Domain\Finishers\Exception\FinisherException;
 use TYPO3\CMS\Form\Domain\Model\FormElements\FormElementInterface;
 
-class SaveFormToDatabaseFinisher extends \TYPO3\CMS\Form\Domain\Finishers\AbstractFinisher
+class SaveFormToDatabaseFinisher extends AbstractFinisher
 {
     /**
      * formEntryRepository
@@ -42,7 +44,7 @@ class SaveFormToDatabaseFinisher extends \TYPO3\CMS\Form\Domain\Finishers\Abstra
 
         $this->signalSlotDispatcher->dispatch(__CLASS__, 'preInsertSignal', array(&$values));
 
-        $formEntry = $this->objectManager->get(\Frappant\FrpFormAnswers\Domain\Model\FormEntry::class);
+        $formEntry = $this->objectManager->get(FormEntry::class);
         $formEntry->setExported(false);
         $formEntry->setAnswers($values);
 
@@ -51,7 +53,7 @@ class SaveFormToDatabaseFinisher extends \TYPO3\CMS\Form\Domain\Finishers\Abstra
 
         $lastForm = $this->formEntryRepository->getLastFormAnswerByIdentifyer($identifier);
         // If there already exists a formAnswers, override lastFormUid
-        if ($lastForm instanceof \Frappant\FrpFormAnswers\Domain\Model\FormEntry) {
+        if ($lastForm instanceof FormEntry) {
             $lastFormUid += $lastForm->getSubmitUid();
         }
 
@@ -75,8 +77,12 @@ class SaveFormToDatabaseFinisher extends \TYPO3\CMS\Form\Domain\Finishers\Abstra
         // Goes trough all form-pages - and there trough all PageElements (Questions)
         foreach ($this->finisherContext->getFormRuntime()->getPages() as $page) {
             foreach ($page->getElementsRecursively() as $pageElem) {
-                if ($pageElem->getType() != 'Honeypot') {
-                    $values[$pageElem->getIdentifier()]['value'] = $valuesWithPages[$pageElem->getIdentifier()];
+                if ($pageElem->getType() !== 'Honeypot') {
+                	if($pageElem->getType() !== 'FileUpload' && $pageElem->getType() !== 'ImageUpload'){
+		                $values[$pageElem->getIdentifier()]['value'] = $valuesWithPages[$pageElem->getIdentifier()];
+	                }else{
+		                $values[$pageElem->getIdentifier()]['value'] = $valuesWithPages[$pageElem->getIdentifier()]->getOriginalResource()->getName();
+	                }
                     $values[$pageElem->getIdentifier()]['conf']['label'] = $pageElem->getLabel();
                     $values[$pageElem->getIdentifier()]['conf']['inputType'] = $pageElem->getType();
                 }
