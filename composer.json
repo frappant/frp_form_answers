@@ -4,7 +4,7 @@
     "description": "Adds the possibility, as a finisher, to save and export the form entries from customers.",
     "homepage": "https://frappant.ch",
     "require": {
-        "typo3/cms": "^9.5"
+        "typo3/cms-core": "^9.5"
     },
     "license": "GPL-2.0+",
     "require-dev": {
