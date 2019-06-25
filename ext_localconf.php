@@ -6,4 +6,4 @@ defined('TYPO3_MODE') || die('Access denied.');
 ');
 
 $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['extbase']['commandControllers'][$_EXTKEY . '_1'] =
-    \Frappant\FrpFormAnswers\Command\MailAdminNotificationCommandController::class;
+    \Frappant\FrpFormAnswers\Command\MailAdminNotificationCommand::class;

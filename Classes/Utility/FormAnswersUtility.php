@@ -8,7 +8,7 @@ class FormAnswersUtility
      * formEntryRepository
      *
      * @var \Frappant\FrpFormAnswers\Domain\Repository\FormEntryRepository
-     * @inject
+     * @TYPO3\CMS\Extbase\Annotation\Inject
      */
     protected $formEntryRepository = null;
 
@@ -16,7 +16,7 @@ class FormAnswersUtility
      * pageRepository
      *
      * @var \TYPO3\CMS\Frontend\Page\PageRepository
-     * @inject
+     * @TYPO3\CMS\Extbase\Annotation\Inject
      */
     protected $pageRepository = null;
 

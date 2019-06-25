@@ -40,7 +40,7 @@ class ExportXls extends AbstractView
 	 * Spreadsheet
 	 *
 	 * @var \PhpOffice\PhpSpreadsheet\Spreadsheet
-	 * @inject
+	 * @TYPO3\CMS\Extbase\Annotation\Inject
 	 */
 	private $spreadsheet;
 

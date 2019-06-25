@@ -16,7 +16,7 @@ class SaveFormToDatabaseFinisher extends AbstractFinisher
      * formEntryRepository
      *
      * @var \Frappant\FrpFormAnswers\Domain\Repository\FormEntryRepository
-     * @inject
+     * @TYPO3\CMS\Extbase\Annotation\Inject
      */
     protected $formEntryRepository = null;
 
@@ -24,7 +24,7 @@ class SaveFormToDatabaseFinisher extends AbstractFinisher
      * signalSlotDispatcher
      *
      * @var \TYPO3\CMS\Extbase\SignalSlot\Dispatcher
-     * @inject
+     * @TYPO3\CMS\Extbase\Annotation\Inject
      */
     protected $signalSlotDispatcher = null;
 
