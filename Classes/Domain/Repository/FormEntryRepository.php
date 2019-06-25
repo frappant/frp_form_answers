@@ -1,6 +1,7 @@
 <?php
 namespace Frappant\FrpFormAnswers\Domain\Repository;
 
+use Frappant\FrpFormAnswers\Domain\Model\FormEntryDemand;
 use TYPO3\CMS\Core\Database\QueryGenerator;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Persistence\Generic\QueryResult;
@@ -50,12 +51,14 @@ class FormEntryRepository extends \TYPO3\CMS\Extbase\Persistence\Repository
      * @param  \Frappant\FrpFormAnswers\Domain\Model\FormEntryDemand $formEntryDemand
      * @return QueryResult
      */
-    public function findByDemand(\Frappant\FrpFormAnswers\Domain\Model\FormEntryDemand $formEntryDemand)
+    public function findByDemand(FormEntryDemand $formEntryDemand)
     {
         $query = $this->createQuery();
 
         if ($formEntryDemand->getAllPids()) {
-            $query->getQuerySettings()->setRespectStoragePage(false);
+            $settings = $query->getQuerySettings();
+            $settings->setRespectStoragePage(false);
+            $query->setQuerySettings($settings);
         }
 
         $constraints = array();

@@ -1,6 +1,10 @@
 <?php
 namespace Frappant\FrpFormAnswers\Controller;
 
+use Frappant\FrpFormAnswers\Domain\Model\FormEntryDemand;
+use TYPO3\CMS\Core\Messaging\FlashMessage;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
+
 /***
  *
  * This file is part of the "Form Answer Saver" Extension for TYPO3 CMS.
@@ -22,7 +26,7 @@ class FormEntryController extends \TYPO3\CMS\Extbase\Mvc\Controller\ActionContro
      * pageRepository
      *
      * @var \TYPO3\CMS\Frontend\Page\PageRepository
-     * @inject
+     * @TYPO3\CMS\Extbase\Annotation\Inject
      */
     protected $pageRepository = null;
 
@@ -30,7 +34,7 @@ class FormEntryController extends \TYPO3\CMS\Extbase\Mvc\Controller\ActionContro
      * formEntryRepository
      *
      * @var \Frappant\FrpFormAnswers\Domain\Repository\FormEntryRepository
-     * @inject
+     * @TYPO3\CMS\Extbase\Annotation\Inject
      */
     protected $formEntryRepository = null;
 
@@ -38,7 +42,7 @@ class FormEntryController extends \TYPO3\CMS\Extbase\Mvc\Controller\ActionContro
      * dataExporter
      *
      * @var \Frappant\FrpFormAnswers\DataExporter\DataExporter
-     * @inject
+     * @TYPO3\CMS\Extbase\Annotation\Inject
      */
     protected $dataExporter = null;
 
@@ -46,7 +50,7 @@ class FormEntryController extends \TYPO3\CMS\Extbase\Mvc\Controller\ActionContro
      * formAnswersUtility
      *
      * @var \Frappant\FrpFormAnswers\Utility\FormAnswersUtility
-     * @inject
+     * @TYPO3\CMS\Extbase\Annotation\Inject
      */
     protected $formAnswersUtility = null;
 
@@ -63,9 +67,9 @@ class FormEntryController extends \TYPO3\CMS\Extbase\Mvc\Controller\ActionContro
             $this->view->assign('subPagesWithFormEntries', $this->pageRepository->getMenuForPages(array_keys($pageIds)));
             $this->view->assign('formEntriesStatus', $pageIds);
         }
-        $this->view->assign("pid", (int)\TYPO3\CMS\Core\Utility\GeneralUtility::_GP('id'));
-        $this->view->assign("formNames", $this->formAnswersUtility->getAllFormNames());
-        $this->view->assign("settings", $this->settings);
+        $this->view->assign('pid', (int)GeneralUtility::_GP('id'));
+        $this->view->assign('formNames', $this->formAnswersUtility->getAllFormNames());
+        $this->view->assign('settings', $this->settings);
     }
 
     /**
@@ -86,28 +90,30 @@ class FormEntryController extends \TYPO3\CMS\Extbase\Mvc\Controller\ActionContro
      */
     public function prepareExportAction()
     {
-        $demandObject = $this->objectManager->get(\Frappant\FrpFormAnswers\Domain\Model\FormEntryDemand::class);
+        $demandObject = $this->objectManager->get(FormEntryDemand::class);
 
         $this->view->assign('formEntryDemand', $demandObject);
         $this->view->assign('formHashes', $this->formAnswersUtility->getAllFormHashes());
     }
 
-    /**
-     * action export
-     * @param \Frappant\FrpFormAnswers\Domain\Model\FormEntryDemand $formEntryDemand
-     * @return file The Excel file with data
-     */
-    public function exportAction(\Frappant\FrpFormAnswers\Domain\Model\FormEntryDemand $formEntryDemand)
+	/**
+	 * action export
+	 * @param FormEntryDemand $formEntryDemand
+	 * @return void The Excel file with data
+	 * @throws \TYPO3\CMS\Extbase\Mvc\Exception\StopActionException
+	 * @throws \TYPO3\CMS\Extbase\Mvc\Exception\UnsupportedRequestTypeException
+	 */
+    public function exportAction(FormEntryDemand $formEntryDemand)
     {
         $formEntries = $this->formEntryRepository->findbyDemand($formEntryDemand);
 
         if (count($formEntries) === 0) {
             $this->addFlashMessage('No entries found with your criteria',
                'No Entries found',
-               \TYPO3\CMS\Core\Messaging\FlashMessage::WARNING,
+               FlashMessage::WARNING,
                true
             );
-            $this->redirect("list");
+            $this->redirect('list');
         }
 
         if(class_exists('\TYPO3\CMS\Extensionmanager\Utility\ConfigurationUtility')) {
@@ -115,14 +121,14 @@ class FormEntryController extends \TYPO3\CMS\Extbase\Mvc\Controller\ActionContro
             $configurationUtility = $this->objectManager->get('TYPO3\CMS\Extensionmanager\Utility\ConfigurationUtility');
             $extensionConfiguration = $configurationUtility->getCurrentConfiguration('frp_form_answers');
         } else {
-            $extensionConfiguration = $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['your_extension_key'];
+            $extensionConfiguration = $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['frp_formanswers'];
         }
 
         $exportData = $this->dataExporter->getExport($formEntries, $formEntryDemand, $extensionConfiguration['useSubmitUid']['value']);
 
         $this->formEntryRepository->setFormsToExported($formEntries);
 
-        $this->view->assign("rows", $exportData);
+        $this->view->assign('rows', $exportData);
         $this->view->assign('formEntryDemand', $formEntryDemand);
     }
 }
