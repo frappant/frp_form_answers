@@ -30,6 +30,8 @@ use TYPO3\CMS\Extbase\Object\ObjectManager;
 use TYPO3\CMS\Core\Messaging\FlashMessage;
 use TYPO3\CMS\Core\Messaging\FlashMessageRendererResolver;
 use TYPO3\CMS\Extbase\SignalSlot\Dispatcher;
+use TYPO3\CMS\Core\Database\ConnectionPool;
+use TYPO3\CMS\Core\Database\Connection;
 
 /**
  * Update extension script.
@@ -42,11 +44,6 @@ class ext_update
      * @var array
      */
     protected $messageArray = array();
-
-    /**
-     * @var \TYPO3\CMS\Core\Database\DatabaseConnection
-     */
-    protected $databaseConnection;
 
     /**
      * @var \TYPO3\CMS\Core\Messaging\Renderer\FlashMessageRendererInterface
@@ -63,7 +60,6 @@ class ext_update
      */
     private function initUpdate()
     {
-        $this->databaseConnection = $GLOBALS['TYPO3_DB'];
         $this->flashMessageRenderer = GeneralUtility::makeInstance(FlashMessageRendererResolver::class)->resolve();
         $this->signalSlotDispatcher = GeneralUtility::makeInstance(ObjectManager::class)->get(Dispatcher::class);
     }
@@ -88,21 +84,25 @@ class ext_update
     protected function setSubmitUidsToFormEntryUid()
     {
         $title = 'Set all submit_uids to value of uid.';
+	    $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('tx_frpformanswers_domain_model_formentry');
+	    $row = $queryBuilder
+		    ->count('uid')
+		    ->from('tx_frpformanswers_domain_model_formentry')
+	        ->where(
+		        $queryBuilder->expr()->eq('submit_uid', $queryBuilder->createNamedParameter(0, \PDO::PARAM_INT))
+	        )->execute();
 
-        $row = $this->databaseConnection->exec_SELECTgetRows('*', 'tx_frpformanswers_domain_model_formentry', 'submit_uid = 0');
         if ($row) {
-            $this->databaseConnection->UPDATEquery('tx_frpformanswers_domain_model_formentry', 'submit_uid = 0', array('submit_uid' => 'uid'));
-            $this->databaseConnection->sql_query('UPDATE tx_frpformanswers_domain_model_formentry SET submit_uid = uid WHERE submit_uid = 0;');
+			$queryBuilder
+				->update('tx_frpformanswers_domain_model_formentry')
+				->where(
+					$queryBuilder->expr()->eq('submit_uid', $queryBuilder->createNamedParameter(0, \PDO::PARAM_INT))
+				)
+				->set('submit_uid', $queryBuilder->quoteIdentifier('uid'), false)
+				->execute();
+
             $this->messageArray[] = new FlashMessage('Set all submit_uids to value of uid successfully.', $title, FlashMessage::OK);
         }
-    }
-
-    /**
-     * @return TYPO3\CMS\Core\Database\DatabaseConnection
-     */
-    protected function getDatabaseConnection()
-    {
-        return $GLOBALS['TYPO3_DB'];
     }
 
     /**
@@ -116,7 +116,15 @@ class ext_update
     public function access()
     {
         $this->initUpdate();
-        $row = $this->databaseConnection->exec_SELECTcountRows('*', 'tx_frpformanswers_domain_model_formentry', 'submit_uid > 0');
+
+        $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('tx_frpformanswers_domain_model_formentry');
+
+        $row = $queryBuilder
+	        ->count('uid')
+	        ->from('tx_frpformanswers_domain_model_formentry')
+	        ->where(
+		        $queryBuilder->expr()->eq('submit_uid', $queryBuilder->createNamedParameter(0, \PDO::PARAM_INT))
+	        )->execute();
         return ($row === 0);
     }
 
