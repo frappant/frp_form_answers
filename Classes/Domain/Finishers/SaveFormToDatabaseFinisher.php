@@ -81,7 +81,9 @@ class SaveFormToDatabaseFinisher extends AbstractFinisher
                 	if($pageElem->getType() !== 'FileUpload' && $pageElem->getType() !== 'ImageUpload'){
 		                $values[$pageElem->getIdentifier()]['value'] = $valuesWithPages[$pageElem->getIdentifier()];
 	                }else{
-		                $values[$pageElem->getIdentifier()]['value'] = $valuesWithPages[$pageElem->getIdentifier()]->getOriginalResource()->getName();
+                		if($valuesWithPages[$pageElem->getIdentifier()]){
+			                $values[$pageElem->getIdentifier()]['value'] = $valuesWithPages[$pageElem->getIdentifier()]->getOriginalResource()->getName();
+		                }
 	                }
                     $values[$pageElem->getIdentifier()]['conf']['label'] = $pageElem->getLabel();
                     $values[$pageElem->getIdentifier()]['conf']['inputType'] = $pageElem->getType();
