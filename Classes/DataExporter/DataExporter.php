@@ -32,6 +32,7 @@ class DataExporter
                     $rows[$uid][$fieldName] = (is_array($field['value']) ? implode(",", $field['value']) : $field['value']);
                 }
             }
+            $rows[$uid]['crdate'] = $entry->_getProperty('crdate');
         }
 
         array_unshift($rows, $header);
