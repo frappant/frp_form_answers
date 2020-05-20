@@ -25,34 +25,70 @@ class FormEntryController extends \TYPO3\CMS\Extbase\Mvc\Controller\ActionContro
     /**
      * pageRepository
      *
-     * @var \TYPO3\CMS\Frontend\Page\PageRepository
-     * @TYPO3\CMS\Extbase\Annotation\Inject
+     * @var \TYPO3\CMS\Core\Domain\Repository\PageRepository
      */
     protected $pageRepository = null;
+
+    /**
+     * Inject a page repository to enable DI
+     *
+     * @param \TYPO3\CMS\Core\Domain\Repository\PageRepository $pageRepository
+     */
+    public function injectPageRepository(\TYPO3\CMS\Core\Domain\Repository\PageRepository $pageRepository)
+    {
+        $this->pageRepository = $pageRepository;
+    }
 
     /**
      * formEntryRepository
      *
      * @var \Frappant\FrpFormAnswers\Domain\Repository\FormEntryRepository
-     * @TYPO3\CMS\Extbase\Annotation\Inject
      */
-    protected $formEntryRepository = null;
+    protected $formEntryRepository;
+
+    /**
+     * Inject a page repository to enable DI
+     *
+     * @param \Frappant\FrpFormAnswers\Domain\Repository\FormEntryRepository $formEntryRepository
+     */
+    public function injectFormEntryRepository(\Frappant\FrpFormAnswers\Domain\Repository\FormEntryRepository $formEntryRepository)
+    {
+        $this->formEntryRepository = $formEntryRepository;
+    }
 
     /**
      * dataExporter
      *
      * @var \Frappant\FrpFormAnswers\DataExporter\DataExporter
-     * @TYPO3\CMS\Extbase\Annotation\Inject
      */
     protected $dataExporter = null;
+
+    /**
+     * Inject a page repository to enable DI
+     *
+     * @param \Frappant\FrpFormAnswers\DataExporter\DataExporter $dataExporter
+     */
+    public function injectDataExporter(\Frappant\FrpFormAnswers\DataExporter\DataExporter $dataExporter)
+    {
+        $this->dataExporter = $dataExporter;
+    }
 
     /**
      * formAnswersUtility
      *
      * @var \Frappant\FrpFormAnswers\Utility\FormAnswersUtility
-     * @TYPO3\CMS\Extbase\Annotation\Inject
      */
     protected $formAnswersUtility = null;
+
+    /**
+     * Inject a page repository to enable DI
+     *
+     * @param \Frappant\FrpFormAnswers\Utility\FormAnswersUtility $formAnswersUtility
+     */
+    public function injectFormAnswersUtility(\Frappant\FrpFormAnswers\Utility\FormAnswersUtility $formAnswersUtility)
+    {
+        $this->formAnswersUtility = $formAnswersUtility;
+    }
 
     /**
      * action list

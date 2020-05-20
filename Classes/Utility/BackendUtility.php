@@ -36,7 +36,7 @@ class BackendUtility extends BackendUtilityCore
     public static function filterPagesForAccess(array $pids)
     {
         if (!self::isBackendAdmin()) {
-            $pageRepository = GeneralUtility::makeInstance(\TYPO3\CMS\Frontend\Page\PageRepository::class);
+            $pageRepository = GeneralUtility::makeInstance(\TYPO3\CMS\Core\Domain\Repository\PageRepository::class);
             $newPids = [];
             foreach ($pids as $pid) {
                 $page = $pageRepository->getPage($pid);
