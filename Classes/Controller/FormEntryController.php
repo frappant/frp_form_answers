@@ -154,7 +154,7 @@ class FormEntryController extends \TYPO3\CMS\Extbase\Mvc\Controller\ActionContro
 
         if(class_exists('\TYPO3\CMS\Extensionmanager\Utility\ConfigurationUtility')) {
             /** @var \TYPO3\CMS\Extensionmanager\Utility\ConfigurationUtility $configurationUtility */
-            $configurationUtility = $this->objectManager->get('TYPO3\CMS\Extensionmanager\Utility\ConfigurationUtility');
+            $configurationUtility = GeneralUtility::makeInstance(\TYPO3\CMS\Extensionmanager\Utility\ConfigurationUtility::class);
             $extensionConfiguration = $configurationUtility->getCurrentConfiguration('frp_form_answers');
         } else {
             $extensionConfiguration = $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['frp_formanswers'];
