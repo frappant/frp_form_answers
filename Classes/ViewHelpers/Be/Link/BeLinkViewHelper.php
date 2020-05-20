@@ -34,7 +34,7 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
  *
  * /typo3/index.php?route=/record/edit&token=d7b2e14e24824711081ee8731549ca58afac0648&edit[tx_frpredirects_domain_model_redirect][2]=edit&returnUrl=/typo3/index.php?M=web_list&moduleToken=ae0ea6fabda3a2a34a8873319b91f8dc6010bf2f&id=0&imagemode=1
  */
-class BeLinkViewHelper extends \TYPO3\CMS\Fluid\Core\ViewHelper\AbstractTagBasedViewHelper
+class BeLinkViewHelper extends \TYPO3Fluid\Fluid\Core\ViewHelper\AbstractTagBasedViewHelper
 {
 
     /**
