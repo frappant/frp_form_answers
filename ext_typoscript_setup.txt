@@ -1,2 +1,0 @@
-<INCLUDE_TYPOSCRIPT: source="FILE:EXT:frp_form_answers/Configuration/TypoScript/setupFe.ts">
-<INCLUDE_TYPOSCRIPT: source="FILE:EXT:frp_form_answers/Configuration/TypoScript/setupBe.ts">
