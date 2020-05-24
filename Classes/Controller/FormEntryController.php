@@ -4,6 +4,7 @@ namespace Frappant\FrpFormAnswers\Controller;
 use Frappant\FrpFormAnswers\Domain\Model\FormEntryDemand;
 use TYPO3\CMS\Core\Messaging\FlashMessage;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Extbase\Mvc\View\ViewInterface;
 
 /***
  *
@@ -132,6 +133,23 @@ class FormEntryController extends \TYPO3\CMS\Extbase\Mvc\Controller\ActionContro
         $this->view->assign('formHashes', $this->formAnswersUtility->getAllFormHashes());
     }
 
+    public function initializeExportAction(){
+        $format = $this->request->getArguments()['format'];
+
+        switch ($format){
+            case 'Csv':
+                $this->defaultViewObjectName = \Frappant\FrpFormAnswers\View\FormEntry\ExportCsv::class;
+            break;
+            case 'Xls':
+                $this->defaultViewObjectName = \Frappant\FrpFormAnswers\View\FormEntry\ExportXls::class;
+            break;
+            case 'Xml':
+                $this->defaultViewObjectName = \Frappant\FrpFormAnswers\View\FormEntry\ExportXml::class;
+            break;
+        }
+
+    }
+
 	/**
 	 * action export
 	 * @param FormEntryDemand $formEntryDemand
@@ -152,13 +170,7 @@ class FormEntryController extends \TYPO3\CMS\Extbase\Mvc\Controller\ActionContro
             $this->redirect('list');
         }
 
-        if(class_exists('\TYPO3\CMS\Extensionmanager\Utility\ConfigurationUtility')) {
-            /** @var \TYPO3\CMS\Extensionmanager\Utility\ConfigurationUtility $configurationUtility */
-            $configurationUtility = GeneralUtility::makeInstance(\TYPO3\CMS\Extensionmanager\Utility\ConfigurationUtility::class);
-            $extensionConfiguration = $configurationUtility->getCurrentConfiguration('frp_form_answers');
-        } else {
-            $extensionConfiguration = $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['frp_formanswers'];
-        }
+        $extensionConfiguration = $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['frp_formanswers'];
 
         $exportData = $this->dataExporter->getExport($formEntries, $formEntryDemand, $extensionConfiguration['useSubmitUid']['value']);
 
