@@ -7,3 +7,9 @@ defined('TYPO3_MODE') || die('Access denied.');
 
 $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['extbase']['commandControllers']['frp_form_answers_1'] =
     \Frappant\FrpFormAnswers\Command\MailAdminNotificationCommand::class;
+
+$GLOBALS['TYPO3_CONF_VARS']['SYS']['formEngine']['nodeRegistry'][1590321374] = [
+    'nodeName' => 'formAnswersJsonElement',
+    'priority' => 40,
+    'class' => \Frappant\FrpFormAnswers\Form\FormAnswersJsonElement::class
+];
