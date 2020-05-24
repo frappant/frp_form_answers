@@ -24,7 +24,7 @@ TYPO3:
                       1491637029:
                         value: 'SaveFormToDatabase'
                         iconIdentifier: 't3-form-icon-finisher'
-                        label: 'formEditor.elements.Form.editor.finishers.SaveToDatabase.label'
+                        label: 'formEditor.elements.Form.finisher.SaveToDatabase.editor.header.label'
                 propertyCollections:
                   finishers:
                     1491637029:
