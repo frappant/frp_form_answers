@@ -24,7 +24,7 @@ return [
             'label' => 'LLL:EXT:frp_form_answers/Resources/Private/Language/locallang_db.xlf:tx_frpformanswers_domain_model_formentry.answers',
             'config' => [
                 'type' => 'user',
-                'userFunc' => 'Frappant\\FrpFormAnswers\\Utility\\UserFieldUtility->getStaticContent',
+                'renderType' => 'formAnswersJsonElement',
             ]
         ],
         'submit_uid' => [
