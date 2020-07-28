@@ -63,7 +63,11 @@ class ExportCsv extends \TYPO3\CMS\Extbase\Mvc\View\AbstractView
     public function render()
     {
         foreach ($this->variables['rows'] as $fields) {
-            $this->fputcsv2($fields, $this->delimiter[$this->variables['formEntryDemand']->getDelimiter()], $this->enclosure[$this->variables['formEntryDemand']->getEnclosure()]);
+            $this->fputcsv2(
+                $fields,
+                $this->delimiter[$this->variables['formEntryDemand']->getDelimiter()],
+                $this->enclosure[$this->variables['formEntryDemand']->getEnclosure()]
+            );
         }
     }
 
@@ -87,6 +91,9 @@ class ExportCsv extends \TYPO3\CMS\Extbase\Mvc\View\AbstractView
             if ($field === null && $mysql_null) {
                 $output[] = 'NULL';
                 continue;
+            }
+            if ($field instanceof \DateTime) {
+                $field = $field->format('r');
             }
 
             $output[] = preg_match("/(?:${delimiter_esc}|${enclosure_esc}|\s)/", $field) ? (
