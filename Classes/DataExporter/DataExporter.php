@@ -28,7 +28,7 @@ class DataExporter
                 $rows[$uid][$formEntryDemand->getUidLabel()] = $uid;
             }
             foreach ($entry->getAnswers() as $fieldName => $field) {
-                if (!preg_match('/^fieldset/', $fieldName) && !preg_match('/^statictext/', $fieldName)) {
+                if ($this->isExportableType($field['conf']['inputType'])) {
                     $rows[$uid][$fieldName] = (is_array($field['value']) ? implode(",", $field['value']) : $field['value']);
                 }
             }
@@ -54,9 +54,19 @@ class DataExporter
         }
 
         foreach ($headerKeys as $field => $val) {
-            if ($val['conf']['inputType'] !== 'Fieldset' && $val['conf']['inputType'] !== 'StaticText') {
+            if ($this->isExportableType($val['conf']['inputType'])) {
                 $header[] = ($val['conf']['label'] ? $val['conf']['label'] : $field);
             }
         }
+    }
+
+    private function isExportableType(string $inputType): bool
+    {
+        $typesToSkip = [
+            'Fieldset',
+            'StaticText',
+            'GridRow'
+        ];
+        return !\in_array($inputType, $typesToSkip);
     }
 }
