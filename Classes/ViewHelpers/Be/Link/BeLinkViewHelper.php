@@ -78,6 +78,7 @@ class BeLinkViewHelper extends \TYPO3Fluid\Fluid\Core\ViewHelper\AbstractTagBase
 
     protected function getModuleUrl(array $urlParameters)
     {
-        return BackendUtility::getModuleUrl('web_FrpFormAnswersFormanswers', $urlParameters);
+        $uriBuilder = GeneralUtility::makeInstance(UriBuilder::class);
+        return $uriBuilder->buildUriFromRoute(‘web_FrpFormAnswersFormanswers’,$urlParameters);
     }
 }
