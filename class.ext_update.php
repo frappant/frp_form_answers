@@ -51,17 +51,11 @@ class ext_update
     protected $flashMessageRenderer;
 
     /**
-     *  @var \TYPO3\CMS\Extbase\SignalSlot\Dispatcher
-     */
-    protected $signalSlotDispatcher;
-
-    /**
      * Constructor.
      */
     private function initUpdate()
     {
         $this->flashMessageRenderer = GeneralUtility::makeInstance(FlashMessageRendererResolver::class)->resolve();
-        $this->signalSlotDispatcher = GeneralUtility::makeInstance(ObjectManager::class)->get(Dispatcher::class);
     }
 
     /**
