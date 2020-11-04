@@ -80,6 +80,6 @@ class BeLinkViewHelper extends \TYPO3Fluid\Fluid\Core\ViewHelper\AbstractTagBase
     protected function getModuleUrl(array $urlParameters)
     {
         $uriBuilder = GeneralUtility::makeInstance(UriBuilder::class);
-        return $uriBuilder->buildUriFromRoute(‘web_FrpFormAnswersFormanswers’,$urlParameters);
+        return $uriBuilder->buildUriFromRoute('web_FrpFormAnswersFormanswers',$urlParameters);
     }
 }
