@@ -3,6 +3,7 @@
 namespace Frappant\FrpFormAnswers\DataExporter;
 
 use Frappant\FrpFormAnswers\Domain\Model\FormEntryDemand;
+use TYPO3\CMS\Extbase\Utility\LocalizationUtility;
 
 class DataExporter
 {
@@ -18,6 +19,15 @@ class DataExporter
         $rows = array();
         $header = array();
         $headerKeys = (array)array_values($rowAnswers[0]->getAnswers());
+
+        // add header for crdate
+        $headerKeys[] = [
+            'value' => '',
+            'conf' => [
+                'label' => LocalizationUtility::translate('LLL:EXT:frp_form_answers/Resources/Private/Language/locallang_db.xlf:tx_frpformanswers_domain_model_formentry.crdate'),
+                'inputType' => 'DateTime',
+            ],
+        ];
 
         $this->setHeaders($rowAnswers, $formEntryDemand, $headerKeys, $header);
 

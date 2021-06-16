@@ -21,6 +21,9 @@
 			<trans-unit id="tx_frpformanswers_domain_model_formentry.exported">
 				<source>Exported</source>
 			</trans-unit>
+			<trans-unit id="tx_frpformanswers_domain_model_formentry.crdate">
+				<source>Created on</source>
+			</trans-unit>
 		</body>
 	</file>
 </xliff>
