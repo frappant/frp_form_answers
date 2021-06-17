@@ -88,6 +88,10 @@ class ExportXml extends \TYPO3\CMS\Extbase\Mvc\View\AbstractView
 
         // put value in row
         foreach ($arr as $field => $value) {
+            // consider crdate
+            if ($value instanceof \DateTime) {
+                $value = $value->format('c');
+            }
             $str .= "\t\t<".$field.">".htmlspecialchars(stripslashes($value))."</".$field.">\n";
         }
 
