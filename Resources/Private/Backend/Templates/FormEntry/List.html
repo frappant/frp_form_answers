@@ -21,6 +21,12 @@ Otherwise your changes will be overwritten the next time you save the extension 
     </h1>
     <f:flashMessages/>
 
+    <f:variable name="title"><f:translate key="LLL:EXT:frp_form_answers/Resources/Private/Language/locallang_be.xlf:deleteFormName.confirmation.title" /></f:variable>
+    <f:variable name="content"><f:translate key="LLL:EXT:frp_form_answers/Resources/Private/Language/locallang_be.xlf:deleteFormName.confirmation.content" /></f:variable>
+
+    <f:debug>{title}</f:debug>
+    <f:debug>{content}</f:debug>
+
     <f:for each="{formNames}" as="formName">
         <f:form action="export" class="form-inline" method="POST" object="{formEntryDemand}" format="Xls"
                 objectName="formEntryDemand">
@@ -39,8 +45,13 @@ Otherwise your changes will be overwritten the next time you save the extension 
                                value="{f:translate(key:'LLL:EXT:frp_form_answers/Resources/Private/Language/locallang_be.xlf:tx_frpformanswers_backend_templates_formentry_prepareexport.export')}"
                 />
             </div>
+            <div class="form-group">
+                <f:link.action action="deleteFormname" class="btn btn-sm btn-default t3js-modal-trigger" arguments="{formName: formName}" data="{title:title,content:content}">
+                    {f:translate(key:'LLL:EXT:frp_form_answers/Resources/Private/Language/locallang_be.xlf:tx_frpformanswers_backend_templates_formentry_show.delete')}
+                </f:link.action>
+            </div>
         </f:form>
-        <f:be.tableList tableName="tx_frpformanswers_domain_model_formentry" filter="{formName}"
+        <f:be.tableList tableName="tx_frpformanswers_domain_model_formentry" filter="{formName}" enableControlPanels="true"
                         fieldList="{0:'uid', 1: 'crdate'}" storagePid="{pid}" clickTitleMode="edit"/>
     </f:for>
 

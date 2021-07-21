@@ -2,9 +2,11 @@
 namespace Frappant\FrpFormAnswers\Controller;
 
 use Frappant\FrpFormAnswers\Domain\Model\FormEntryDemand;
+use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Messaging\FlashMessage;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Mvc\View\ViewInterface;
+use TYPO3\CMS\Extbase\Utility\LocalizationUtility;
 
 /***
  *
@@ -178,5 +180,30 @@ class FormEntryController extends \TYPO3\CMS\Extbase\Mvc\Controller\ActionContro
 
         $this->view->assign('rows', $exportData);
         $this->view->assign('formEntryDemand', $formEntryDemand);
+    }
+
+    /**
+     * @param string $formName
+     * @throws \TYPO3\CMS\Extbase\Mvc\Exception\StopActionException
+     */
+    public function deleteFormnameAction($formName = ''){
+
+        if(strlen($formName) > 0){
+
+            $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getConnectionForTable('tx_frpformanswers_domain_model_formentry');
+
+            $queryBuilder->update(
+                'tx_frpformanswers_domain_model_formentry',
+                [ 'deleted' => 1 ], // set
+                [ 'form' => $formName, 'pid' => \Frappant\FrpFormAnswers\Utility\BackendUtility::getCurrentPid()]
+            );
+
+            $this->addFlashMessage(
+                LocalizationUtility::translate('LLL:EXT:frp_form_answers/Resources/Private/Language/de.locallang_be.xlf:flashmessage.deleteFormName.body', 'frp_form_answers', [$formName, \Frappant\FrpFormAnswers\Utility\BackendUtility::getCurrentPid()]),
+                LocalizationUtility::translate('LLL:EXT:frp_form_answers/Resources/Private/Language/de.locallang_be.xlf:flashmessage.deleteFormName.title'),
+                \TYPO3\CMS\Core\Messaging\FlashMessage::OK,
+                true);
+        }
+        $this->redirect('list');
     }
 }

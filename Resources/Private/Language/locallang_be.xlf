@@ -27,6 +27,21 @@
             <trans-unit id="tx_frpformanswers_backend_templates_formentry_show.list">
                 <source>Back to list</source>
             </trans-unit>
+			<trans-unit id="tx_frpformanswers_backend_templates_formentry_show.delete">
+				<source>Delete entries</source>
+			</trans-unit>
+			<trans-unit id="flashmessage.deleteFormName.header">
+				<source>Entries deleted</source>
+			</trans-unit>
+			<trans-unit id="flashmessage.deleteFormName.body">
+				<source>The entries of formName %s on Page %s have been deleted.</source>
+			</trans-unit>
+			<trans-unit id="deleteFormName.confirmation.title">
+				<source>Really delete form entries</source>
+			</trans-unit>
+			<trans-unit id="deleteFormName.confirmation.content">
+				<source>Do you really want to delete all form entries with this name?</source>
+			</trans-unit>
             <trans-unit id="tx_frpformanswers_backend_templates_formentry_prepareexport.selectedentries">
                 <source>Selected entries</source>
             </trans-unit>

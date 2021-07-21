@@ -35,6 +35,26 @@
                 <source>Back to list</source>
                 <target>Zurück zur Liste</target>
             </trans-unit>
+			<trans-unit id="tx_frpformanswers_backend_templates_formentry_show.delete">
+				<source>Delete entries</source>
+				<target>Eingaben löschen</target>
+			</trans-unit>
+			<trans-unit id="flashmessage.deleteFormName.header">
+				<source>Entries deleted</source>
+				<target>Einträge gelöscht</target>
+			</trans-unit>
+			<trans-unit id="flashmessage.deleteFormName.body">
+				<source>The entries of formName %s on Page %s have been deleted.</source>
+				<target>Die Einträge mit dem Formularnamen %s der Seite %s wurden gelöscht.</target>
+			</trans-unit>
+			<trans-unit id="deleteFormName.confirmation.title">
+				<source>Really delete form entries</source>
+				<target>Einträge wirklich löschen</target>
+			</trans-unit>
+			<trans-unit id="deleteFormName.confirmation.content">
+				<source>Do you really want to delete all form entries with this name?</source>
+				<target>Wollen Sie wirklich alle Einträge dieser Tabelle löschen?</target>
+			</trans-unit>
             <trans-unit id="tx_frpformanswers_backend_templates_formentry_prepareexport.selectedentries">
                 <source>Selected entries</source>
                 <target>Gewählte eingaben</target>
