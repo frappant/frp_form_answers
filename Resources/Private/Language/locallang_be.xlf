@@ -36,11 +36,23 @@
 			<trans-unit id="flashmessage.deleteFormName.body">
 				<source>The entries of formName %s on Page %s have been deleted.</source>
 			</trans-unit>
+			<trans-unit id="flashmessage.removeEntries.header">
+				<source>Entries removed</source>
+			</trans-unit>
+			<trans-unit id="flashmessage.removeEntries.body">
+				<source>The deleted entries on Page %s have been ultimately deleted.</source>
+			</trans-unit>
 			<trans-unit id="deleteFormName.confirmation.title">
 				<source>Really delete form entries</source>
 			</trans-unit>
 			<trans-unit id="deleteFormName.confirmation.content">
 				<source>Do you really want to delete all form entries with this name?</source>
+			</trans-unit>
+			<trans-unit id="countDeletedEntries">
+				<source>There are %s deleted entries to remove</source>
+			</trans-unit>
+			<trans-unit id="removeDeletedEntries">
+				<source>Ultimate delete form entries</source>
 			</trans-unit>
             <trans-unit id="tx_frpformanswers_backend_templates_formentry_prepareexport.selectedentries">
                 <source>Selected entries</source>
