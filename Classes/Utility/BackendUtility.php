@@ -57,4 +57,38 @@ class BackendUtility extends BackendUtilityCore
     {
         return $GLOBALS['BE_USER'];
     }
+
+    /**
+     *   Get current PID in backend.
+     *   Uses various fallbacks depending on current view and backend module.
+     *   ToDo: Ask somebody, how this can be done simple :)
+     */
+    public static function getCurrentPid($pageUid = null)
+    {
+        if (!$pageUid) {
+            $pageUid = (int) $GLOBALS['_REQUEST']['popViewId'];
+        }
+        if (!$pageUid) {
+            $pageUid = (int) preg_replace('/(.*)(id=)([0-9]*)(.*)/i', '\\3', $GLOBALS['_REQUEST']['returnUrl']);
+        }
+        if (!$pageUid) {
+            $pageUid = (int) preg_replace('/(.*)(id=)([0-9]*)(.*)/i', '\\3', $GLOBALS['_POST']['returnUrl']);
+        }
+        if (!$pageUid) {
+            $pageUid = (int) preg_replace('/(.*)(id=)([0-9]*)(.*)/i', '\\3', $GLOBALS['_GET']['returnUrl']);
+        }
+        if (!$pageUid) {
+            $pageUid = (int) $GLOBALS['TSFE']->id;
+        }
+        if (!$pageUid) {
+            $pageUid = (int) $_GET['id'];
+        }
+        if (!$pageUid) {
+            //$pageRepository = GeneralUtility::makeInstance(\TYPO3\CMS\Core\Domain\Repository\PageRepository::class);
+            //list($page) = $pageRepository->getSubpagesForPages([0]);
+            //$pageUid = intval($page['uid']);
+            $pageUid = 0;
+        }
+        return $pageUid;
+    }
 }
