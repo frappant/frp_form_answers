@@ -71,5 +71,16 @@ return [
                 'default' => 0
             ]
         ],
+        'crdate' => [
+            'exclude' => true,
+            'label' => 'LLL:EXT:frp_form_answers/Resources/Private/Language/locallang_db.xlf:tx_frpformanswers_domain_model_formentry.crdate',
+            'config' => [
+                'type' => 'input',
+                'eval' => 'datetime',
+                'renderType' => 'InputDateTime',
+                'size' => 20,
+                'readOnly' => true,
+            ],
+        ],
     ],
 ];

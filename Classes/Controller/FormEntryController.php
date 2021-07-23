@@ -2,9 +2,22 @@
 namespace Frappant\FrpFormAnswers\Controller;
 
 use Frappant\FrpFormAnswers\Domain\Model\FormEntryDemand;
+use TYPO3\CMS\Backend\Clipboard\Clipboard;
+use TYPO3\CMS\Backend\Template\Components\ButtonBar;
+use TYPO3\CMS\Backend\Template\Components\Menu\Menu;
+use TYPO3\CMS\Backend\Utility\BackendUtility as BackendUtilityCore;
+use TYPO3\CMS\Backend\View\BackendTemplateView;
+use TYPO3\CMS\Core\Authentication\BackendUserAuthentication;
+use TYPO3\CMS\Core\Database\ConnectionPool;
+use TYPO3\CMS\Core\Imaging\Icon;
+use TYPO3\CMS\Core\Imaging\IconFactory;
+use TYPO3\CMS\Core\Localization\LanguageService;
 use TYPO3\CMS\Core\Messaging\FlashMessage;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Mvc\View\ViewInterface;
+use TYPO3\CMS\Extbase\Mvc\Web\Routing\UriBuilder;
+use TYPO3\CMS\Extbase\Utility\DebuggerUtility;
+use TYPO3\CMS\Extbase\Utility\LocalizationUtility;
 
 /***
  *
@@ -22,6 +35,12 @@ use TYPO3\CMS\Extbase\Mvc\View\ViewInterface;
  */
 class FormEntryController extends \TYPO3\CMS\Extbase\Mvc\Controller\ActionController
 {
+    /**
+     * Backend Template Container
+     *
+     * @var string
+     */
+    protected $defaultViewObjectName = \TYPO3\CMS\Backend\View\BackendTemplateView::class;
 
     /**
      * pageRepository
@@ -92,6 +111,84 @@ class FormEntryController extends \TYPO3\CMS\Extbase\Mvc\Controller\ActionContro
     }
 
     /**
+     * @var IconFactory
+     */
+    protected $iconFactory;
+
+    /**
+     * Set up the doc header properly here
+     *
+     * @param ViewInterface $view
+     * @return void
+     */
+    protected function initializeView(ViewInterface $view)
+    {
+        $this->iconFactory = GeneralUtility::makeInstance(IconFactory::class);
+        /** @var BackendTemplateView $view */
+        parent::initializeView($view);
+        $view->getModuleTemplate()->getDocHeaderComponent()->setMetaInformation([]);
+
+        $pageRenderer = $this->view->getModuleTemplate()->getPageRenderer();
+        $pageRenderer->addInlineLanguageLabelFile('EXT:lang/Resources/Private/Language/locallang_core.xlf');
+
+        $this->createMenu();
+        $this->createButtons();
+
+        $view->assign('showSupportArea', $this->showSupportArea());
+    }
+
+    /**
+     * Create menu
+     *
+     */
+    protected function createMenu()
+    {
+        $uriBuilder = $this->objectManager->get(UriBuilder::class);
+        $uriBuilder->setRequest($this->request);
+
+        $menu = $this->view->getModuleTemplate()->getDocHeaderComponent()->getMenuRegistry()->makeMenu();
+        $menu->setIdentifier('news');
+
+        $actions = [
+            ['action' => 'list', 'label' => 'Overview'],
+            ['action' => 'prepareExport', 'label' => 'Export'],
+            ['action' => 'prepareRemove', 'label' => 'Remove'],
+        ];
+
+        foreach ($actions as $action) {
+            $item = $menu->makeMenuItem()
+                ->setTitle($action['label'])
+                ->setHref($uriBuilder->reset()->uriFor($action['action'], [], 'FormEntry'))
+                ->setActive($this->request->getControllerActionName() === $action['action']);
+            $menu->addMenuItem($item);
+        }
+
+        if ($menu instanceof Menu) {
+            $this->view->getModuleTemplate()->getDocHeaderComponent()->getMenuRegistry()->addMenu($menu);
+        }
+    }
+
+    /**
+     * Create the panel of buttons
+     *
+     */
+    protected function createButtons()
+    {
+        $buttonBar = $this->view->getModuleTemplate()->getDocHeaderComponent()->getButtonBar();
+
+        $uriBuilder = GeneralUtility::makeInstance(UriBuilder::class);
+        $uriBuilder->setRequest($this->request);
+
+        // Refresh
+        $refreshButton = $buttonBar->makeLinkButton()
+            ->setHref(GeneralUtility::getIndpEnv('REQUEST_URI'))
+            ->setTitle($this->getLanguageService()->sL('LLL:EXT:core/Resources/Private/Language/locallang_core.xlf:labels.reload'))
+            ->setIcon($this->iconFactory->getIcon('actions-refresh', Icon::SIZE_SMALL));
+        $buttonBar->addButton($refreshButton, ButtonBar::BUTTON_POSITION_RIGHT);
+
+    }
+
+    /**
      * action list
      *
      * @return void
@@ -107,6 +204,47 @@ class FormEntryController extends \TYPO3\CMS\Extbase\Mvc\Controller\ActionContro
         $this->view->assign('pid', (int)GeneralUtility::_GP('id'));
         $this->view->assign('formNames', $this->formAnswersUtility->getAllFormNames());
         $this->view->assign('settings', $this->settings);
+    }
+
+    /**
+     * action prepareRemove
+     *
+     * @return void
+     */
+    public function prepareRemoveAction()
+    {
+        $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('tx_frpformanswers_domain_model_formentry');
+        $queryBuilder->getRestrictions()->removeAll();
+
+        $count = $queryBuilder->count('*')
+            ->from('tx_frpformanswers_domain_model_formentry')
+            ->where($queryBuilder->expr()->eq('pid', $queryBuilder->createNamedParameter(\Frappant\FrpFormAnswers\Utility\BackendUtility::getCurrentPid(), \PDO::PARAM_INT)))
+            ->andWhere($queryBuilder->expr()->eq('deleted', $queryBuilder->createNamedParameter(1, \PDO::PARAM_INT)))
+            ->execute()->fetchFirstColumn();
+        //DebuggerUtility::var_dump($count);
+        $this->view->assign('count', $count[0]);
+    }
+
+    /**
+     * action prepareRemove
+     *
+     * @return void
+     */
+    public function removeAction()
+    {
+        $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('tx_frpformanswers_domain_model_formentry');
+
+        $queryBuilder->delete('tx_frpformanswers_domain_model_formentry')
+            ->where($queryBuilder->expr()->eq('pid', $queryBuilder->createNamedParameter(\Frappant\FrpFormAnswers\Utility\BackendUtility::getCurrentPid(), \PDO::PARAM_INT)))
+            ->andWhere($queryBuilder->expr()->eq('deleted', $queryBuilder->createNamedParameter(1, \PDO::PARAM_INT)))
+            ->execute();
+
+        $this->addFlashMessage(
+            LocalizationUtility::translate('LLL:EXT:frp_form_answers/Resources/Private/Language/de.locallang_be.xlf:flashmessage.removeEntries.body', null, [\Frappant\FrpFormAnswers\Utility\BackendUtility::getCurrentPid()]),
+            LocalizationUtility::translate('LLL:EXT:frp_form_answers/Resources/Private/Language/de.locallang_be.xlf:flashmessage.removeEntries.title'),
+            \TYPO3\CMS\Core\Messaging\FlashMessage::OK,
+            true);
+        $this->redirect('list');
     }
 
     /**
@@ -127,7 +265,7 @@ class FormEntryController extends \TYPO3\CMS\Extbase\Mvc\Controller\ActionContro
      */
     public function prepareExportAction()
     {
-        $demandObject = $this->objectManager->get(FormEntryDemand::class);
+        $demandObject = GeneralUtility::makeInstance(FormEntryDemand::class);
 
         $this->view->assign('formEntryDemand', $demandObject);
         $this->view->assign('formHashes', $this->formAnswersUtility->getAllFormHashes());
@@ -178,5 +316,69 @@ class FormEntryController extends \TYPO3\CMS\Extbase\Mvc\Controller\ActionContro
 
         $this->view->assign('rows', $exportData);
         $this->view->assign('formEntryDemand', $formEntryDemand);
+    }
+
+    /**
+     * @param string $formName
+     * @throws \TYPO3\CMS\Extbase\Mvc\Exception\StopActionException
+     */
+    public function deleteFormnameAction($formName = ''){
+
+        if(strlen($formName) > 0){
+
+            $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getConnectionForTable('tx_frpformanswers_domain_model_formentry');
+
+            $queryBuilder->update(
+                'tx_frpformanswers_domain_model_formentry',
+                [ 'deleted' => 1 ], // set
+                [ 'form' => $formName, 'pid' => \Frappant\FrpFormAnswers\Utility\BackendUtility::getCurrentPid()]
+            );
+
+            $this->addFlashMessage(
+                LocalizationUtility::translate('LLL:EXT:frp_form_answers/Resources/Private/Language/de.locallang_be.xlf:flashmessage.deleteFormName.body', 'frp_form_answers', [$formName, \Frappant\FrpFormAnswers\Utility\BackendUtility::getCurrentPid()]),
+                LocalizationUtility::translate('LLL:EXT:frp_form_answers/Resources/Private/Language/de.locallang_be.xlf:flashmessage.deleteFormName.title'),
+                \TYPO3\CMS\Core\Messaging\FlashMessage::OK,
+                true);
+        }
+        $this->redirect('list');
+    }
+
+    /**
+     * Show support area only for admins in given percent of time
+     *
+     * @param int $probabilityInPercent
+     * @return bool
+     */
+    private function showSupportArea(int $probabilityInPercent = 10): bool
+    {
+        if (!$this->getBackendUser()->isAdmin()) {
+            return false;
+        }
+
+        if (mt_rand() % 100 <= $probabilityInPercent) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Returns the LanguageService
+     *
+     * @return LanguageService
+     */
+    protected function getLanguageService(): LanguageService
+    {
+        return $GLOBALS['LANG'];
+    }
+
+    /**
+     * Get backend user
+     *
+     * @return BackendUserAuthentication
+     */
+    protected function getBackendUser(): BackendUserAuthentication
+    {
+        return $GLOBALS['BE_USER'];
     }
 }

@@ -9,7 +9,7 @@ call_user_func(
                 'web', // Make module a submodule of 'web'
                 'formanswers', // Submodule key
                 'after:FormFormbuilder', // Position
-                [\Frappant\FrpFormAnswers\Controller\FormEntryController::class => 'list, show, prepareExport, export'],
+                [\Frappant\FrpFormAnswers\Controller\FormEntryController::class => 'list, show, prepareExport, export, deleteFormname, prepareRemove, remove'],
                 [
                     'access' => 'user,group',
                     'icon'   => 'EXT:frp_form_answers/Resources/Public/Icons/user_mod_formanswers.svg',
