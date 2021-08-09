@@ -47,7 +47,7 @@ class ExportXls extends AbstractView
     public function initializeView()
     {
         $this->controllerContext->getResponse()->setHeader('Content-Type', 'application/force-download');
-        $this->controllerContext->getResponse()->setHeader('Content-Disposition', 'attachment;filename=export.xls');
+        $this->controllerContext->getResponse()->setHeader('Content-Disposition', 'attachment;filename=export.xlsx');
         $this->controllerContext->getResponse()->setHeader('Content-Type', 'application/download; charset=$this->variables[\'formEntryDemand\']->getCharset()');
     }
 
