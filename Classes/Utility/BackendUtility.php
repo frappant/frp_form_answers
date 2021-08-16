@@ -1,11 +1,11 @@
 <?php
 namespace Frappant\FrpFormAnswers\Utility;
 
-use TYPO3\CMS\Backend\Routing\Exception\ResourceNotFoundException;
-use TYPO3\CMS\Backend\Routing\Router;
+use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Authentication\BackendUserAuthentication;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Backend\Utility\BackendUtility as BackendUtilityCore;
+use TYPO3\CMS\Frontend\Page\PageRepository;
 
 /**
  * Class BackendUtility
@@ -36,7 +36,22 @@ class BackendUtility extends BackendUtilityCore
     public static function filterPagesForAccess(array $pids)
     {
         if (!self::isBackendAdmin()) {
-            $pageRepository = GeneralUtility::makeInstance(\TYPO3\CMS\Core\Domain\Repository\PageRepository::class);
+            $pageRepository = GeneralUtility::makeInstance(PageRepository::class);
+
+            if (version_compare(TYPO3_branch, '10', '<')) {
+                $expressionBuilder = GeneralUtility::makeInstance(ConnectionPool::class)
+                    ->getQueryBuilderForTable('pages')
+                    ->expr()
+                ;
+                $oldExpression = $expressionBuilder->lt('pages.doktype', 200);
+                $newExpression = $expressionBuilder->neq('pages.doktype', PageRepository::DOKTYPE_RECYCLER);
+                $pageRepository->where_hid_del = str_replace(
+                    $oldExpression,
+                    $newExpression,
+                    $pageRepository->where_hid_del
+                );
+            }
+
             $newPids = [];
             foreach ($pids as $pid) {
                 $page = $pageRepository->getPage($pid);
