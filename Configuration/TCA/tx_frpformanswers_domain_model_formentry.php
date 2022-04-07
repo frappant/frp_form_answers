@@ -12,9 +12,6 @@ return [
         'searchFields' => 'answers,field_hash,form,exported',
         'iconfile' => 'EXT:frp_form_answers/Resources/Public/Icons/tx_frpformanswers_domain_model_formentry.svg'
     ],
-    'interface' => [
-        'showRecordFieldList' => 'submit_uid, answers, field_hash, form, exported',
-    ],
     'types' => [
         '1' => ['showitem' => 'submit_uid, answers, field_hash, form, exported'],
     ],
@@ -63,8 +60,8 @@ return [
             'config' => [
                 'type' => 'check',
                 'items' => [
-                    '1' => [
-                        '0' => 'EXT:core/Resources/Private/Language/locallang_core.xlf:labels.enabled'
+                    0 => [
+                        '0' => 'LLL:EXT:frp_form_answers/Resources/Private/Language/locallang_db.xlf:tx_frpformanswers_domain_model_formentry.exported'
                     ]
                 ],
                 'readOnly' =>1,
