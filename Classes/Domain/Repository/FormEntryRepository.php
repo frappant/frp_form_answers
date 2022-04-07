@@ -1,8 +1,8 @@
 <?php
 namespace Frappant\FrpFormAnswers\Domain\Repository;
 
+use Frappant\FrpFormAnswers\Database\QueryGenerator;
 use Frappant\FrpFormAnswers\Domain\Model\FormEntryDemand;
-use TYPO3\CMS\Core\Database\QueryGenerator;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Persistence\Generic\QueryResult;
 use TYPO3\CMS\Extbase\Persistence\QueryInterface;

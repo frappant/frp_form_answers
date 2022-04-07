@@ -1,6 +1,10 @@
 <?php
 namespace Frappant\FrpFormAnswers\Utility;
 
+use Frappant\FrpFormAnswers\Domain\Repository\FormEntryRepository;
+use TYPO3\CMS\Core\Domain\Repository\PageRepository;
+use TYPO3\CMS\Extbase\Utility\DebuggerUtility;
+
 class FormAnswersUtility
 {
 
@@ -15,10 +19,16 @@ class FormAnswersUtility
     /**
      * pageRepository
      *
-     * @var \TYPO3\CMS\Frontend\Page\PageRepository
+     * @var \TYPO3\CMS\Core\Domain\Repository\PageRepository
      * @TYPO3\CMS\Extbase\Annotation\Inject
      */
     protected $pageRepository = null;
+
+    public function __construct(PageRepository $pageRepository, FormEntryRepository $formEntryRepository)
+    {
+        $this->pageRepository = $pageRepository;
+        $this->formEntryRepository = $formEntryRepository;
+    }
 
     /**
      * [prepareFormAnswersArray description]

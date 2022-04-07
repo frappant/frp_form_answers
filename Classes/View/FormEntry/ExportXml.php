@@ -1,6 +1,8 @@
 <?php
 namespace Frappant\FrpFormAnswers\View\FormEntry;
 
+use TYPO3\CMS\Extbase\Mvc\Controller\ControllerContext;
+
 /***************************************************************
  *
  *  Copyright notice
@@ -29,38 +31,102 @@ namespace Frappant\FrpFormAnswers\View\FormEntry;
 /**
  * ExportXls
  */
-class ExportXml extends \TYPO3\CMS\Extbase\Mvc\View\AbstractView
+class ExportXml implements \TYPO3\CMS\Extbase\Mvc\View\ViewInterface
 {
-    public function initializeView()
-    {
-        $this->controllerContext->getResponse()->setHeader('Content-Type', 'application/force-download');
-        $this->controllerContext->getResponse()->setHeader('Content-Type', 'application/xml');
-        $this->controllerContext->getResponse()->setHeader('Content-Disposition', 'attachment;filename=export.xml');
-        $this->controllerContext->getResponse()->setHeader('Content-Transfer-Encoding', 'binary');
-        $this->controllerContext->getResponse()->setHeader("Content-Type", "application/download; charset=$this->variables['formEntryDemand']->getCharset()");
+    /**
+     * Controller Context
+     * @var TYPO3\CMS\Extbase\Mvc\Controller\ControllerContext
+     */
+    protected ControllerContext $controllerContext;
+
+    /**
+     * View variables and their values
+     *
+     * @var array
+     * @see assign()
+     */
+    protected $variables = [];
+
+    /**
+     * @param ControllerContext $controllerContext
+     */
+    public function injectControllerContext(ControllerContext $controllerContext) {
+        $this->controllerContext = $controllerContext;
     }
 
+    /**
+     * Sets the current controller context
+     *
+     * @param \TYPO3\CMS\Extbase\Mvc\Controller\ControllerContext $controllerContext
+     */
+    public function setControllerContext(ControllerContext $controllerContext)
+    {
+        $this->controllerContext = $controllerContext;
+    }
+
+    /**
+     * Add a variable to $this->viewData.
+     * Can be chained, so $this->view->assign(..., ...)->assign(..., ...); is possible
+     *
+     * @param string $key Key of variable
+     * @param mixed $value Value of object
+     * @return Frappant\FrpFormAnswers\View\FormEntry an instance of $this, to enable chaining
+     */
+    public function assign($key, $value)
+    {
+        $this->variables[$key] = $value;
+        return $this;
+    }
+
+    /**
+     * Add multiple variables to $this->viewData.
+     *
+     * @param array $values array in the format array(key1 => value1, key2 => value2).
+     * @return Frappant\FrpFormAnswers\View\FormEntry an instance of $this, to enable chaining
+     */
+    public function assignMultiple(array $values)
+    {
+        foreach ($values as $key => $value) {
+            $this->assign($key, $value);
+        }
+        return $this;
+    }
+
+    public function initializeView() {
+        return null;
+    }
+
+    /**
+     * Renders the view
+     *
+     * @return string The rendered view
+     * @api
+     */
     public function render()
     {
-        $rows = $this->variables['rows'];
+        ob_start();
+        
+            $rows = $this->variables['rows'];
 
-         // remove header line
-        $this->array_shift($rows);
+            // remove header line
+            $this->array_shift($rows);
 
 
-        // write xml header
-        echo "<?xml version='1.0' standalone='yes'?>\n";
+            // write xml header
+            echo "<?xml version='1.0' standalone='yes'?>\n";
 
-        // write tableName
-        echo "<tx_frpformanswers_domain_model_formentry>\n";
+            // write tableName
+            echo "<tx_frpformanswers_domain_model_formentry>\n";
 
-        // write all array rows - inner Array in separated function
-        for ($i = 0; $i < count($rows); $i++) {
-            echo $this->arr2xml($rows[$i], $i);
-        }
+            // write all array rows - inner Array in separated function
+            for ($i = 0; $i < count($rows); $i++) {
+                echo $this->arr2xml($rows[$i], $i);
+            }
 
-        // close tableName
-        echo "</tx_frpformanswers_domain_model_formentry>\n";
+            // close tableName
+            echo "</tx_frpformanswers_domain_model_formentry>\n";
+
+        return ob_get_clean();
     }
 
     /**

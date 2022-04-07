@@ -1,6 +1,9 @@
 <?php
 namespace Frappant\FrpFormAnswers\View\FormEntry;
 
+use TYPO3\CMS\Extbase\Mvc\Controller\ControllerContext;
+use TYPO3\CMS\Extbase\Utility\DebuggerUtility;
+
 /***************************************************************
  *
  *  Copyright notice
@@ -29,8 +32,9 @@ namespace Frappant\FrpFormAnswers\View\FormEntry;
 /**
  * ExportCSV
  */
-class ExportCsv extends \TYPO3\CMS\Extbase\Mvc\View\AbstractView
+class ExportCsv implements \TYPO3\CMS\Extbase\Mvc\View\ViewInterface
 {
+
     /**
      * Delimiter Array
      * @var array
@@ -50,25 +54,115 @@ class ExportCsv extends \TYPO3\CMS\Extbase\Mvc\View\AbstractView
         'double' => '"'
     );
 
+    /**
+     * View variables and their values
+     *
+     * @var array
+     * @see assign()
+     */
+    protected $variables = [];
+
+    /**
+     * Controller Context
+     * @var TYPO3\CMS\Extbase\Mvc\Controller\ControllerContext
+     */
+    protected ControllerContext $controllerContext;
+
+    /**
+     * @param ControllerContext $controllerContext
+     */
+    public function injectControllerContext(ControllerContext $controllerContext) {
+        $this->controllerContext = $controllerContext;
+    }
+
+    /**
+     * Sets the current controller context
+     *
+     * @param \TYPO3\CMS\Extbase\Mvc\Controller\ControllerContext $controllerContext
+     */
+    public function setControllerContext(ControllerContext $controllerContext)
+    {
+        $this->controllerContext = $controllerContext;
+    }
+
+    /**
+     * Add a variable to $this->viewData.
+     * Can be chained, so $this->view->assign(..., ...)->assign(..., ...); is possible
+     *
+     * @param string $key Key of variable
+     * @param mixed $value Value of object
+     * @return Frappant\FrpFormAnswers\View\FormEntry an instance of $this, to enable chaining
+     */
+    public function assign($key, $value)
+    {
+        $this->variables[$key] = $value;
+        return $this;
+    }
+
+    /**
+     * Add multiple variables to $this->viewData.
+     *
+     * @param array $values array in the format array(key1 => value1, key2 => value2).
+     * @return Frappant\FrpFormAnswers\View\FormEntry an instance of $this, to enable chaining
+     */
+    public function assignMultiple(array $values)
+    {
+        foreach ($values as $key => $value) {
+            $this->assign($key, $value);
+        }
+        return $this;
+    }
 
     public function initializeView()
     {
-        $this->controllerContext->getResponse()->setHeader('Content-Type', 'application/force-download');
-        $this->controllerContext->getResponse()->setHeader('Content-Type', 'text/csv');
-        $this->controllerContext->getResponse()->setHeader('Content-Disposition', 'attachment;filename=export.csv');
-        $this->controllerContext->getResponse()->setHeader('Content-Transfer-Encoding', 'binary');
-        $this->controllerContext->getResponse()->setHeader("Content-Type", "application/download; charset=$this->variables['formEntryDemand']->getCharset()");
+        return null;
     }
 
+    /**
+     * Renders the view
+     *
+     * @return string The rendered view
+     * @api
+     */
     public function render()
     {
-        foreach ($this->variables['rows'] as $fields) {
-            $this->fputcsv2(
-                $fields,
-                $this->delimiter[$this->variables['formEntryDemand']->getDelimiter()],
-                $this->enclosure[$this->variables['formEntryDemand']->getEnclosure()]
-            );
-        }
+        ob_start();
+            foreach ($this->variables['rows'] as $fields) {
+                echo $this->fputcsv2(
+                    $fields,
+                    $this->delimiter[$this->variables['formEntryDemand']->getDelimiter()],
+                    $this->enclosure[$this->variables['formEntryDemand']->getEnclosure()]
+                );
+            }
+        return ob_get_clean();
+    }
+
+    /**
+     * Renders a partial.
+     *
+     * @param string $partialName
+     * @param string $sectionName
+     * @param array $variables
+     * @param boolean $ignoreUnknown Ignore an unknown section and just return an empty string
+     * @return string
+     */
+    public function renderPartial($partialName, $sectionName, array $variables, $ignoreUnknown = false)
+    {
+        return $this->render();
+    }
+
+    /**
+     * Renders a given section.
+     *
+     * @param string $sectionName Name of section to render
+     * @param array $variables The variables to use
+     * @param boolean $ignoreUnknown Ignore an unknown section and just return an empty string
+     * @return string rendered template for the section
+     * @throws Exception\InvalidSectionException
+     */
+    public function renderSection($sectionName, array $variables = [], $ignoreUnknown = false)
+    {
+        return $this->render();
     }
 
     /**
@@ -79,7 +173,7 @@ class ExportCsv extends \TYPO3\CMS\Extbase\Mvc\View\AbstractView
      * @param string $delimiter
      * @param string $enclosure
      * @param boolean $mysql_null
-     * @return void
+     * @return string
      */
     private function fputcsv2(array $fields, $delimiter = ';', $enclosure = '"', $mysql_null = false)
     {
@@ -100,6 +194,6 @@ class ExportCsv extends \TYPO3\CMS\Extbase\Mvc\View\AbstractView
                 $enclosure . str_replace($enclosure, $enclosure . $enclosure, $field) . $enclosure
             ) : $field;
         }
-        echo join($delimiter, $output) . "\n";
+        return join($delimiter, $output) . "\n";
     }
 }
