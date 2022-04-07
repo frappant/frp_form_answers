@@ -3,7 +3,8 @@ namespace Frappant\FrpFormAnswers\View\FormEntry;
 
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
-use TYPO3\CMS\Extbase\Mvc\View\AbstractView;
+use Psr\Http\Message\StreamInterface;
+use TYPO3\CMS\Extbase\Mvc\Controller\ControllerContext;
 
 /***************************************************************
  *
@@ -33,22 +34,79 @@ use TYPO3\CMS\Extbase\Mvc\View\AbstractView;
 /**
  * ExportXls
  */
-class ExportXls extends AbstractView
+class ExportXls implements \TYPO3\CMS\Extbase\Mvc\View\ViewInterface
 {
 
-	/**
-	 * Spreadsheet
-	 *
-	 * @var \PhpOffice\PhpSpreadsheet\Spreadsheet
-	 * @TYPO3\CMS\Extbase\Annotation\Inject
-	 */
-	private $spreadsheet;
+    /**
+     * @var Spreadsheet|null
+     */
+    protected static ?Spreadsheet $spreadsheet = null;
+
+    /**
+     * Controller Context
+     * @var TYPO3\CMS\Extbase\Mvc\Controller\ControllerContext
+     */
+    protected ControllerContext $controllerContext;
+
+    /**
+     * View variables and their values
+     *
+     * @var array
+     * @see assign()
+     */
+    protected $variables = [];
+
+    /**
+     * @param ControllerContext $controllerContext
+     */
+    public function injectControllerContext(ControllerContext $controllerContext) {
+        $this->controllerContext = $controllerContext;
+    }
+
+    /**
+     * Sets the current controller context
+     *
+     * @param \TYPO3\CMS\Extbase\Mvc\Controller\ControllerContext $controllerContext
+     */
+    public function setControllerContext(ControllerContext $controllerContext)
+    {
+        $this->controllerContext = $controllerContext;
+    }
+
+    /**
+     * Add a variable to $this->viewData.
+     * Can be chained, so $this->view->assign(..., ...)->assign(..., ...); is possible
+     *
+     * @param string $key Key of variable
+     * @param mixed $value Value of object
+     * @return Frappant\FrpFormAnswers\View\FormEntry an instance of $this, to enable chaining
+     */
+    public function assign($key, $value)
+    {
+        $this->variables[$key] = $value;
+        return $this;
+    }
+
+    /**
+     * Add multiple variables to $this->viewData.
+     *
+     * @param array $values array in the format array(key1 => value1, key2 => value2).
+     * @return Frappant\FrpFormAnswers\View\FormEntry an instance of $this, to enable chaining
+     */
+    public function assignMultiple(array $values)
+    {
+        foreach ($values as $key => $value) {
+            $this->assign($key, $value);
+        }
+        return $this;
+    }
 
     public function initializeView()
     {
-        $this->controllerContext->getResponse()->setHeader('Content-Type', 'application/force-download');
-        $this->controllerContext->getResponse()->setHeader('Content-Disposition', 'attachment;filename=export.xlsx');
-        $this->controllerContext->getResponse()->setHeader('Content-Type', 'application/download; charset=$this->variables[\'formEntryDemand\']->getCharset()');
+        $this->spreadsheet = new Spreadsheet();
+        $this->spreadsheet->getProperties()->setCreator("Frappant Forms Export")
+            ->setLastModifiedBy("Frappant Forms Export")
+            ->setCreated(time());
     }
 
 	/**
@@ -67,7 +125,10 @@ class ExportXls extends AbstractView
         $this->spreadsheet->getActiveSheet()->fromArray($rows, null, 'A1');
 
         $objWriter = new Xlsx($this->spreadsheet);
-        $objWriter->save('php://output');
+
+        ob_start();
+            $objWriter->save('php://output');
+        return ob_get_clean();
     }
 
     /**
