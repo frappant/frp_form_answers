@@ -3,14 +3,14 @@ TYPO3:
     Form:
       ########### FORM MANAGER CONFIGURATION ###########
       formManager:
-        translationFile:
+        translationFiles:
           100: 'EXT:form/Resources/Private/Language/Database.xlf'
           200: 'EXT:frp_form_answers/Resources/Private/Language/database.xlf'
       ########### FORMEDITOR CONFIGURATION ###########
       prototypes:
         standard:
           formEditor:
-            translationFile:
+            translationFiles:
               100: 'EXT:form/Resources/Private/Language/Database.xlf'
               200: 'EXT:frp_form_answers/Resources/Private/Language/database.xlf'
           ########### DEFAULT FORM ELEMENT DEFINITIONS ###########
@@ -24,18 +24,20 @@ TYPO3:
                       1491637029:
                         value: 'SaveFormToDatabase'
                         iconIdentifier: 't3-form-icon-finisher'
-                        label: 'formEditor.elements.Form.finisher.SaveToDatabase.editor.header.label'
+                        label: 'formEditor.elements.Form.finishers.SaveToDatabase.editor.header.label'
                 propertyCollections:
                   finishers:
                     1491637029:
                       identifier: 'SaveFormToDatabase'
                       editors:
-                        __inheritances:
-                          10: 'TYPO3.CMS.Form.mixins.formElementMixins.BaseCollectionEditorsMixin'
                         100:
-                          label: 'formEditor.elements.Form.finisher.SaveToDatabase.editor.header.label'
+                          identifier: header
+                          templateName: Inspector-CollectionElementHeaderEditor
+                          label: 'formEditor.elements.Form.finishers.SaveToDatabase.editor.header.label'
+                        9999:
+                          identifier: removeButton
+                          templateName: Inspector-RemoveElementEditor
           finishersDefinition:
             SaveFormToDatabase:
               formEditor:
-                iconIdentifier: 't3-form-icon-finisher'
-
+                iconIdentifier: 'form-finisher'

@@ -4,7 +4,7 @@ TYPO3:
       prototypes:
         standard:
           formEngine:
-            translationFile:
+            translationFiles:
               10: 'EXT:form/Resources/Private/Language/Database.xlf'
               20: 'EXT:frp_form_answers/Resources/Private/Language/Database.xlf'
 
