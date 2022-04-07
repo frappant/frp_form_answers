@@ -5,7 +5,9 @@ use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Authentication\BackendUserAuthentication;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Backend\Utility\BackendUtility as BackendUtilityCore;
-use TYPO3\CMS\Frontend\Page\PageRepository;
+use TYPO3\CMS\Core\Context\Context;
+use TYPO3\CMS\Core\Domain\Repository\PageRepository;
+use TYPO3\CMS\Core\Information\Typo3Version;
 
 /**
  * Class BackendUtility
@@ -38,7 +40,12 @@ class BackendUtility extends BackendUtilityCore
         if (!self::isBackendAdmin()) {
             $pageRepository = GeneralUtility::makeInstance(PageRepository::class);
 
-            if (version_compare(TYPO3_branch, '10', '<')) {
+            /**
+             * @todo check if this if block can be deleted
+             */
+            $t3Version = GeneralUtility::makeInstance(Typo3Version::class);
+            
+            if (version_compare($t3Version->getBranch(), '10', '<')) {
                 $expressionBuilder = GeneralUtility::makeInstance(ConnectionPool::class)
                     ->getQueryBuilderForTable('pages')
                     ->expr()
@@ -80,6 +87,8 @@ class BackendUtility extends BackendUtilityCore
      */
     public static function getCurrentPid($pageUid = null)
     {
+        $context = GeneralUtility::makeInstance(Context::class);
+
         if (!$pageUid) {
             $pageUid = (int) $GLOBALS['_REQUEST']['popViewId'];
         }
@@ -99,9 +108,6 @@ class BackendUtility extends BackendUtilityCore
             $pageUid = (int) $_GET['id'];
         }
         if (!$pageUid) {
-            //$pageRepository = GeneralUtility::makeInstance(\TYPO3\CMS\Core\Domain\Repository\PageRepository::class);
-            //list($page) = $pageRepository->getSubpagesForPages([0]);
-            //$pageUid = intval($page['uid']);
             $pageUid = 0;
         }
         return $pageUid;
