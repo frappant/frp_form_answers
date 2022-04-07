@@ -1,23 +1,24 @@
 <?php
 namespace Frappant\FrpFormAnswers\Controller;
 
+use Frappant\FrpFormAnswers\DataExporter\DataExporter;
 use Frappant\FrpFormAnswers\Domain\Model\FormEntryDemand;
-use TYPO3\CMS\Backend\Clipboard\Clipboard;
+use Frappant\FrpFormAnswers\Domain\Repository\FormEntryRepository;
+use Frappant\FrpFormAnswers\Utility\FormAnswersUtility;
+use Psr\Http\Message\ResponseInterface;
 use TYPO3\CMS\Backend\Template\Components\ButtonBar;
 use TYPO3\CMS\Backend\Template\Components\Menu\Menu;
-use TYPO3\CMS\Backend\Utility\BackendUtility as BackendUtilityCore;
-use TYPO3\CMS\Backend\View\BackendTemplateView;
-use TYPO3\CMS\Core\Authentication\BackendUserAuthentication;
+use TYPO3\CMS\Backend\Template\ModuleTemplateFactory;
 use TYPO3\CMS\Core\Database\ConnectionPool;
+use TYPO3\CMS\Core\Http\StreamFactory;
 use TYPO3\CMS\Core\Imaging\Icon;
 use TYPO3\CMS\Core\Imaging\IconFactory;
 use TYPO3\CMS\Core\Localization\LanguageService;
 use TYPO3\CMS\Core\Messaging\FlashMessage;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Extbase\Mvc\View\ViewInterface;
-use TYPO3\CMS\Extbase\Mvc\Web\Routing\UriBuilder;
-use TYPO3\CMS\Extbase\Utility\DebuggerUtility;
+use TYPO3\CMS\Extbase\Mvc\Controller\ActionController;
 use TYPO3\CMS\Extbase\Utility\LocalizationUtility;
+use TYPO3\CMS\Extbase\Utility\DebuggerUtility;
 
 /***
  *
@@ -26,177 +27,68 @@ use TYPO3\CMS\Extbase\Utility\LocalizationUtility;
  * For the full copyright and license information, please read the
  * LICENSE.txt file that was distributed with this source code.
  *
- *  (c) 2017 !frappant <support@frappant.ch>
+ *  (c) 2022 !Frappant <support@frappant.ch>
  *
  ***/
 
 /**
  * FormEntryController
  */
-class FormEntryController extends \TYPO3\CMS\Extbase\Mvc\Controller\ActionController
+class FormEntryController extends ActionController
 {
     /**
-     * Backend Template Container
-     *
-     * @var string
+     * @var ModuleTemplateFactory $moduleTemplateFactory
      */
-    protected $defaultViewObjectName = \TYPO3\CMS\Backend\View\BackendTemplateView::class;
+    protected ModuleTemplateFactory $moduleTemplateFactory;
 
     /**
-     * pageRepository
-     *
-     * @var \TYPO3\CMS\Core\Domain\Repository\PageRepository
+     * @var IconFactory $iconFactory
      */
-    protected $pageRepository = null;
+    protected IconFactory $iconFactory;
 
     /**
-     * Inject a page repository to enable DI
-     *
-     * @param \TYPO3\CMS\Core\Domain\Repository\PageRepository $pageRepository
+     * @var FormAnswersUtility $formAnswersUtility
      */
-    public function injectPageRepository(\TYPO3\CMS\Core\Domain\Repository\PageRepository $pageRepository)
-    {
-        $this->pageRepository = $pageRepository;
-    }
+    protected FormAnswersUtility $formAnswersUtility;
 
     /**
-     * formEntryRepository
-     *
-     * @var \Frappant\FrpFormAnswers\Domain\Repository\FormEntryRepository
+     * @var FormEntryRepository $formEntryRepository
      */
-    protected $formEntryRepository;
+    protected FormEntryRepository $formEntryRepository;
 
     /**
-     * Inject a page repository to enable DI
-     *
-     * @param \Frappant\FrpFormAnswers\Domain\Repository\FormEntryRepository $formEntryRepository
-     */
-    public function injectFormEntryRepository(\Frappant\FrpFormAnswers\Domain\Repository\FormEntryRepository $formEntryRepository)
-    {
-        $this->formEntryRepository = $formEntryRepository;
-    }
-
-    /**
-     * dataExporter
-     *
      * @var \Frappant\FrpFormAnswers\DataExporter\DataExporter
      */
-    protected $dataExporter = null;
+    protected DataExporter $dataExporter;
 
     /**
-     * Inject a page repository to enable DI
-     *
-     * @param \Frappant\FrpFormAnswers\DataExporter\DataExporter $dataExporter
+     * http headers to send with filedownload request @see exportAction
+     * 
+     * @var array
      */
-    public function injectDataExporter(\Frappant\FrpFormAnswers\DataExporter\DataExporter $dataExporter)
-    {
+    protected $requestHeaders = [];
+    
+
+    public function __construct(
+        ModuleTemplateFactory $moduleTemplateFactory,
+        IconFactory $iconFactory,
+        FormAnswersUtility $formAnswersUtility,
+        FormEntryRepository $formEntryRepository,
+        DataExporter $dataExporter
+    ) {
+        $this->moduleTemplateFactory = $moduleTemplateFactory;
+        $this->iconFactory = $iconFactory;
+        $this->formAnswersUtility = $formAnswersUtility;
+        $this->formEntryRepository = $formEntryRepository;
         $this->dataExporter = $dataExporter;
     }
 
     /**
-     * formAnswersUtility
-     *
-     * @var \Frappant\FrpFormAnswers\Utility\FormAnswersUtility
+     * action list, Show saved form entries from database
+     * 
+     * @return ResponseInterface
      */
-    protected $formAnswersUtility = null;
-
-    /**
-     * Inject a page repository to enable DI
-     *
-     * @param \Frappant\FrpFormAnswers\Utility\FormAnswersUtility $formAnswersUtility
-     */
-    public function injectFormAnswersUtility(\Frappant\FrpFormAnswers\Utility\FormAnswersUtility $formAnswersUtility)
-    {
-        $this->formAnswersUtility = $formAnswersUtility;
-    }
-
-    /**
-     * @var IconFactory
-     */
-    protected $iconFactory;
-
-    /**
-     * Set up the doc header properly here
-     *
-     * @param ViewInterface $view
-     * @return void
-     */
-    protected function initializeView(ViewInterface $view)
-    {
-        /** @var BackendTemplateView $view */
-        parent::initializeView($view);
-        $this->iconFactory = GeneralUtility::makeInstance(IconFactory::class);
-        
-	    if ($this->actionMethodName != 'exportAction') {
-	        $view->getModuleTemplate()->getDocHeaderComponent()->setMetaInformation([]);
-
-	        $pageRenderer = $this->view->getModuleTemplate()->getPageRenderer();
-	        $pageRenderer->addInlineLanguageLabelFile('EXT:lang/Resources/Private/Language/locallang_core.xlf');
-
-	        $this->createMenu();
-	        $this->createButtons();
-
-	        $view->assign('showSupportArea', $this->showSupportArea());
-	    }
-    }
-
-    /**
-     * Create menu
-     *
-     */
-    protected function createMenu()
-    {
-        $uriBuilder = $this->objectManager->get(UriBuilder::class);
-        $uriBuilder->setRequest($this->request);
-
-        $menu = $this->view->getModuleTemplate()->getDocHeaderComponent()->getMenuRegistry()->makeMenu();
-        $menu->setIdentifier('news');
-
-        $actions = [
-            ['action' => 'list', 'label' => 'Overview'],
-            ['action' => 'prepareExport', 'label' => 'Export'],
-            ['action' => 'prepareRemove', 'label' => 'Remove'],
-        ];
-
-        foreach ($actions as $action) {
-            $item = $menu->makeMenuItem()
-                ->setTitle($action['label'])
-                ->setHref($uriBuilder->reset()->uriFor($action['action'], [], 'FormEntry'))
-                ->setActive($this->request->getControllerActionName() === $action['action']);
-            $menu->addMenuItem($item);
-        }
-
-        if ($menu instanceof Menu) {
-            $this->view->getModuleTemplate()->getDocHeaderComponent()->getMenuRegistry()->addMenu($menu);
-        }
-    }
-
-    /**
-     * Create the panel of buttons
-     *
-     */
-    protected function createButtons()
-    {
-        $buttonBar = $this->view->getModuleTemplate()->getDocHeaderComponent()->getButtonBar();
-
-        $uriBuilder = GeneralUtility::makeInstance(UriBuilder::class);
-        $uriBuilder->setRequest($this->request);
-
-        // Refresh
-        $refreshButton = $buttonBar->makeLinkButton()
-            ->setHref(GeneralUtility::getIndpEnv('REQUEST_URI'))
-            ->setTitle($this->getLanguageService()->sL('LLL:EXT:core/Resources/Private/Language/locallang_core.xlf:labels.reload'))
-            ->setIcon($this->iconFactory->getIcon('actions-refresh', Icon::SIZE_SMALL));
-        $buttonBar->addButton($refreshButton, ButtonBar::BUTTON_POSITION_RIGHT);
-
-    }
-
-    /**
-     * action list
-     *
-     * @return void
-     */
-    public function listAction()
+    public function listAction(): ResponseInterface
     {
         $pageIds = $this->formAnswersUtility->prepareFormAnswersArray();
 
@@ -207,14 +99,37 @@ class FormEntryController extends \TYPO3\CMS\Extbase\Mvc\Controller\ActionContro
         $this->view->assign('pid', (int)GeneralUtility::_GP('id'));
         $this->view->assign('formNames', $this->formAnswersUtility->getAllFormNames());
         $this->view->assign('settings', $this->settings);
+
+        $moduleTemplate = $this->moduleTemplateFactory->create($this->request);
+        
+        $this->createMenu($moduleTemplate);
+	    $this->createButtons($moduleTemplate);
+
+        $moduleTemplate->setContent($this->view->render());
+        return $this->htmlResponse($moduleTemplate->renderContent());
     }
 
     /**
-     * action prepareRemove
+     * action show
      *
-     * @return void
+     * @param \Frappant\FrpFormAnswers\Domain\Model\FormEntry $formEntry
+     * @return ResponseInterface
      */
-    public function prepareRemoveAction()
+    public function showAction(\Frappant\FrpFormAnswers\Domain\Model\FormEntry $formEntry): ResponseInterface
+    {
+        $this->view->assign('formEntry', $formEntry);
+        
+        $moduleTemplate = $this->moduleTemplateFactory->create($this->request);
+        $moduleTemplate->setContent($this->view->render());
+        return $this->htmlResponse($moduleTemplate->renderContent());
+    }
+
+    /**
+     * action prepareRemove, Show form entries which are marked as deleted
+     *
+     * @return ResponseInterface
+     */
+    public function prepareRemoveAction(): ResponseInterface
     {
         $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('tx_frpformanswers_domain_model_formentry');
         $queryBuilder->getRestrictions()->removeAll();
@@ -226,10 +141,18 @@ class FormEntryController extends \TYPO3\CMS\Extbase\Mvc\Controller\ActionContro
             ->execute()->fetchFirstColumn();
         //DebuggerUtility::var_dump($count);
         $this->view->assign('count', $count[0]);
+
+        $moduleTemplate = $this->moduleTemplateFactory->create($this->request);
+        
+        $this->createMenu($moduleTemplate);
+	    $this->createButtons($moduleTemplate);
+
+        $moduleTemplate->setContent($this->view->render());
+        return $this->htmlResponse($moduleTemplate->renderContent());
     }
 
     /**
-     * action prepareRemove
+     * action remove, Remove form entries which are marked as deleted
      *
      * @return void
      */
@@ -247,81 +170,138 @@ class FormEntryController extends \TYPO3\CMS\Extbase\Mvc\Controller\ActionContro
             LocalizationUtility::translate('LLL:EXT:frp_form_answers/Resources/Private/Language/de.locallang_be.xlf:flashmessage.removeEntries.title'),
             \TYPO3\CMS\Core\Messaging\FlashMessage::OK,
             true);
+
         $this->redirect('list');
     }
 
     /**
-     * action show
-     *
-     * @param \Frappant\FrpFormAnswers\Domain\Model\FormEntry $formEntry
-     * @return void
-     */
-    public function showAction(\Frappant\FrpFormAnswers\Domain\Model\FormEntry $formEntry)
-    {
-        $this->view->assign('formEntry', $formEntry);
-    }
-
-    /**
      * action prepareExport
-     *
-     * @return void
+     * 
+     * @return ResponseInterface
      */
-    public function prepareExportAction()
+    public function prepareExportAction(): ResponseInterface
     {
         $demandObject = GeneralUtility::makeInstance(FormEntryDemand::class);
 
+        $this->formEntryDemand = $demandObject;
         $this->view->assign('formEntryDemand', $demandObject);
         $this->view->assign('formHashes', $this->formAnswersUtility->getAllFormHashes());
+
+        $moduleTemplate = $this->moduleTemplateFactory->create($this->request);
+        
+        $this->createMenu($moduleTemplate);
+	    $this->createButtons($moduleTemplate);
+
+        $moduleTemplate->setContent($this->view->render());
+        return $this->htmlResponse($moduleTemplate->renderContent());
     }
 
     public function initializeExportAction(){
-        $format = $this->request->getArguments()['format'];
+
+        $args = $this->request->getArguments();
+        $format = $args['format'];
+        $filename = $args['formEntryDemand']['fileName'];
+        $charset = (strlen($args['formEntryDemand']['charset']) > 0 ? $args['formEntryDemand']['charset'] : 'iso-8859-1');
 
         switch ($format){
             case 'Csv':
+                $filename = (strlen($filename) > 0 ? $filename.'.csv' : 'export.csv');
+
+                $this->setRequestHeader('Content-Type', 'application/force-download');
+                $this->setRequestHeader('Content-Type', 'text/csv');
+                $this->setRequestHeader('Content-Disposition', "attachment;filename=$filename");
+                $this->setRequestHeader('Content-Transfer-Encoding', 'binary');
+                $this->setRequestHeader('Content-Type', "application/download; charset=$charset");
+
                 $this->defaultViewObjectName = \Frappant\FrpFormAnswers\View\FormEntry\ExportCsv::class;
+
             break;
             case 'Xls':
+                $filename = (strlen($filename) > 0 ? $filename.'.xlsx' : 'export.xlsx');
+
+                $this->setRequestHeader('Content-Type', 'application/force-download');
+                $this->setRequestHeader('Content-Disposition', "attachment;filename=$filename");
+                $this->setRequestHeader('Content-Type', "application/download; charset=$charset");
+
                 $this->defaultViewObjectName = \Frappant\FrpFormAnswers\View\FormEntry\ExportXls::class;
+
             break;
             case 'Xml':
+                $filename = (strlen($filename) > 0 ? $filename.'.xml' : 'export.xml');
+
+                $this->setRequestHeader('Content-Type', 'application/force-download');
+                $this->setRequestHeader('Content-Type', 'application/xml');
+                $this->setRequestHeader('Content-Disposition', "attachment;filename=$filename");
+                $this->setRequestHeader('Content-Transfer-Encoding', 'binary');
+                $this->setRequestHeader('Content-Type', "application/download; charset=$charset");
+
                 $this->defaultViewObjectName = \Frappant\FrpFormAnswers\View\FormEntry\ExportXml::class;
+                
             break;
         }
-
     }
 
 	/**
-	 * action export
+	 * export Action
+     * 
 	 * @param FormEntryDemand $formEntryDemand
-	 * @return void The Excel file with data
+	 * @return responseInterface A Downloadable file
 	 * @throws \TYPO3\CMS\Extbase\Mvc\Exception\StopActionException
 	 * @throws \TYPO3\CMS\Extbase\Mvc\Exception\UnsupportedRequestTypeException
 	 */
-    public function exportAction(FormEntryDemand $formEntryDemand)
+    public function exportAction(\Frappant\FrpFormAnswers\Domain\Model\FormEntryDemand $formEntryDemand = null): ResponseInterface
     {
-        $formEntries = $this->formEntryRepository->findbyDemand($formEntryDemand);
-
-        if (count($formEntries) === 0) {
-            $this->addFlashMessage('No entries found with your criteria',
-               'No Entries found',
-               FlashMessage::WARNING,
-               true
+        if($formEntryDemand) {
+            $formEntries = $this->formEntryRepository->findbyDemand($formEntryDemand);
+            if (count($formEntries) === 0) {
+                $this->addFlashMessage('No entries found with your criteria',
+                    'No Entries found',
+                    FlashMessage::WARNING,
+                    true
+                );
+                $this->redirect('list');
+            }
+        } else {
+            $this->addFlashMessage('No Demand set',
+                'No Demand found',
+                FlashMessage::ERROR,
+                true
             );
             $this->redirect('list');
         }
 
         $extensionConfiguration = $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['frp_formanswers'];
-
         $exportData = $this->dataExporter->getExport($formEntries, $formEntryDemand, $extensionConfiguration['useSubmitUid']['value']);
 
         $this->formEntryRepository->setFormsToExported($formEntries);
 
         $this->view->assign('rows', $exportData);
         $this->view->assign('formEntryDemand', $formEntryDemand);
+        
+        return $this->generateDownloadResponse($this->view->render());
     }
 
     /**
+     * Prepare the download request
+     * 
+     * @param string File Contents wich would be downloaded
+     * @return ResponseInterface http response with http headers and file contents
+     */
+    protected function generateDownloadResponse($renderedContent): ResponseInterface
+    {
+        $response = $this->responseFactory->createResponse();
+
+        foreach($this->getRequestHeaders() as $header) {
+            $response = $response->withHeader("$header[0]", "$header[1]");
+        }
+
+        $response = $response->withBody($this->streamFactory->createStream($renderedContent));
+
+        return $response;
+    }
+
+    /**
+     * @todo check where this method is used
      * @param string $formName
      * @throws \TYPO3\CMS\Extbase\Mvc\Exception\StopActionException
      */
@@ -347,22 +327,69 @@ class FormEntryController extends \TYPO3\CMS\Extbase\Mvc\Controller\ActionContro
     }
 
     /**
-     * Show support area only for admins in given percent of time
+     * Create menu
      *
-     * @param int $probabilityInPercent
-     * @return bool
      */
-    private function showSupportArea(int $probabilityInPercent = 10): bool
+    protected function createMenu($moduleTemplate)
     {
-        if (!$this->getBackendUser()->isAdmin()) {
-            return false;
+        $this->uriBuilder->setRequest($this->request);
+
+        $menu = $moduleTemplate->getDocHeaderComponent()->getMenuRegistry()->makeMenu();
+        // $menu = $this->view->getModuleTemplate()->getDocHeaderComponent()->getMenuRegistry()->makeMenu();
+        $menu->setIdentifier('frpformanswers_main');
+
+        $actions = [
+            ['action' => 'list', 'label' => 'Overview'],
+            ['action' => 'prepareExport', 'label' => 'Export'],
+            ['action' => 'prepareRemove', 'label' => 'Remove'],
+        ];
+
+        foreach ($actions as $action) {
+            $item = $menu->makeMenuItem()
+                ->setTitle($action['label'])
+                ->setHref($this->uriBuilder->reset()->uriFor($action['action'], [], 'FormEntry'))
+                ->setActive($this->request->getControllerActionName() === $action['action']);
+            $menu->addMenuItem($item);
         }
 
-        if (mt_rand() % 100 <= $probabilityInPercent) {
-            return true;
+        if ($menu instanceof Menu) {
+            $moduleTemplate->getDocHeaderComponent()->getMenuRegistry()->addMenu($menu);
         }
+    }
 
-        return false;
+    /**
+     * Create the panel of buttons
+     *
+     */
+    protected function createButtons($moduleTemplate)
+    {
+        $buttonBar = $moduleTemplate->getDocHeaderComponent()->getButtonBar();
+
+        $this->uriBuilder->setRequest($this->request);
+
+        // Refresh
+        $refreshButton = $buttonBar->makeLinkButton()
+            ->setHref(GeneralUtility::getIndpEnv('REQUEST_URI'))
+            ->setTitle($this->getLanguageService()->sL('LLL:EXT:core/Resources/Private/Language/locallang_core.xlf:labels.reload'))
+            ->setIcon($this->iconFactory->getIcon('actions-refresh', Icon::SIZE_SMALL));
+        $buttonBar->addButton($refreshButton, ButtonBar::BUTTON_POSITION_RIGHT);
+
+    }
+
+    /**
+     * @param string $name — Case-insensitive header field name.
+     * @param string|string[] $value — Header value(s).
+     */
+    protected function setRequestHeader($name, $value) {
+        $this->requestHeaders[] = [$name, $value];
+    }
+
+    /**
+     * @return array headers wich should set on response
+     */
+    protected function getRequestHeaders()
+    {
+        return $this->requestHeaders;
     }
 
     /**
@@ -375,13 +402,4 @@ class FormEntryController extends \TYPO3\CMS\Extbase\Mvc\Controller\ActionContro
         return $GLOBALS['LANG'];
     }
 
-    /**
-     * Get backend user
-     *
-     * @return BackendUserAuthentication
-     */
-    protected function getBackendUser(): BackendUserAuthentication
-    {
-        return $GLOBALS['BE_USER'];
-    }
 }

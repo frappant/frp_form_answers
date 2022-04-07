@@ -20,6 +20,23 @@ use Symfony\Component\Console\Command\Command;
 class MailAdminNotificationCommand extends Command
 {
 
+    /**
+     * FormEntryRepository
+     *
+     * @var \Frappant\FrpFormAnswers\Domain\Repository\FormEntryRepository
+     */
+    protected $formEntryRepository;
+
+    /**
+     * Inject FormEntryRepository
+     *
+     * @param \Frappant\FrpFormAnswers\Domain\Repository\FormEntryRepository $pageRepository
+     */
+    public function injectFormEntryRepository(FormEntryRepository $formEntryRepository)
+    {
+        $this->formEntryRepository = $formEntryRepository;
+    }
+
 	/**
 	 * Configure the command by defining the name, options and arguments.
 	 */
@@ -93,7 +110,7 @@ class MailAdminNotificationCommand extends Command
             throw new Exception('You need to provide at least one email address.');
         }
 
-        $formEntryRepository = GeneralUtility::makeInstance(ObjectManager::class)->get(FormEntryRepository::class);
+        // $formEntryRepository = GeneralUtility::makeInstance(ObjectManager::class)->get(FormEntryRepository::class);
 
         $search = GeneralUtility::makeInstance(FormEntryDemand::class);
         $search->setAllPids(true);
@@ -112,7 +129,7 @@ class MailAdminNotificationCommand extends Command
         } else {
             throw new Exception("['TYPO3_CONF_VARS']['MAIL']['defaultMailFromAddress'] is not set.");
         }
-        $records = $formEntryRepository->findByDemand($search);
+        $records = $this->formEntryRepository->findByDemand($search);
 
         if ($records->count()) {
         	$output->writeln($records->count()." entries found");
@@ -121,7 +138,7 @@ class MailAdminNotificationCommand extends Command
             	$output->writeln("Sending entry with uid:".$row->getUid());
                 $row->setExported(true);
                 try {
-	                $formEntryRepository->update($row);
+	                $this->formEntryRepository->update($row);
                 } catch (IllegalObjectTypeException $e) {
                 	$output->writeln($e->getMessage());
                     return;
