@@ -1,14 +1,20 @@
 <?php
 namespace Frappant\FrpFormAnswers\Domain\Finishers;
 
+use Frappant\FrpFormAnswers\Event\ManipulateFormValuesEvent;
 use Frappant\FrpFormAnswers\Domain\Model\FormEntry;
+use TYPO3\CMS\Core\EventDispatcher\EventDispatcher;
+use TYPO3\CMS\Extbase\Utility\DebuggerUtility;
 use TYPO3\CMS\Form\Domain\Finishers;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Domain\Model\FileReference;
+use TYPO3\CMS\Extbase\SignalSlot\Dispatcher;
 use TYPO3\CMS\Form\Domain\Finishers\AbstractFinisher;
 use TYPO3\CMS\Form\Domain\Finishers\Exception\FinisherException;
 use TYPO3\CMS\Form\Domain\Model\FormElements\FormElementInterface;
+use Frappant\FrpFormAnswers\Domain\Repository\FormEntryRepository;
+use Psr\EventDispatcher\EventDispatcherInterface;
 
 class SaveFormToDatabaseFinisher extends AbstractFinisher
 {
@@ -16,7 +22,6 @@ class SaveFormToDatabaseFinisher extends AbstractFinisher
      * formEntryRepository
      *
      * @var \Frappant\FrpFormAnswers\Domain\Repository\FormEntryRepository
-     * @TYPO3\CMS\Extbase\Annotation\Inject
      */
     protected $formEntryRepository = null;
 
@@ -24,9 +29,35 @@ class SaveFormToDatabaseFinisher extends AbstractFinisher
      * signalSlotDispatcher
      *
      * @var \TYPO3\CMS\Extbase\SignalSlot\Dispatcher
-     * @TYPO3\CMS\Extbase\Annotation\Inject
      */
     protected $signalSlotDispatcher = null;
+
+    /**
+     * @param \TYPO3\CMS\Extbase\SignalSlot\Dispatcher $dispatcher
+     */
+    public function injectDispatcher(Dispatcher $dispatcher) {
+        $this->signalSlotDispatcher = $dispatcher;
+    }
+
+    protected EventDispatcherInterface $eventDispatcher;
+
+    public function injectEventDispatcherInterface(EventDispatcherInterface $eventDispatcher) {
+        $this->eventDispatcher = $eventDispatcher;
+    }
+
+    /**
+     * @param \Frappant\FrpFormAnswers\Domain\Repository\FormEntryRepository $formEntryRepository
+     */
+    public function injectFormEntryRepository(FormEntryRepository $formEntryRepository) {
+        $this->formEntryRepository = $formEntryRepository;
+    }
+
+
+    protected FormEntry $formEntry;
+
+    public function injectFormEntry(FormEntry $formEntry) {
+        $this->formEntry = $formEntry;
+    }
 
     /**
      * Executes this finisher
@@ -34,6 +65,8 @@ class SaveFormToDatabaseFinisher extends AbstractFinisher
      */
     protected function executeInternal()
     {
+        $this->eventDispatcher = GeneralUtility::makeInstance(EventDispatcher::class);
+
         // Values of all fields, getFormValues() also gives pages,
         // so it will be filled in foreach
         $values = $this->getFormValues();
@@ -42,25 +75,34 @@ class SaveFormToDatabaseFinisher extends AbstractFinisher
         // Default Value is new Form
         $lastFormUid = 1;
 
+        /**
+         * Provide a Signal to manipulate $values before saving
+         * @deprecated since v4 will be removed in v5
+         */
         $this->signalSlotDispatcher->dispatch(__CLASS__, 'preInsertSignal', array(&$values));
 
-        $formEntry = $this->objectManager->get(FormEntry::class);
-        $formEntry->setExported(false);
-        $formEntry->setAnswers($values);
+        /**
+         * Dispatch an Event to manipulate $values (Use this instead of preInsertSignal above)
+         */
+        $event = $this->eventDispatcher->dispatch(new ManipulateFormValuesEvent($values));
+        $values = $event->getValues();
 
-        $formEntry->setForm($identifier);
-        $formEntry->setPid($GLOBALS['TSFE']->id);
+        $this->formEntry->setExported(false);
+        $this->formEntry->setAnswers($values);
+
+        $this->formEntry->setForm($identifier);
+        $this->formEntry->setPid($GLOBALS['TSFE']->id);
 
         $lastForm = $this->formEntryRepository->getLastFormAnswerByIdentifyer($identifier);
+
         // If there already exists a formAnswers, override lastFormUid
         if ($lastForm instanceof FormEntry) {
             $lastFormUid += $lastForm->getSubmitUid();
         }
 
+        $this->formEntry->setSubmitUid($lastFormUid);
 
-        $formEntry->setSubmitUid($lastFormUid);
-
-        $this->formEntryRepository->add($formEntry);
+        $this->formEntryRepository->add($this->formEntry);
     }
 
     /**
