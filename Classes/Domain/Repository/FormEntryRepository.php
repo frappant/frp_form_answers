@@ -4,6 +4,7 @@ namespace Frappant\FrpFormAnswers\Domain\Repository;
 use Frappant\FrpFormAnswers\Database\QueryGenerator;
 use Frappant\FrpFormAnswers\Domain\Model\FormEntryDemand;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Extbase\Persistence\Exception\IllegalObjectTypeException;
 use TYPO3\CMS\Extbase\Persistence\Generic\QueryResult;
 use TYPO3\CMS\Extbase\Persistence\QueryInterface;
 use Frappant\FrpFormAnswers\Utility\BackendUtility;
@@ -44,6 +45,22 @@ class FormEntryRepository extends \TYPO3\CMS\Extbase\Persistence\Repository
         $querySettings->setRespectStoragePage($bool);
 
         $this->setDefaultQuerySettings($querySettings);
+    }
+
+
+    /**
+     * Adds an object to this repository
+     *
+     * @param object $object The object to add
+     * @throws IllegalObjectTypeException
+     */
+    public function add($object)
+    {
+        if (!$object instanceof $this->objectType) {
+            throw new IllegalObjectTypeException('The object given to add() was not of the type (' . $this->objectType . ') this repository manages.', 1248363335);
+        }
+        $this->persistenceManager->add($object);
+        $this->persistenceManager->persistAll();
     }
 
     /**
