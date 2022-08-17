@@ -44,10 +44,19 @@ class FormAnswersUtility
         // Get all Pids with a formEntry list
         foreach ($startPointPids as $pageId) {
             foreach ($this->formEntryRepository->findAllInPidAndRootline($pageId) as $formEntry) {
-                $pageIds[$formEntry->getPid()][$formEntry->getForm()]['tot'] += 1;
+                if($pageIds[$formEntry->getPid()][$formEntry->getForm()]['tot']) {
+                    $pageIds[$formEntry->getPid()][$formEntry->getForm()]['tot'] += 1;
+                } else {
+                    $pageIds[$formEntry->getPid()][$formEntry->getForm()]['tot'] = 1;
+                }
 
                 if (!$formEntry->isExported()) {
-                    $pageIds[$formEntry->getPid()][$formEntry->getForm()]['new'] += 1;
+                    if($pageIds[$formEntry->getPid()][$formEntry->getForm()]['new']) {
+                        $pageIds[$formEntry->getPid()][$formEntry->getForm()]['new'] += 1;
+                    } else {
+                        $pageIds[$formEntry->getPid()][$formEntry->getForm()]['new'] = 1;
+                    }
+
                 }
             }
         }

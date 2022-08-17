@@ -10,6 +10,7 @@ use TYPO3\CMS\Backend\Template\Components\ButtonBar;
 use TYPO3\CMS\Backend\Template\Components\Menu\Menu;
 use TYPO3\CMS\Backend\Template\ModuleTemplateFactory;
 use TYPO3\CMS\Core\Database\ConnectionPool;
+use TYPO3\CMS\Core\Domain\Repository\PageRepository;
 use TYPO3\CMS\Core\Http\StreamFactory;
 use TYPO3\CMS\Core\Imaging\Icon;
 use TYPO3\CMS\Core\Imaging\IconFactory;
@@ -62,30 +63,45 @@ class FormEntryController extends ActionController
     protected DataExporter $dataExporter;
 
     /**
+    * @var PageRepository $pageRepository
+    */
+    protected PageRepository $pageRepository;
+
+    /**
+     * @var integer
+     */
+   protected $pid;
+
+    /**
      * http headers to send with filedownload request @see exportAction
-     * 
+     *
      * @var array
      */
     protected $requestHeaders = [];
-    
+
 
     public function __construct(
         ModuleTemplateFactory $moduleTemplateFactory,
         IconFactory $iconFactory,
         FormAnswersUtility $formAnswersUtility,
         FormEntryRepository $formEntryRepository,
-        DataExporter $dataExporter
+        DataExporter $dataExporter,
+        PageRepository $pageRepository
     ) {
         $this->moduleTemplateFactory = $moduleTemplateFactory;
         $this->iconFactory = $iconFactory;
         $this->formAnswersUtility = $formAnswersUtility;
         $this->formEntryRepository = $formEntryRepository;
         $this->dataExporter = $dataExporter;
+        $this->pageRepository = $pageRepository;
+
+        $this->pid = (int)GeneralUtility::_GP('id');
+
     }
 
     /**
      * action list, Show saved form entries from database
-     * 
+     *
      * @return ResponseInterface
      */
     public function listAction(): ResponseInterface
@@ -101,7 +117,7 @@ class FormEntryController extends ActionController
         $this->view->assign('settings', $this->settings);
 
         $moduleTemplate = $this->moduleTemplateFactory->create($this->request);
-        
+
         $this->createMenu($moduleTemplate);
 	    $this->createButtons($moduleTemplate);
 
@@ -118,7 +134,7 @@ class FormEntryController extends ActionController
     public function showAction(\Frappant\FrpFormAnswers\Domain\Model\FormEntry $formEntry): ResponseInterface
     {
         $this->view->assign('formEntry', $formEntry);
-        
+
         $moduleTemplate = $this->moduleTemplateFactory->create($this->request);
         $moduleTemplate->setContent($this->view->render());
         return $this->htmlResponse($moduleTemplate->renderContent());
@@ -136,14 +152,14 @@ class FormEntryController extends ActionController
 
         $count = $queryBuilder->count('*')
             ->from('tx_frpformanswers_domain_model_formentry')
-            ->where($queryBuilder->expr()->eq('pid', $queryBuilder->createNamedParameter(\Frappant\FrpFormAnswers\Utility\BackendUtility::getCurrentPid(), \PDO::PARAM_INT)))
+            ->where($queryBuilder->expr()->eq('pid', $queryBuilder->createNamedParameter($this->pid, \PDO::PARAM_INT)))
             ->andWhere($queryBuilder->expr()->eq('deleted', $queryBuilder->createNamedParameter(1, \PDO::PARAM_INT)))
             ->execute()->fetchFirstColumn();
         //DebuggerUtility::var_dump($count);
         $this->view->assign('count', $count[0]);
 
         $moduleTemplate = $this->moduleTemplateFactory->create($this->request);
-        
+
         $this->createMenu($moduleTemplate);
 	    $this->createButtons($moduleTemplate);
 
@@ -161,12 +177,12 @@ class FormEntryController extends ActionController
         $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('tx_frpformanswers_domain_model_formentry');
 
         $queryBuilder->delete('tx_frpformanswers_domain_model_formentry')
-            ->where($queryBuilder->expr()->eq('pid', $queryBuilder->createNamedParameter(\Frappant\FrpFormAnswers\Utility\BackendUtility::getCurrentPid(), \PDO::PARAM_INT)))
+            ->where($queryBuilder->expr()->eq('pid', $queryBuilder->createNamedParameter($this->pid, \PDO::PARAM_INT)))
             ->andWhere($queryBuilder->expr()->eq('deleted', $queryBuilder->createNamedParameter(1, \PDO::PARAM_INT)))
             ->execute();
 
         $this->addFlashMessage(
-            LocalizationUtility::translate('LLL:EXT:frp_form_answers/Resources/Private/Language/de.locallang_be.xlf:flashmessage.removeEntries.body', null, [\Frappant\FrpFormAnswers\Utility\BackendUtility::getCurrentPid()]),
+            LocalizationUtility::translate('LLL:EXT:frp_form_answers/Resources/Private/Language/de.locallang_be.xlf:flashmessage.removeEntries.body', null, [$this->pid]),
             LocalizationUtility::translate('LLL:EXT:frp_form_answers/Resources/Private/Language/de.locallang_be.xlf:flashmessage.removeEntries.title'),
             \TYPO3\CMS\Core\Messaging\FlashMessage::OK,
             true);
@@ -176,7 +192,7 @@ class FormEntryController extends ActionController
 
     /**
      * action prepareExport
-     * 
+     *
      * @return ResponseInterface
      */
     public function prepareExportAction(): ResponseInterface
@@ -188,7 +204,7 @@ class FormEntryController extends ActionController
         $this->view->assign('formHashes', $this->formAnswersUtility->getAllFormHashes());
 
         $moduleTemplate = $this->moduleTemplateFactory->create($this->request);
-        
+
         $this->createMenu($moduleTemplate);
 	    $this->createButtons($moduleTemplate);
 
@@ -236,14 +252,14 @@ class FormEntryController extends ActionController
                 $this->setRequestHeader('Content-Type', "application/download; charset=$charset");
 
                 $this->defaultViewObjectName = \Frappant\FrpFormAnswers\View\FormEntry\ExportXml::class;
-                
+
             break;
         }
     }
 
 	/**
 	 * export Action
-     * 
+     *
 	 * @param FormEntryDemand $formEntryDemand
 	 * @return responseInterface A Downloadable file
 	 * @throws \TYPO3\CMS\Extbase\Mvc\Exception\StopActionException
@@ -277,13 +293,13 @@ class FormEntryController extends ActionController
 
         $this->view->assign('rows', $exportData);
         $this->view->assign('formEntryDemand', $formEntryDemand);
-        
+
         return $this->generateDownloadResponse($this->view->render());
     }
 
     /**
      * Prepare the download request
-     * 
+     *
      * @param string File Contents wich would be downloaded
      * @return ResponseInterface http response with http headers and file contents
      */
@@ -314,11 +330,11 @@ class FormEntryController extends ActionController
             $queryBuilder->update(
                 'tx_frpformanswers_domain_model_formentry',
                 [ 'deleted' => 1 ], // set
-                [ 'form' => $formName, 'pid' => \Frappant\FrpFormAnswers\Utility\BackendUtility::getCurrentPid()]
+                [ 'form' => $formName, 'pid' => $this->pid]
             );
 
             $this->addFlashMessage(
-                LocalizationUtility::translate('LLL:EXT:frp_form_answers/Resources/Private/Language/de.locallang_be.xlf:flashmessage.deleteFormName.body', 'frp_form_answers', [$formName, \Frappant\FrpFormAnswers\Utility\BackendUtility::getCurrentPid()]),
+                LocalizationUtility::translate('LLL:EXT:frp_form_answers/Resources/Private/Language/de.locallang_be.xlf:flashmessage.deleteFormName.body', 'frp_form_answers', [$formName, $this->pid]),
                 LocalizationUtility::translate('LLL:EXT:frp_form_answers/Resources/Private/Language/de.locallang_be.xlf:flashmessage.deleteFormName.title'),
                 \TYPO3\CMS\Core\Messaging\FlashMessage::OK,
                 true);

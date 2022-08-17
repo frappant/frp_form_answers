@@ -37,7 +37,7 @@
             </trans-unit>
 			<trans-unit id="tx_frpformanswers_backend_templates_formentry_show.delete">
 				<source>Delete entries</source>
-				<target>Eingaben löschen</target>
+				<target>Einträge löschen</target>
 			</trans-unit>
 			<trans-unit id="flashmessage.deleteFormName.header">
 				<source>Entries deleted</source>
@@ -141,7 +141,7 @@
             </trans-unit>
             <trans-unit id="tx_frpformanswers_backend_templates_formentry_list.nothingsaved">
                 <source>No saved formEntries</source>
-                <target>Keine gespeicherten formEinträge</target>
+                <target>Keine gespeicherten Einträge</target>
             </trans-unit>
 		</body>
 	</file>

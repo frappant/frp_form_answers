@@ -47,22 +47,6 @@ class FormEntryRepository extends \TYPO3\CMS\Extbase\Persistence\Repository
         $this->setDefaultQuerySettings($querySettings);
     }
 
-
-    /**
-     * Adds an object to this repository
-     *
-     * @param object $object The object to add
-     * @throws IllegalObjectTypeException
-     */
-    public function add($object)
-    {
-        if (!$object instanceof $this->objectType) {
-            throw new IllegalObjectTypeException('The object given to add() was not of the type (' . $this->objectType . ') this repository manages.', 1248363335);
-        }
-        $this->persistenceManager->add($object);
-        $this->persistenceManager->persistAll();
-    }
-
     /**
      * Finds all FormEntries given by conf Array
      * @param  \Frappant\FrpFormAnswers\Domain\Model\FormEntryDemand $formEntryDemand

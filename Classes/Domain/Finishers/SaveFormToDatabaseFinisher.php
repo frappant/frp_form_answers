@@ -4,6 +4,7 @@ namespace Frappant\FrpFormAnswers\Domain\Finishers;
 use Frappant\FrpFormAnswers\Event\ManipulateFormValuesEvent;
 use Frappant\FrpFormAnswers\Domain\Model\FormEntry;
 use TYPO3\CMS\Core\EventDispatcher\EventDispatcher;
+use TYPO3\CMS\Extbase\Persistence\Generic\PersistenceManager;
 use TYPO3\CMS\Extbase\Utility\DebuggerUtility;
 use TYPO3\CMS\Form\Domain\Finishers;
 use TYPO3\CMS\Core\Database\ConnectionPool;
@@ -59,6 +60,12 @@ class SaveFormToDatabaseFinisher extends AbstractFinisher
         $this->formEntry = $formEntry;
     }
 
+    protected PersistenceManager $persistenceManager;
+
+    public function injectPersistenceManager(PersistenceManager $persistenceManager) {
+        $this->persistenceManager = $persistenceManager;
+    }
+
     /**
      * Executes this finisher
      * @see AbstractFinisher::execute()
@@ -103,6 +110,7 @@ class SaveFormToDatabaseFinisher extends AbstractFinisher
         $this->formEntry->setSubmitUid($lastFormUid);
 
         $this->formEntryRepository->add($this->formEntry);
+        $this->persistenceManager->persistAll();
     }
 
     /**

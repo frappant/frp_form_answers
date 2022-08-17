@@ -48,8 +48,8 @@ Otherwise your changes will be overwritten the next time you save the extension 
                 </f:link.action>
             </div>
         </f:form>
-        <f:be.tableList tableName="tx_frpformanswers_domain_model_formentry" filter="{formName}" enableControlPanels="true"
-                        fieldList="{0:'uid', 1: 'crdate'}" storagePid="{pid}" clickTitleMode="edit"/>
+        <f:be.tableList tableName="tx_frpformanswers_domain_model_formentry" filter="{formName}" enableClickMenu="true" enableControlPanels="true"
+                        fieldList="{0:'uid', 1: 'form', 2: 'crdate', 3: 'exported'}" storagePid="{pid}" clickTitleMode="edit"/>
     </f:for>
 
     <f:if condition="{subPagesWithFormEntries}">
