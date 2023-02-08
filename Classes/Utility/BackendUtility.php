@@ -40,24 +40,16 @@ class BackendUtility extends BackendUtilityCore
         if (!self::isBackendAdmin()) {
             $pageRepository = GeneralUtility::makeInstance(PageRepository::class);
 
-            /**
-             * @todo check if this if block can be deleted
-             */
-            $t3Version = GeneralUtility::makeInstance(Typo3Version::class);
-            
-            if (version_compare($t3Version->getBranch(), '10', '<')) {
-                $expressionBuilder = GeneralUtility::makeInstance(ConnectionPool::class)
-                    ->getQueryBuilderForTable('pages')
-                    ->expr()
-                ;
-                $oldExpression = $expressionBuilder->lt('pages.doktype', 200);
-                $newExpression = $expressionBuilder->neq('pages.doktype', PageRepository::DOKTYPE_RECYCLER);
-                $pageRepository->where_hid_del = str_replace(
-                    $oldExpression,
-                    $newExpression,
-                    $pageRepository->where_hid_del
-                );
-            }
+            // Make sure that we fetch all pages except deleted and recyclers
+            $expressionBuilder = GeneralUtility::makeInstance(ConnectionPool::class)
+                ->getQueryBuilderForTable('pages')
+                ->expr()
+            ;
+            $visibilityCondition = $expressionBuilder->andX(
+                $expressionBuilder->neq('pages.doktype', PageRepository::DOKTYPE_RECYCLER),
+                $expressionBuilder->eq('pages.deleted', 0)
+            );
+            $pageRepository->where_hid_del = (string)$visibilityCondition;
 
             $newPids = [];
             foreach ($pids as $pid) {
