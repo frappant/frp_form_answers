@@ -2,6 +2,7 @@
 namespace Frappant\FrpFormAnswers\Domain\Repository;
 
 use Frappant\FrpFormAnswers\Database\QueryGenerator;
+use Frappant\FrpFormAnswers\Domain\Model\FormEntry;
 use Frappant\FrpFormAnswers\Domain\Model\FormEntryDemand;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Persistence\Exception\IllegalObjectTypeException;
@@ -113,7 +114,7 @@ class FormEntryRepository extends \TYPO3\CMS\Extbase\Persistence\Repository
      * Finds the last Form Entry of a given yaml File (form) - used to set the submitUid in SaveFormToDatabaseFinisher
      *
      * @param String $form
-     * @return QueryResult
+     * @return null|FormEntry
      */
     public function getLastFormAnswerByIdentifyer($form)
     {
