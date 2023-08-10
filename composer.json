@@ -8,38 +8,16 @@
         "phpoffice/phpspreadsheet": "^1.22"
     },
     "license": "GPL-2.0+",
-    "require-dev": {
-        "mikey179/vfsstream": "~1.6.0",
-        "phpunit/phpunit": "^5.6",
-        "phplint/phplint": "^0.0.1",
-        "nimut/testing-framework": "^1.1"
-    },
     "autoload": {
         "psr-4": {
             "Frappant\\FrpFormAnswers\\": "Classes",
-            "Psr\\SimpleCache\\": "Resources/Private/Vendors/SimpleCache/src/"
         }
     },
-    "autoload-dev": {
-        "psr-4": {
-            "Frappant\\FrpFormAnswers\\Tests\\": "Tests",
-            "TYPO3\\CMS\\Core\\Tests\\": ".Build/vendor/typo3/cms/typo3/sysext/core/Tests/"
-        }
-    },
-    "config": {
+      "config": {
         "vendor-dir": ".Build/vendor",
         "bin-dir": ".Build/bin",
-        "preferred-install": {
-            "typo3/cms": "source"
-        }
-    },
-    "scripts": {
-        "post-autoload-dump": [
-            "mkdir -p .Build/web/typo3conf/ext/",
-            "[ -L .Build/web/typo3conf/ext/frp_form_answers ] || ln -snvf ../../../../. .Build/web/typo3conf/ext/frp_form_answers"
-        ]
-    },
-    "extra": {
+        },
+      "extra": {
         "branch-alias": {
             "dev-master": "1.0.x-dev"
         },
