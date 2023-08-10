@@ -26,20 +26,6 @@ class SaveFormToDatabaseFinisher extends AbstractFinisher
      */
     protected $formEntryRepository = null;
 
-    /**
-     * signalSlotDispatcher
-     *
-     * @var \TYPO3\CMS\Extbase\SignalSlot\Dispatcher
-     */
-    protected $signalSlotDispatcher = null;
-
-    /**
-     * @param \TYPO3\CMS\Extbase\SignalSlot\Dispatcher $dispatcher
-     */
-    public function injectDispatcher(Dispatcher $dispatcher) {
-        $this->signalSlotDispatcher = $dispatcher;
-    }
-
     protected EventDispatcherInterface $eventDispatcher;
 
     public function injectEventDispatcherInterface(EventDispatcherInterface $eventDispatcher) {
@@ -81,12 +67,6 @@ class SaveFormToDatabaseFinisher extends AbstractFinisher
         $identifier = $this->finisherContext->getFormRuntime()->getIdentifier();
         // Default Value is new Form
         $lastFormUid = 1;
-
-        /**
-         * Provide a Signal to manipulate $values before saving
-         * @deprecated since v4 will be removed in v5
-         */
-        $this->signalSlotDispatcher->dispatch(__CLASS__, 'preInsertSignal', array(&$values));
 
         /**
          * Dispatch an Event to manipulate $values (Use this instead of preInsertSignal above)

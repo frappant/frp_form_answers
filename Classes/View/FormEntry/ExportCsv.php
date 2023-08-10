@@ -190,7 +190,7 @@ class ExportCsv implements \TYPO3\CMS\Extbase\Mvc\View\ViewInterface
                 $field = $field->format('r');
             }
 
-            $output[] = preg_match("/(?:${delimiter_esc}|${enclosure_esc}|\s)/", $field) ? (
+            $output[] = preg_match("/(?:{$delimiter_esc}|{$enclosure_esc}|\s)/", $field) ? (
                 $enclosure . str_replace($enclosure, $enclosure . $enclosure, $field) . $enclosure
             ) : $field;
         }
