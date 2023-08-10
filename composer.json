@@ -10,21 +10,21 @@
     "license": "GPL-2.0+",
     "autoload": {
         "psr-4": {
-            "Frappant\\FrpFormAnswers\\": "Classes",
+        "Frappant\\FrpFormAnswers\\": "Classes"
         }
     },
-      "config": {
+    "config": {
         "vendor-dir": ".Build/vendor",
-        "bin-dir": ".Build/bin",
-        },
-      "extra": {
+        "bin-dir": ".Build/bin"
+    },
+    "extra": {
         "branch-alias": {
             "dev-master": "1.0.x-dev"
         },
         "typo3/cms": {
-            "cms-package-dir": "{$vendor-dir}/typo3/cms",
-            "web-dir": ".Build/web",
-            "extension-key": "frp_form_answers"
+        "cms-package-dir": "{$vendor-dir}/typo3/cms",
+        "web-dir": ".Build/web",
+        "extension-key": "frp_form_answers"
         }
     }
 }
