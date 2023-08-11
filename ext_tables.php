@@ -1,9 +1,10 @@
 <?php
-defined('TYPO3_MODE') || die('Access denied.');
+use TYPO3\CMS\Core\Http\ApplicationType;
 
+defined('TYPO3') or die();
 call_user_func(
     function () {
-        if (TYPO3_MODE === 'BE') {
+        if (ApplicationType::fromRequest($GLOBALS['TYPO3_REQUEST'])->isBackend()){
             \TYPO3\CMS\Extbase\Utility\ExtensionUtility::registerModule(
                 'Frappant.FrpFormAnswers',
                 'web', // Make module a submodule of 'web'
