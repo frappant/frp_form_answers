@@ -4,7 +4,7 @@ use TYPO3\CMS\Core\Http\ApplicationType;
 defined('TYPO3') or die();
 call_user_func(
     function () {
-        if (ApplicationType::fromRequest($GLOBALS['TYPO3_REQUEST'])->isBackend()){
+        if ($GLOBALS['TYPO3_REQUEST'] && ApplicationType::fromRequest($GLOBALS['TYPO3_REQUEST'])->isBackend()){
             \TYPO3\CMS\Extbase\Utility\ExtensionUtility::registerModule(
                 'Frappant.FrpFormAnswers',
                 'web', // Make module a submodule of 'web'
