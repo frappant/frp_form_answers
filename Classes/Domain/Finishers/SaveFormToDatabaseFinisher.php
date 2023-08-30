@@ -3,6 +3,8 @@ namespace Frappant\FrpFormAnswers\Domain\Finishers;
 
 use Frappant\FrpFormAnswers\Event\ManipulateFormValuesEvent;
 use Frappant\FrpFormAnswers\Domain\Model\FormEntry;
+use TYPO3\CMS\Core\Context\Context;
+use TYPO3\CMS\Core\Context\Exception\AspectNotFoundException;
 use TYPO3\CMS\Core\EventDispatcher\EventDispatcher;
 use TYPO3\CMS\Extbase\Persistence\Generic\PersistenceManager;
 use TYPO3\CMS\Extbase\Utility\DebuggerUtility;
@@ -54,6 +56,7 @@ class SaveFormToDatabaseFinisher extends AbstractFinisher
 
     /**
      * Executes this finisher
+     * @throws AspectNotFoundException
      * @see AbstractFinisher::execute()
      */
     protected function executeInternal()
@@ -78,7 +81,10 @@ class SaveFormToDatabaseFinisher extends AbstractFinisher
         $this->formEntry->setAnswers($values);
 
         $this->formEntry->setForm($identifier);
-        $this->formEntry->setPid($GLOBALS['TSFE']->id);
+
+        $context = GeneralUtility::makeInstance(Context::class);
+        $pageId = $context->getPropertyFromAspect('frontend', 'id');
+        $this->formEntry->setPid($pageId);
 
         $lastForm = $this->formEntryRepository->getLastFormAnswerByIdentifyer($identifier);
 
