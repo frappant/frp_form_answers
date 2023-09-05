@@ -79,7 +79,14 @@ class SaveFormToDatabaseFinisher extends AbstractFinisher
             foreach ($page->getElementsRecursively() as $pageElem) {
                 if ($pageElem->getType() !== 'Honeypot') {
                 	if($pageElem->getType() !== 'FileUpload' && $pageElem->getType() !== 'ImageUpload'){
-		                $values[$pageElem->getIdentifier()]['value'] = htmlspecialchars($valuesWithPages[$pageElem->getIdentifier()]);
+                        $val = $valuesWithPages[$pageElem->getIdentifier()];
+                        if(is_array($val)) {
+                            foreach ($val as $key => $value) {
+                                $values[$pageElem->getIdentifier()]['value'][$key] = htmlspecialchars($value);
+                            }
+                        } else {
+		                    $values[$pageElem->getIdentifier()]['value'] = htmlspecialchars($val);
+                        }
 	                }else{
                 		if($valuesWithPages[$pageElem->getIdentifier()]){
 			                $values[$pageElem->getIdentifier()]['value'] = htmlspecialchars($valuesWithPages[$pageElem->getIdentifier()]->getOriginalResource()->getName());

@@ -25,6 +25,7 @@ Otherwise your changes will be overwritten the next time you save the extension 
     <f:variable name="content"><f:translate key="LLL:EXT:frp_form_answers/Resources/Private/Language/locallang_be.xlf:deleteFormName.confirmation.content" /></f:variable>
 
     <f:for each="{formNames}" as="formName">
+        <h2>Form: {formName}</h2>
         <f:form action="export" class="form-inline" method="POST" object="{formEntryDemand}" format="Xls"
                 objectName="formEntryDemand">
             <f:form.hidden property="allPids" value="1"/>
