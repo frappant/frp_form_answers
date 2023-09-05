@@ -16,8 +16,8 @@
         <f:format.date format="d.m.Y H:i">{mailItem.crdate}</f:format.date>
         <br>
         Form name: {mailItem.form}<br>
-        From: <f:format.htmlspecialchars>{mailItem.answers.name.value} - {mailItem.answers.email.value}</f:format.htmlspecialchars><br>
-        Message: <f:format.htmlspecialchars>{mailItem.answers.message.value}</f:format.htmlspecialchars><br>
+        From: {mailItem.answers.name.value} - {mailItem.answers.email.value}<br>
+        Message: {mailItem.answers.message.value}<br>
         <br>
     </f:for>
 
