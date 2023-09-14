@@ -36,7 +36,8 @@ class FormAnswersUtility
      */
     public function prepareFormAnswersArray()
     {
-        $act_pid = (int)\TYPO3\CMS\Core\Utility\GeneralUtility::_GP('id');
+
+        $act_pid = $_GET['id'];
         $pageIds = array();
 
         // Get a List from FormEntries in subpages
@@ -61,7 +62,8 @@ class FormAnswersUtility
             }
         }
 
-        unset($pageIds[(int)\TYPO3\CMS\Core\Utility\GeneralUtility::_GP('id')]);
+        $id = $_GET['id'];
+        unset($pageIds[(int)$id]);
 
         return $pageIds;
     }

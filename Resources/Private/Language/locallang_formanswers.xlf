@@ -9,6 +9,9 @@
 			<trans-unit id="mlang_labels_tabdescr">
 				<source>Adds the possibility, as a finisher, to save and export the form entries from customers</source>
 			</trans-unit>
+			<trans-unit id="mlang_labels_tablabel">
+				<source>save forms to DB</source>
+			</trans-unit>
 		</body>
 	</file>
 </xliff>

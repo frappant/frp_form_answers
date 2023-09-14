@@ -26,30 +26,6 @@ use Frappant\FrpFormAnswers\Utility\BackendUtility;
  */
 class FormEntryRepository extends \TYPO3\CMS\Extbase\Persistence\Repository
 {
-    public function initializeObject()
-    {
-        $querySettings = GeneralUtility::makeInstance(Typo3QuerySettings::class);
-
-
-        //debug(GeneralUtility::_GP('id'));
-        $querySettings->setStoragePageIds(array((int)\TYPO3\CMS\Core\Utility\GeneralUtility::_GP('id')));
-
-        $this->setDefaultQuerySettings($querySettings);
-    }
-
-    /**
-     * setRespectStoragePage description
-     * @param boolean $bool Check if respectStoragePage should be set or nor
-     */
-    public function setRespectStoragePage($bool)
-    {
-        $querySettings = $this->objectManager->get('TYPO3\\CMS\\Extbase\\Persistence\\Generic\\Typo3QuerySettings');
-
-        $querySettings->setRespectStoragePage($bool);
-
-        $this->setDefaultQuerySettings($querySettings);
-    }
-
     /**
      * Finds all FormEntries given by conf Array
      * @param  \Frappant\FrpFormAnswers\Domain\Model\FormEntryDemand $formEntryDemand

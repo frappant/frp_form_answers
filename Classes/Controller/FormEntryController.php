@@ -94,9 +94,7 @@ class FormEntryController extends ActionController
         $this->formEntryRepository = $formEntryRepository;
         $this->dataExporter = $dataExporter;
         $this->pageRepository = $pageRepository;
-
-        $this->pid = (int)GeneralUtility::_GP('id');
-
+        $this->pid = $_GET['id'];
     }
 
     /**
@@ -112,7 +110,7 @@ class FormEntryController extends ActionController
             $this->view->assign('subPagesWithFormEntries', $this->pageRepository->getMenuForPages(array_keys($pageIds)));
             $this->view->assign('formEntriesStatus', $pageIds);
         }
-        $this->view->assign('pid', (int)GeneralUtility::_GP('id'));
+        $this->view->assign('pid', $this->pid);
         $this->view->assign('formNames', $this->formAnswersUtility->getAllFormNames());
         $this->view->assign('settings', $this->settings);
 
@@ -184,7 +182,7 @@ class FormEntryController extends ActionController
         $this->addFlashMessage(
             LocalizationUtility::translate('LLL:EXT:frp_form_answers/Resources/Private/Language/de.locallang_be.xlf:flashmessage.removeEntries.body', null, [$this->pid]),
             LocalizationUtility::translate('LLL:EXT:frp_form_answers/Resources/Private/Language/de.locallang_be.xlf:flashmessage.removeEntries.title'),
-            \TYPO3\CMS\Core\Messaging\FlashMessage::OK,
+            \TYPO3\CMS\Core\Type\ContextualFeedbackSeverity::OK,
             true);
 
         $this->redirect('list');
@@ -272,7 +270,7 @@ class FormEntryController extends ActionController
             if (count($formEntries) === 0) {
                 $this->addFlashMessage('No entries found with your criteria',
                     'No Entries found',
-                    FlashMessage::WARNING,
+                    \TYPO3\CMS\Core\Type\ContextualFeedbackSeverity::WARNING,
                     true
                 );
                 $this->redirect('list');
@@ -280,7 +278,7 @@ class FormEntryController extends ActionController
         } else {
             $this->addFlashMessage('No Demand set',
                 'No Demand found',
-                FlashMessage::ERROR,
+                \TYPO3\CMS\Core\Type\ContextualFeedbackSeverity::ERROR,
                 true
             );
             $this->redirect('list');
@@ -336,7 +334,7 @@ class FormEntryController extends ActionController
             $this->addFlashMessage(
                 LocalizationUtility::translate('LLL:EXT:frp_form_answers/Resources/Private/Language/de.locallang_be.xlf:flashmessage.deleteFormName.body', 'frp_form_answers', [$formName, $this->pid]),
                 LocalizationUtility::translate('LLL:EXT:frp_form_answers/Resources/Private/Language/de.locallang_be.xlf:flashmessage.deleteFormName.title'),
-                \TYPO3\CMS\Core\Messaging\FlashMessage::OK,
+                \TYPO3\CMS\Core\Type\ContextualFeedbackSeverity::OK,
                 true);
         }
         $this->redirect('list');

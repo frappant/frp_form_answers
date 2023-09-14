@@ -69,7 +69,7 @@ class ext_update
         $this->setSubmitUidsToFormEntryUid();
 
         if (empty($this->messageArray)) {
-            $this->messageArray[] = new FlashMessage('Nothing to update!', '', FlashMessage::INFO);
+            $this->messageArray[] = new FlashMessage('Nothing to update!', '', \TYPO3\CMS\Core\Type\ContextualFeedbackSeverity::INFO);
         }
 
         return $this->generateOutput();
@@ -95,7 +95,7 @@ class ext_update
 				->set('submit_uid', $queryBuilder->quoteIdentifier('uid'), false)
 				->execute();
 
-            $this->messageArray[] = new FlashMessage('Set all submit_uids to value of uid successfully.', $title, FlashMessage::OK);
+            $this->messageArray[] = new FlashMessage('Set all submit_uids to value of uid successfully.', $title, \TYPO3\CMS\Core\Type\ContextualFeedbackSeverity::OK);
         }
     }
 
