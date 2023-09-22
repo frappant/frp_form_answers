@@ -10,3 +10,6 @@ services:
 
   Frappant\FrpFormAnswers\Utility\FormAnswersUtility:
     public: true
+
+  Frappant\FrpFormAnswers\Controller\FormEntryController:
+    tags: ['backend.controller']
