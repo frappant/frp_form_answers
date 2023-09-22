@@ -1,7 +1,7 @@
 <?php
 
 return [
-    'frp_form_answers' => [
+    'web_FrpFormAnswersFormanswers' => [
         'parent' => 'web',
         'position' => ['after' => 'web_info'],
         'access' => 'user',

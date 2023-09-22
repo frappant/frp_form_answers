@@ -3,21 +3,15 @@ namespace Frappant\FrpFormAnswers\Domain\Finishers;
 
 use Frappant\FrpFormAnswers\Event\ManipulateFormValuesEvent;
 use Frappant\FrpFormAnswers\Domain\Model\FormEntry;
-use TYPO3\CMS\Core\Context\Context;
 use TYPO3\CMS\Core\Context\Exception\AspectNotFoundException;
 use TYPO3\CMS\Core\EventDispatcher\EventDispatcher;
 use TYPO3\CMS\Extbase\Persistence\Generic\PersistenceManager;
-use TYPO3\CMS\Extbase\Utility\DebuggerUtility;
-use TYPO3\CMS\Form\Domain\Finishers;
-use TYPO3\CMS\Core\Database\ConnectionPool;
-use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Extbase\Domain\Model\FileReference;
 use TYPO3\CMS\Extbase\SignalSlot\Dispatcher;
 use TYPO3\CMS\Form\Domain\Finishers\AbstractFinisher;
-use TYPO3\CMS\Form\Domain\Finishers\Exception\FinisherException;
 use TYPO3\CMS\Form\Domain\Model\FormElements\FormElementInterface;
 use Frappant\FrpFormAnswers\Domain\Repository\FormEntryRepository;
 use Psr\EventDispatcher\EventDispatcherInterface;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 class SaveFormToDatabaseFinisher extends AbstractFinisher
 {
@@ -82,8 +76,8 @@ class SaveFormToDatabaseFinisher extends AbstractFinisher
 
         $this->formEntry->setForm($identifier);
 
-        $context = GeneralUtility::makeInstance(Context::class);
-        $pageId = $context->getPropertyFromAspect('frontend', 'id');
+
+        $pageId = $this->finisherContext->getFormRuntime()->getRequest()->getAttributes()['routing']['pageId'];
         $this->formEntry->setPid($pageId);
 
         $lastForm = $this->formEntryRepository->getLastFormAnswerByIdentifyer($identifier);

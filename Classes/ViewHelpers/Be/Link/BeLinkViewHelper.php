@@ -1,6 +1,7 @@
 <?php
 namespace Frappant\FrpFormAnswers\ViewHelpers\Be\Link;
 
+use TYPO3\CMS\Backend\Routing\Exception\RouteNotFoundException;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Backend\Routing\UriBuilder;
@@ -77,6 +78,9 @@ class BeLinkViewHelper extends \TYPO3Fluid\Fluid\Core\ViewHelper\AbstractTagBase
         return GeneralUtility::getIndpEnv('REQUEST_URI');
     }
 
+    /**
+     * @throws RouteNotFoundException
+     */
     protected function getModuleUrl(array $urlParameters)
     {
         $uriBuilder = GeneralUtility::makeInstance(UriBuilder::class);
