@@ -81,7 +81,7 @@ class ExportXls
      * @throws \PhpOffice\PhpSpreadsheet\Exception
      * @throws \PhpOffice\PhpSpreadsheet\Writer\Exception
      */
-    public function render()
+    public function render($data = null)
     {
         if (null === self::$spreadsheet) {
             self::$spreadsheet = new Spreadsheet();

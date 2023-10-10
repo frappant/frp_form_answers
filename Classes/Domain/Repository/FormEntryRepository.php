@@ -5,6 +5,7 @@ use Frappant\FrpFormAnswers\Database\QueryGenerator;
 use Frappant\FrpFormAnswers\Domain\Model\FormEntryDemand;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Persistence\Exception\IllegalObjectTypeException;
+use TYPO3\CMS\Extbase\Persistence\Generic\PersistenceManager;
 use TYPO3\CMS\Extbase\Persistence\Generic\QueryResult;
 use TYPO3\CMS\Extbase\Persistence\Generic\Typo3QuerySettings;
 use TYPO3\CMS\Extbase\Persistence\QueryInterface;
@@ -41,7 +42,8 @@ class FormEntryRepository extends \TYPO3\CMS\Extbase\Persistence\Repository
             $query->setQuerySettings($settings);
         }
 
-        $constraints = array();
+
+        $constraints = [];
 
         if (!$formEntryDemand->getSelectAll()) {
             $constraints[] = $query->equals('exported', false);
@@ -56,7 +58,7 @@ class FormEntryRepository extends \TYPO3\CMS\Extbase\Persistence\Repository
         }
 
         if (count($constraints)) {
-            $query->matching($query->logicalAnd($constraints));
+            $query->matching($query->logicalAnd(...$constraints));
         }
         return $query->execute();
     }
@@ -117,7 +119,8 @@ class FormEntryRepository extends \TYPO3\CMS\Extbase\Persistence\Repository
             $this->update($entry);
         }
 
-        $persistenceManager = $this->objectManager->get("TYPO3\\CMS\\Extbase\\Persistence\\Generic\\PersistenceManager");
+        $persistenceManager = GeneralUtility::makeInstance(PersistenceManager::class);
+
         $persistenceManager->persistAll();
     }
 }

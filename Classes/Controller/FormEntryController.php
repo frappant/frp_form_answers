@@ -5,13 +5,15 @@ use Frappant\FrpFormAnswers\DataExporter\DataExporter;
 use Frappant\FrpFormAnswers\Domain\Model\FormEntryDemand;
 use Frappant\FrpFormAnswers\Domain\Repository\FormEntryRepository;
 use Frappant\FrpFormAnswers\Utility\FormAnswersUtility;
+use Frappant\FrpFormAnswers\View\FormEntry\ExportXls;
 use Psr\Http\Message\ResponseInterface;
 use TYPO3\CMS\Backend\Template\Components\ButtonBar;
 use TYPO3\CMS\Backend\Template\Components\Menu\Menu;
 use TYPO3\CMS\Backend\Template\ModuleTemplateFactory;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Domain\Repository\PageRepository;
-use TYPO3\CMS\Core\Http\StreamFactory;
+use TYPO3\CMS\Core\Http\Stream;
+use TYPO3\CMS\Core\Http\Response;
 use TYPO3\CMS\Core\Imaging\Icon;
 use TYPO3\CMS\Core\Imaging\IconFactory;
 use TYPO3\CMS\Core\Localization\LanguageService;
@@ -214,7 +216,8 @@ class FormEntryController extends ActionController
 
         $args = $this->request->getArguments();
         $format = $args['format'];
-        $filename = $args['formEntryDemand']['fileName'];
+        $filename = $args['formEntryDemand']['formName'];
+
         $charset = (strlen($args['formEntryDemand']['charset']) > 0 ? $args['formEntryDemand']['charset'] : 'iso-8859-1');
 
         switch ($format){
@@ -237,7 +240,7 @@ class FormEntryController extends ActionController
                 $this->setRequestHeader('Content-Disposition', "attachment;filename=$filename");
                 $this->setRequestHeader('Content-Type', "application/download; charset=$charset");
 
-                $this->defaultViewObjectName = \Frappant\FrpFormAnswers\View\FormEntry\ExportXls::class;
+                //$this->defaultViewObjectName = \Frappant\FrpFormAnswers\View\FormEntry\ExportXls::class;
 
             break;
             case 'Xml':
@@ -249,6 +252,9 @@ class FormEntryController extends ActionController
                 $this->setRequestHeader('Content-Transfer-Encoding', 'binary');
                 $this->setRequestHeader('Content-Type', "application/download; charset=$charset");
 
+
+
+
                 $this->defaultViewObjectName = \Frappant\FrpFormAnswers\View\FormEntry\ExportXml::class;
 
             break;
@@ -259,12 +265,12 @@ class FormEntryController extends ActionController
 	 * export Action
      *
 	 * @param FormEntryDemand $formEntryDemand
-	 * @return responseInterface A Downloadable file
 	 * @throws \TYPO3\CMS\Extbase\Mvc\Exception\StopActionException
 	 * @throws \TYPO3\CMS\Extbase\Mvc\Exception\UnsupportedRequestTypeException
 	 */
-    public function exportAction(\Frappant\FrpFormAnswers\Domain\Model\FormEntryDemand $formEntryDemand = null): ResponseInterface
+    public function exportAction(\Frappant\FrpFormAnswers\Domain\Model\FormEntryDemand $formEntryDemand = null)
     {
+
         if($formEntryDemand) {
             $formEntries = $this->formEntryRepository->findbyDemand($formEntryDemand);
             if (count($formEntries) === 0) {
@@ -289,10 +295,22 @@ class FormEntryController extends ActionController
 
         $this->formEntryRepository->setFormsToExported($formEntries);
 
-        $this->view->assign('rows', $exportData);
-        $this->view->assign('formEntryDemand', $formEntryDemand);
+        $exporter = new ExportXls();
+        $exporter->assign('rows', $exportData);
+        $exporter->assign('formEntryDemand', $formEntryDemand);
 
-        return $this->generateDownloadResponse($this->view->render());
+        // Get the content as a string
+        $content = $exporter->render();
+
+        // Prepare a PSR-7 Response
+        $stream = new Stream('php://memory', 'rw');
+        $stream->write($content);
+        $response = new Response($stream, 200, [
+            'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            'Content-Disposition' => 'attachment; filename="export.xlsx"',
+        ]);
+
+        return $response;
     }
 
     /**
