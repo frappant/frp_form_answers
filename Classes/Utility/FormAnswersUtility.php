@@ -3,6 +3,8 @@ namespace Frappant\FrpFormAnswers\Utility;
 
 use Frappant\FrpFormAnswers\Domain\Repository\FormEntryRepository;
 use TYPO3\CMS\Core\Domain\Repository\PageRepository;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Extbase\Persistence\Generic\QuerySettingsInterface;
 use TYPO3\CMS\Extbase\Utility\DebuggerUtility;
 
 class FormAnswersUtility
@@ -45,19 +47,21 @@ class FormAnswersUtility
         // Get all Pids with a formEntry list
         foreach ($startPointPids as $pageId) {
             foreach ($this->formEntryRepository->findAllInPidAndRootline($pageId) as $formEntry) {
-                if($pageIds[$formEntry->getPid()][$formEntry->getForm()]['tot']) {
-                    $pageIds[$formEntry->getPid()][$formEntry->getForm()]['tot'] += 1;
-                } else {
-                    $pageIds[$formEntry->getPid()][$formEntry->getForm()]['tot'] = 1;
-                }
-
-                if (!$formEntry->isExported()) {
-                    if($pageIds[$formEntry->getPid()][$formEntry->getForm()]['new']) {
-                        $pageIds[$formEntry->getPid()][$formEntry->getForm()]['new'] += 1;
+                if((is_int($formEntry->getPid())) && ($formEntry->getForm() !== null)) {
+                    if(isset($pageIds[$formEntry->getPid()][$formEntry->getForm()]['tot'])) {
+                        $pageIds[$formEntry->getPid()][$formEntry->getForm()]['tot'] += 1;
                     } else {
-                        $pageIds[$formEntry->getPid()][$formEntry->getForm()]['new'] = 1;
+                        $pageIds[$formEntry->getPid()][$formEntry->getForm()]['tot'] = 1;
                     }
 
+                    if (!$formEntry->isExported()) {
+                        if($pageIds[$formEntry->getPid()][$formEntry->getForm()]['new']) {
+                            $pageIds[$formEntry->getPid()][$formEntry->getForm()]['new'] += 1;
+                        } else {
+                            $pageIds[$formEntry->getPid()][$formEntry->getForm()]['new'] = 1;
+                        }
+
+                    }
                 }
             }
         }
@@ -71,8 +75,12 @@ class FormAnswersUtility
      * Get all names of the saved Forms
      * @return array Formnames
      */
-    public function getAllFormNames()
+    public function getAllFormNames($pid)
     {
+        $querySettings = GeneralUtility::makeInstance(QuerySettingsInterface::class);
+        $querySettings->setRespectStoragePage(true);
+        $querySettings->setStoragePageIds($pid);
+        $this->formEntryRepository->setDefaultQuerySettings($querySettings);
         $allFormAnswers = $this->formEntryRepository->findAll();
         $formNames = [];
         // Get FormNames from this page. We will separate them in the list View

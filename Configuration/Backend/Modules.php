@@ -18,7 +18,8 @@ return [
                 'prepareExport',
                 'initializeExport',
                 'export',
-                'deleteFormname'
+                'deleteFormname',
+                'removeEntry'
             ],
         ],
     ],

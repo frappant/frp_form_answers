@@ -5,7 +5,10 @@ use Frappant\FrpFormAnswers\DataExporter\DataExporter;
 use Frappant\FrpFormAnswers\Domain\Model\FormEntryDemand;
 use Frappant\FrpFormAnswers\Domain\Repository\FormEntryRepository;
 use Frappant\FrpFormAnswers\Utility\FormAnswersUtility;
+use Frappant\FrpFormAnswers\View\FormEntry\ExportCsv;
 use Frappant\FrpFormAnswers\View\FormEntry\ExportXls;
+use Frappant\FrpFormAnswers\View\FormEntry\ExportXml;
+use JetBrains\PhpStorm\NoReturn;
 use Psr\Http\Message\ResponseInterface;
 use TYPO3\CMS\Backend\Template\Components\ButtonBar;
 use TYPO3\CMS\Backend\Template\Components\Menu\Menu;
@@ -18,8 +21,11 @@ use TYPO3\CMS\Core\Imaging\Icon;
 use TYPO3\CMS\Core\Imaging\IconFactory;
 use TYPO3\CMS\Core\Localization\LanguageService;
 use TYPO3\CMS\Core\Messaging\FlashMessage;
+use TYPO3\CMS\Core\Type\ContextualFeedbackSeverity;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Mvc\Controller\ActionController;
+use TYPO3\CMS\Extbase\Persistence\Exception\IllegalObjectTypeException;
+use TYPO3\CMS\Extbase\Persistence\Generic\PersistenceManager;
 use TYPO3\CMS\Extbase\Utility\LocalizationUtility;
 use TYPO3\CMS\Extbase\Utility\DebuggerUtility;
 
@@ -70,6 +76,11 @@ class FormEntryController extends ActionController
     protected PageRepository $pageRepository;
 
     /**
+     * @var PersistenceManager  $persistenceManager
+     */
+    protected PersistenceManager $persistenceManager;
+
+    /**
      * @var integer
      */
    protected $pid;
@@ -88,7 +99,8 @@ class FormEntryController extends ActionController
         FormAnswersUtility $formAnswersUtility,
         FormEntryRepository $formEntryRepository,
         DataExporter $dataExporter,
-        PageRepository $pageRepository
+        PageRepository $pageRepository,
+        PersistenceManager $persistenceManager
     ) {
         $this->moduleTemplateFactory = $moduleTemplateFactory;
         $this->iconFactory = $iconFactory;
@@ -97,6 +109,7 @@ class FormEntryController extends ActionController
         $this->dataExporter = $dataExporter;
         $this->pageRepository = $pageRepository;
         $this->pid = $_GET['id'];
+        $this->persistenceManager = $persistenceManager;
     }
 
     /**
@@ -113,7 +126,7 @@ class FormEntryController extends ActionController
             $this->view->assign('formEntriesStatus', $pageIds);
         }
         $this->view->assign('pid', $this->pid);
-        $this->view->assign('formNames', $this->formAnswersUtility->getAllFormNames());
+        $this->view->assign('formNames', $this->formAnswersUtility->getAllFormNames([$this->pid]));
         $this->view->assign('settings', $this->settings);
 
         $moduleTemplate = $this->moduleTemplateFactory->create($this->request);
@@ -154,7 +167,7 @@ class FormEntryController extends ActionController
             ->from('tx_frpformanswers_domain_model_formentry')
             ->where($queryBuilder->expr()->eq('pid', $queryBuilder->createNamedParameter($this->pid, \PDO::PARAM_INT)))
             ->andWhere($queryBuilder->expr()->eq('deleted', $queryBuilder->createNamedParameter(1, \PDO::PARAM_INT)))
-            ->execute()->fetchFirstColumn();
+            ->executeQuery()->fetchFirstColumn();
         //DebuggerUtility::var_dump($count);
         $this->view->assign('count', $count[0]);
 
@@ -168,9 +181,35 @@ class FormEntryController extends ActionController
     }
 
     /**
-     * action remove, Remove form entries which are marked as deleted
+     * action mark single entry as deleted
      *
      * @return void
+     * @throws IllegalObjectTypeException
+     */
+    public function removeEntryAction(): \Psr\Http\Message\ResponseInterface
+    {
+        $arguments = $this->request->getArguments();
+        $uid = $arguments['uid'];
+        $pid = $arguments['pid'];
+        $entry = $this->formEntryRepository->findByUid($uid);
+
+        $this->formEntryRepository->remove($entry);
+        $this->persistenceManager->persistAll();
+
+        $this->addFlashMessage(
+            'Deleted entry with uid: ' . $uid,
+            'Entry deleted',
+            \TYPO3\CMS\Core\Type\ContextualFeedbackSeverity::OK,
+            true
+        );
+
+        return $this->redirect('list', null, null, ['id' => $pid]);
+    }
+
+    /**
+     * action remove, Remove form entries which are marked as deleted
+     *
+     * @return ResponseInterface
      */
     public function removeAction()
     {
@@ -187,7 +226,7 @@ class FormEntryController extends ActionController
             \TYPO3\CMS\Core\Type\ContextualFeedbackSeverity::OK,
             true);
 
-        $this->redirect('list');
+        return $this->redirect('list', null, null, ['id' => $this->pid]);
     }
 
     /**
@@ -230,7 +269,7 @@ class FormEntryController extends ActionController
                 $this->setRequestHeader('Content-Transfer-Encoding', 'binary');
                 $this->setRequestHeader('Content-Type', "application/download; charset=$charset");
 
-                $this->defaultViewObjectName = \Frappant\FrpFormAnswers\View\FormEntry\ExportCsv::class;
+                //$this->defaultViewObjectName = \Frappant\FrpFormAnswers\View\FormEntry\ExportCsv::class;
 
             break;
             case 'Xls':
@@ -255,7 +294,7 @@ class FormEntryController extends ActionController
 
 
 
-                $this->defaultViewObjectName = \Frappant\FrpFormAnswers\View\FormEntry\ExportXml::class;
+                //$this->defaultViewObjectName = \Frappant\FrpFormAnswers\View\FormEntry\ExportXml::class;
 
             break;
         }
@@ -271,6 +310,8 @@ class FormEntryController extends ActionController
     public function exportAction(\Frappant\FrpFormAnswers\Domain\Model\FormEntryDemand $formEntryDemand = null)
     {
 
+        $format = $this->request->getArguments()['format'];
+
         if($formEntryDemand) {
             $formEntries = $this->formEntryRepository->findbyDemand($formEntryDemand);
             if (count($formEntries) === 0) {
@@ -279,7 +320,7 @@ class FormEntryController extends ActionController
                     \TYPO3\CMS\Core\Type\ContextualFeedbackSeverity::WARNING,
                     true
                 );
-                $this->redirect('list');
+                return $this->redirect('list', null, null, ['id' => $this->pid]);
             }
         } else {
             $this->addFlashMessage('No Demand set',
@@ -287,7 +328,7 @@ class FormEntryController extends ActionController
                 \TYPO3\CMS\Core\Type\ContextualFeedbackSeverity::ERROR,
                 true
             );
-            $this->redirect('list');
+            return $this->redirect('list', null, null, ['id' => $this->pid]);
         }
 
         $extensionConfiguration = $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['frp_formanswers'];
@@ -295,7 +336,22 @@ class FormEntryController extends ActionController
 
         $this->formEntryRepository->setFormsToExported($formEntries);
 
-        $exporter = new ExportXls();
+
+        $exporter = Null;
+        switch ($format) {
+            case 'Csv':
+                $exporter = new ExportCsv();
+                break;
+            case 'Xls':
+                $exporter = new ExportXls();
+                break;
+            case 'Xml':
+                $exporter = new ExportXml();
+                break;
+        }
+
+
+
         $exporter->assign('rows', $exportData);
         $exporter->assign('formEntryDemand', $formEntryDemand);
 
@@ -305,10 +361,27 @@ class FormEntryController extends ActionController
         // Prepare a PSR-7 Response
         $stream = new Stream('php://memory', 'rw');
         $stream->write($content);
-        $response = new Response($stream, 200, [
-            'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-            'Content-Disposition' => 'attachment; filename="export.xlsx"',
-        ]);
+
+        switch ($format) {
+            case 'Csv':
+                $response = new Response($stream, 200, [
+                    'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                    'Content-Disposition' => 'attachment; filename="export.csv"',
+                ]);
+                break;
+            case 'Xls':
+                $response = new Response($stream, 200, [
+                    'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                    'Content-Disposition' => 'attachment; filename="export.xlsx"',
+                ]);
+                break;
+            case 'Xml':
+                $response = new Response($stream, 200, [
+                    'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                    'Content-Disposition' => 'attachment; filename="export.xml"',
+                ]);
+                break;
+        }
 
         return $response;
     }
@@ -355,7 +428,7 @@ class FormEntryController extends ActionController
                 \TYPO3\CMS\Core\Type\ContextualFeedbackSeverity::OK,
                 true);
         }
-        $this->redirect('list');
+        return $this->redirect('list', null, null, ['id' => $this->pid]);
     }
 
     /**
