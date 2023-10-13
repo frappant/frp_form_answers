@@ -331,8 +331,8 @@ class FormEntryController extends ActionController
             return $this->redirect('list', null, null, ['id' => $this->pid]);
         }
 
-        $extensionConfiguration = $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['frp_formanswers'];
-        $exportData = $this->dataExporter->getExport($formEntries, $formEntryDemand, $extensionConfiguration['useSubmitUid']['value']);
+        $extensionConfiguration = $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['frp_formanswers'] ?? null;
+        $exportData = $this->dataExporter->getExport($formEntries, $formEntryDemand, $extensionConfiguration['useSubmitUid']['value'] ?? false);
 
         $this->formEntryRepository->setFormsToExported($formEntries);
 

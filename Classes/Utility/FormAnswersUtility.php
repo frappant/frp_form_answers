@@ -60,7 +60,6 @@ class FormAnswersUtility
                         } else {
                             $pageIds[$formEntry->getPid()][$formEntry->getForm()]['new'] = 1;
                         }
-
                     }
                 }
             }
