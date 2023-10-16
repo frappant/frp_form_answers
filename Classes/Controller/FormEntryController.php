@@ -240,7 +240,7 @@ class FormEntryController extends ActionController
 
         $this->formEntryDemand = $demandObject;
         $this->view->assign('formEntryDemand', $demandObject);
-        $this->view->assign('formHashes', $this->formAnswersUtility->getAllFormHashes());
+        $this->view->assign('formHashes', $this->formAnswersUtility->getAllFormHashes($this->pid));
 
         $moduleTemplate = $this->moduleTemplateFactory->create($this->request);
 

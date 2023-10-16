@@ -55,7 +55,7 @@ class FormAnswersUtility
                     }
 
                     if (!$formEntry->isExported()) {
-                        if($pageIds[$formEntry->getPid()][$formEntry->getForm()]['new']) {
+                        if(isset($pageIds[$formEntry->getPid()][$formEntry->getForm()]['new'])) {
                             $pageIds[$formEntry->getPid()][$formEntry->getForm()]['new'] += 1;
                         } else {
                             $pageIds[$formEntry->getPid()][$formEntry->getForm()]['new'] = 1;
@@ -93,8 +93,12 @@ class FormAnswersUtility
      * Get all hashes of the saved Forms
      * @return array Formhashes
      */
-    public function getAllFormHashes()
+    public function getAllFormHashes($pid)
     {
+        $querySettings = GeneralUtility::makeInstance(QuerySettingsInterface::class);
+        $querySettings->setRespectStoragePage(true);
+        $querySettings->setStoragePageIds([$pid]);
+        $this->formEntryRepository->setDefaultQuerySettings($querySettings);
         $allFormAnswers = $this->formEntryRepository->findAll();
 
         $formHashes = [];
