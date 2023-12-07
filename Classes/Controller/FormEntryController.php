@@ -81,6 +81,11 @@ class FormEntryController extends ActionController
     protected PersistenceManager $persistenceManager;
 
     /**
+     * @var string $filename
+     */
+    protected string $filename = '';
+
+    /**
      * @var integer
      */
    protected $pid;
@@ -255,47 +260,32 @@ class FormEntryController extends ActionController
 
         $args = $this->request->getArguments();
         $format = $args['format'];
-        $filename = $args['formEntryDemand']['formName'];
+        // $this->filename = $args['formEntryDemand']['formName'];
 
         $charset = (strlen($args['formEntryDemand']['charset']) > 0 ? $args['formEntryDemand']['charset'] : 'iso-8859-1');
 
         switch ($format){
             case 'Csv':
-                $filename = (strlen($filename) > 0 ? $filename.'.csv' : 'export.csv');
-
+                $this->filename = (strlen($this->filename) > 0 ? $this->filename.'.csv' : 'export.csv');
                 $this->setRequestHeader('Content-Type', 'application/force-download');
                 $this->setRequestHeader('Content-Type', 'text/csv');
-                $this->setRequestHeader('Content-Disposition', "attachment;filename=$filename");
+                $this->setRequestHeader('Content-Disposition', "attachment;filename=$this->filename");
                 $this->setRequestHeader('Content-Transfer-Encoding', 'binary');
                 $this->setRequestHeader('Content-Type', "application/download; charset=$charset");
-
-                //$this->defaultViewObjectName = \Frappant\FrpFormAnswers\View\FormEntry\ExportCsv::class;
-
             break;
             case 'Xls':
-                $filename = (strlen($filename) > 0 ? $filename.'.xlsx' : 'export.xlsx');
-
+                $this->filename = (strlen($this->filename) > 0 ? $this->filename.'.xlsx' : 'export.xlsx');
                 $this->setRequestHeader('Content-Type', 'application/force-download');
-                $this->setRequestHeader('Content-Disposition', "attachment;filename=$filename");
+                $this->setRequestHeader('Content-Disposition', "attachment;filename=$this->filename");
                 $this->setRequestHeader('Content-Type', "application/download; charset=$charset");
-
-                //$this->defaultViewObjectName = \Frappant\FrpFormAnswers\View\FormEntry\ExportXls::class;
-
             break;
             case 'Xml':
-                $filename = (strlen($filename) > 0 ? $filename.'.xml' : 'export.xml');
-
+                $this->filename = (strlen($this->filename) > 0 ? $this->filename.'.xml' : 'export.xml');
                 $this->setRequestHeader('Content-Type', 'application/force-download');
                 $this->setRequestHeader('Content-Type', 'application/xml');
-                $this->setRequestHeader('Content-Disposition', "attachment;filename=$filename");
+                $this->setRequestHeader('Content-Disposition', "attachment;filename=$this->filename");
                 $this->setRequestHeader('Content-Transfer-Encoding', 'binary');
                 $this->setRequestHeader('Content-Type', "application/download; charset=$charset");
-
-
-
-
-                //$this->defaultViewObjectName = \Frappant\FrpFormAnswers\View\FormEntry\ExportXml::class;
-
             break;
         }
     }
@@ -311,9 +301,11 @@ class FormEntryController extends ActionController
     {
 
         $format = $this->request->getArguments()['format'];
+        $formEntryDemand->setAllPids($this->request->getArguments()['allPids']);
+        $pid = $_GET['id'];
 
         if($formEntryDemand) {
-            $formEntries = $this->formEntryRepository->findbyDemand($formEntryDemand);
+            $formEntries = $this->formEntryRepository->findbyDemand($formEntryDemand, $pid);
             if (count($formEntries) === 0) {
                 $this->addFlashMessage('No entries found with your criteria',
                     'No Entries found',

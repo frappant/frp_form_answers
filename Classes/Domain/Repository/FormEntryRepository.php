@@ -32,14 +32,18 @@ class FormEntryRepository extends \TYPO3\CMS\Extbase\Persistence\Repository
      * @param  \Frappant\FrpFormAnswers\Domain\Model\FormEntryDemand $formEntryDemand
      * @return QueryResult
      */
-    public function findByDemand(FormEntryDemand $formEntryDemand)
+    public function findByDemand(FormEntryDemand $formEntryDemand, int $pid = 0)
     {
+
         $query = $this->createQuery();
 
         if ($formEntryDemand->getAllPids()) {
             $settings = $query->getQuerySettings();
             $settings->setRespectStoragePage(false);
             $query->setQuerySettings($settings);
+        } else {
+            $query->getQuerySettings()->setRespectStoragePage(true);
+            $query->getQuerySettings()->setStoragePageIds([$pid]);
         }
 
 
