@@ -40,7 +40,7 @@ Otherwise your changes will be overwritten the next time you save the extension 
                                 key="LLL:EXT:frp_form_answers/Resources/Private/Language/locallang_be.xlf:tx_frpformanswers_backend_templates_formentry_prepareexport.selectedfields"/>
                     </label>
                     <div class="t3js-formengine-field-item">
-                        <f:form.select property="allPids" options="{
+                        <f:form.select name="allPids" options="{
                     1: '{f:translate(key:\'LLL:EXT:frp_form_answers/Resources/Private/Language/locallang_be.xlf:tx_frpformanswers_backend_templates_formentry_prepareexport.exportallpages\')}',
                     0: '{f:translate(key:\'LLL:EXT:frp_form_answers/Resources/Private/Language/locallang_be.xlf:tx_frpformanswers_backend_templates_formentry_prepareexport.exportonlythispage\')}'
                     }"
@@ -70,7 +70,8 @@ Otherwise your changes will be overwritten the next time you save the extension 
                     </div>
                 </td>
             </tr>
-            <tr>
+            <f:comment>
+            <!--<tr>
                 <td>
                     <label class="t3js-formengine-label">
                         <f:translate
@@ -82,8 +83,8 @@ Otherwise your changes will be overwritten the next time you save the extension 
                     " options="{formHashes}"/>
                     </div>
                 </td>
-            </tr>
-            <tr>
+            </tr>-->
+            <!--<tr>
                 <td>
                     <label class="t3js-formengine-label">
                         <f:translate
@@ -93,7 +94,8 @@ Otherwise your changes will be overwritten the next time you save the extension 
                         <f:form.textfield property="fileName" value="export"/>
                     </div>
                 </td>
-            </tr>
+            </tr>-->
+            </f:comment>
             <tr class="csvExport specific_type_config">
                 <td>
                     <label class="t3js-formengine-label">
