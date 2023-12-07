@@ -3,7 +3,8 @@
 return [
     'web_FrpFormAnswersFormanswers' => [
         'parent' => 'web',
-        'position' => ['after' => 'web_info'],
+        'iconIdentifier' => 'modulIcon',
+        'position' => ['after' => 'web_FormFormbuilder'],
         'access' => 'user',
         'workspaces' => 'live',
         'path' => '/module/page/formanswers',
