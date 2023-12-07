@@ -1,5 +1,6 @@
 <html xmlns:f="http://xsd.helmut-hummel.de/ns/TYPO3/Fluid/ViewHelpers"
-      xmlns:frp="http://typo3.org/ns/Frappant/FrpFormAnswers/ViewHelpers/Be/Link"
+      xmlns:frp="http://typo3.org/ns/Frappant/FrpFormAnswers/ViewHelpers/Be"
+
       data-namespace-typo3-fluid="true">
 <f:layout name="Default"/>
 
@@ -23,7 +24,6 @@ Otherwise your changes will be overwritten the next time you save the extension 
 
     <f:variable name="title"><f:translate key="LLL:EXT:frp_form_answers/Resources/Private/Language/locallang_be.xlf:deleteFormName.confirmation.title" /></f:variable>
     <f:variable name="content"><f:translate key="LLL:EXT:frp_form_answers/Resources/Private/Language/locallang_be.xlf:deleteFormName.confirmation.content" /></f:variable>
-
     <f:for each="{formNames}" as="formName">
         <f:form action="export" class="form-inline" method="POST" object="{formEntryDemand}" format="Xls"
                 objectName="formEntryDemand">
@@ -48,10 +48,8 @@ Otherwise your changes will be overwritten the next time you save the extension 
                 </f:link.action>
             </div>
         </f:form>
-        <f:be.tableList tableName="tx_frpformanswers_domain_model_formentry" filter="{formName}" enableClickMenu="true" enableControlPanels="true"
-                        fieldList="{0:'uid', 1: 'form', 2: 'crdate', 3: 'exported'}" storagePid="{pid}" clickTitleMode="edit"/>
+        <f:format.raw><frp:table columns="{0:'uid', 1: 'form', 2: 'crdate as create date', 3: 'exported'}" filter="{0: 'form = \'{formName}\''}" table="tx_frpformanswers_domain_model_formentry"  pid="{pid}" /></f:format.raw>
     </f:for>
-
     <f:if condition="{subPagesWithFormEntries}">
         <h2>
             <f:translate
@@ -60,7 +58,7 @@ Otherwise your changes will be overwritten the next time you save the extension 
         <ul style="list-style-type: none;">
             <f:for each="{subPagesWithFormEntries}" as="page">
                 <li>
-                    <core:icon identifier="apps-pagetree-page-default" size="small" /> <frp:beLink title="{page.title}" pageUid="{page.uid}">{page.title} ({page.uid})</frp:beLink>
+                    <core:icon identifier="apps-pagetree-page-default" size="small" /> <frp:link.beLink title="{page.title}" pageUid="{page.uid}">{page.title} ({page.uid})</frp:link.beLink>
                      <f:for each="{formEntriesStatus.{page.uid}}" as="formData" key="formName">
                         <li style="margin-bottom: 15px;">
                             Form: {formName}

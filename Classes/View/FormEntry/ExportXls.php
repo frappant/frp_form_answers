@@ -3,8 +3,6 @@ namespace Frappant\FrpFormAnswers\View\FormEntry;
 
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
-use Psr\Http\Message\StreamInterface;
-use TYPO3\CMS\Extbase\Mvc\Controller\ControllerContext;
 
 /***************************************************************
  *
@@ -34,19 +32,13 @@ use TYPO3\CMS\Extbase\Mvc\Controller\ControllerContext;
 /**
  * ExportXls
  */
-class ExportXls implements \TYPO3\CMS\Extbase\Mvc\View\ViewInterface
+class ExportXls
 {
 
     /**
      * @var Spreadsheet|null
      */
     protected static ?Spreadsheet $spreadsheet = null;
-
-    /**
-     * Controller Context
-     * @var TYPO3\CMS\Extbase\Mvc\Controller\ControllerContext
-     */
-    protected ControllerContext $controllerContext;
 
     /**
      * View variables and their values
@@ -57,29 +49,12 @@ class ExportXls implements \TYPO3\CMS\Extbase\Mvc\View\ViewInterface
     protected $variables = [];
 
     /**
-     * @param ControllerContext $controllerContext
-     */
-    public function injectControllerContext(ControllerContext $controllerContext) {
-        $this->controllerContext = $controllerContext;
-    }
-
-    /**
-     * Sets the current controller context
-     *
-     * @param \TYPO3\CMS\Extbase\Mvc\Controller\ControllerContext $controllerContext
-     */
-    public function setControllerContext(ControllerContext $controllerContext)
-    {
-        $this->controllerContext = $controllerContext;
-    }
-
-    /**
      * Add a variable to $this->viewData.
      * Can be chained, so $this->view->assign(..., ...)->assign(..., ...); is possible
      *
      * @param string $key Key of variable
      * @param mixed $value Value of object
-     * @return Frappant\FrpFormAnswers\View\FormEntry an instance of $this, to enable chaining
+     * @return ExportXls an instance of $this, to enable chaining
      */
     public function assign($key, $value)
     {
@@ -91,7 +66,7 @@ class ExportXls implements \TYPO3\CMS\Extbase\Mvc\View\ViewInterface
      * Add multiple variables to $this->viewData.
      *
      * @param array $values array in the format array(key1 => value1, key2 => value2).
-     * @return Frappant\FrpFormAnswers\View\FormEntry an instance of $this, to enable chaining
+     * @return ExportXls an instance of $this, to enable chaining
      */
     public function assignMultiple(array $values)
     {
@@ -101,33 +76,32 @@ class ExportXls implements \TYPO3\CMS\Extbase\Mvc\View\ViewInterface
         return $this;
     }
 
-    public function initializeView()
+    /**
+     * @return string|void
+     * @throws \PhpOffice\PhpSpreadsheet\Exception
+     * @throws \PhpOffice\PhpSpreadsheet\Writer\Exception
+     */
+    public function render($data = null)
     {
-        $this->spreadsheet = new Spreadsheet();
-        $this->spreadsheet->getProperties()->setCreator("Frappant Forms Export")
-            ->setLastModifiedBy("Frappant Forms Export")
-            ->setCreated(time());
-    }
+        if (null === self::$spreadsheet) {
+            self::$spreadsheet = new Spreadsheet();
+            self::$spreadsheet->getProperties()->setCreator("Frappant Forms Export")
+                ->setLastModifiedBy("Frappant Forms Export")
+                ->setCreated(time());
+        }
 
-	/**
-	 * @return string|void
-	 * @throws \PhpOffice\PhpSpreadsheet\Exception
-	 * @throws \PhpOffice\PhpSpreadsheet\Writer\Exception
-	 */
-	public function render()
-    {
         $rows = $this->variables['rows'];
         // PHPExcel does not work with associative arrays - then to indexed array
         foreach ($rows as $key => $value) {
             $this->setIndexedArray($rows[$key]);
         }
 
-        $this->spreadsheet->getActiveSheet()->fromArray($rows, null, 'A1');
+        self::$spreadsheet->getActiveSheet()->fromArray($rows, null, 'A1');
 
-        $objWriter = new Xlsx($this->spreadsheet);
+        $objWriter = new Xlsx(self::$spreadsheet);
 
         ob_start();
-            $objWriter->save('php://output');
+        $objWriter->save('php://output');
         return ob_get_clean();
     }
 

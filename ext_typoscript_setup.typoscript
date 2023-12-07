@@ -1,2 +1,2 @@
-<INCLUDE_TYPOSCRIPT: source="FILE:EXT:frp_form_answers/Configuration/TypoScript/setupFe.typoscript">
-<INCLUDE_TYPOSCRIPT: source="FILE:EXT:frp_form_answers/Configuration/TypoScript/setupBe.typoscript">
+@import 'EXT:frp_form_answers/Configuration/TypoScript/setupFe.typoscript'
+@import 'EXT:frp_form_answers/Configuration/TypoScript/setupBe.typoscript'

@@ -44,7 +44,7 @@ class BackendUtility extends BackendUtilityCore
              * @todo check if this if block can be deleted
              */
             $t3Version = GeneralUtility::makeInstance(Typo3Version::class);
-            
+
             if (version_compare($t3Version->getBranch(), '10', '<')) {
                 $expressionBuilder = GeneralUtility::makeInstance(ConnectionPool::class)
                     ->getQueryBuilderForTable('pages')
@@ -75,7 +75,7 @@ class BackendUtility extends BackendUtilityCore
      * @return BackendUserAuthentication
      * @SuppressWarnings(PHPMD.Superglobals)
      */
-    protected static function getBackendUserAuthentication()
+    protected static function getBackendUserAuthentication(): BackendUserAuthentication
     {
         return $GLOBALS['BE_USER'];
     }

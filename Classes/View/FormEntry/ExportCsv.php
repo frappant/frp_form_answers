@@ -1,7 +1,7 @@
 <?php
 namespace Frappant\FrpFormAnswers\View\FormEntry;
 
-use TYPO3\CMS\Extbase\Mvc\Controller\ControllerContext;
+use TYPO3\CMS\Fluid\Core\Rendering\RenderingContext;
 use TYPO3\CMS\Extbase\Utility\DebuggerUtility;
 
 /***************************************************************
@@ -32,9 +32,7 @@ use TYPO3\CMS\Extbase\Utility\DebuggerUtility;
 /**
  * ExportCSV
  */
-class ExportCsv implements \TYPO3\CMS\Extbase\Mvc\View\ViewInterface
-{
-
+class ExportCsv {
     /**
      * Delimiter Array
      * @var array
@@ -63,35 +61,12 @@ class ExportCsv implements \TYPO3\CMS\Extbase\Mvc\View\ViewInterface
     protected $variables = [];
 
     /**
-     * Controller Context
-     * @var TYPO3\CMS\Extbase\Mvc\Controller\ControllerContext
-     */
-    protected ControllerContext $controllerContext;
-
-    /**
-     * @param ControllerContext $controllerContext
-     */
-    public function injectControllerContext(ControllerContext $controllerContext) {
-        $this->controllerContext = $controllerContext;
-    }
-
-    /**
-     * Sets the current controller context
-     *
-     * @param \TYPO3\CMS\Extbase\Mvc\Controller\ControllerContext $controllerContext
-     */
-    public function setControllerContext(ControllerContext $controllerContext)
-    {
-        $this->controllerContext = $controllerContext;
-    }
-
-    /**
      * Add a variable to $this->viewData.
      * Can be chained, so $this->view->assign(..., ...)->assign(..., ...); is possible
      *
      * @param string $key Key of variable
      * @param mixed $value Value of object
-     * @return Frappant\FrpFormAnswers\View\FormEntry an instance of $this, to enable chaining
+     * @return ExportCsv an instance of $this, to enable chaining
      */
     public function assign($key, $value)
     {
@@ -103,7 +78,7 @@ class ExportCsv implements \TYPO3\CMS\Extbase\Mvc\View\ViewInterface
      * Add multiple variables to $this->viewData.
      *
      * @param array $values array in the format array(key1 => value1, key2 => value2).
-     * @return Frappant\FrpFormAnswers\View\FormEntry an instance of $this, to enable chaining
+     * @return ExportCsv an instance of $this, to enable chaining
      */
     public function assignMultiple(array $values)
     {
@@ -190,7 +165,7 @@ class ExportCsv implements \TYPO3\CMS\Extbase\Mvc\View\ViewInterface
                 $field = $field->format('r');
             }
 
-            $output[] = preg_match("/(?:${delimiter_esc}|${enclosure_esc}|\s)/", $field) ? (
+            $output[] = preg_match("/(?:{$delimiter_esc}|{$enclosure_esc}|\s)/", $field) ? (
                 $enclosure . str_replace($enclosure, $enclosure . $enclosure, $field) . $enclosure
             ) : $field;
         }

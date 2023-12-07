@@ -5,7 +5,9 @@ use Frappant\FrpFormAnswers\Database\QueryGenerator;
 use Frappant\FrpFormAnswers\Domain\Model\FormEntryDemand;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Persistence\Exception\IllegalObjectTypeException;
+use TYPO3\CMS\Extbase\Persistence\Generic\PersistenceManager;
 use TYPO3\CMS\Extbase\Persistence\Generic\QueryResult;
+use TYPO3\CMS\Extbase\Persistence\Generic\Typo3QuerySettings;
 use TYPO3\CMS\Extbase\Persistence\QueryInterface;
 use Frappant\FrpFormAnswers\Utility\BackendUtility;
 
@@ -25,44 +27,27 @@ use Frappant\FrpFormAnswers\Utility\BackendUtility;
  */
 class FormEntryRepository extends \TYPO3\CMS\Extbase\Persistence\Repository
 {
-    public function initializeObject()
-    {
-        $querySettings = $this->objectManager->get('TYPO3\\CMS\\Extbase\\Persistence\\Generic\\Typo3QuerySettings');
-
-        $querySettings->setStoragePageIds(array((int)\TYPO3\CMS\Core\Utility\GeneralUtility::_GP('id')));
-
-        $this->setDefaultQuerySettings($querySettings);
-    }
-
-    /**
-     * setRespectStoragePage description
-     * @param boolean $bool Check if respectStoragePage should be set or nor
-     */
-    public function setRespectStoragePage($bool)
-    {
-        $querySettings = $this->objectManager->get('TYPO3\\CMS\\Extbase\\Persistence\\Generic\\Typo3QuerySettings');
-
-        $querySettings->setRespectStoragePage($bool);
-
-        $this->setDefaultQuerySettings($querySettings);
-    }
-
     /**
      * Finds all FormEntries given by conf Array
      * @param  \Frappant\FrpFormAnswers\Domain\Model\FormEntryDemand $formEntryDemand
      * @return QueryResult
      */
-    public function findByDemand(FormEntryDemand $formEntryDemand)
+    public function findByDemand(FormEntryDemand $formEntryDemand, int $pid = 0)
     {
+
         $query = $this->createQuery();
 
         if ($formEntryDemand->getAllPids()) {
             $settings = $query->getQuerySettings();
             $settings->setRespectStoragePage(false);
             $query->setQuerySettings($settings);
+        } else {
+            $query->getQuerySettings()->setRespectStoragePage(true);
+            $query->getQuerySettings()->setStoragePageIds([$pid]);
         }
 
-        $constraints = array();
+
+        $constraints = [];
 
         if (!$formEntryDemand->getSelectAll()) {
             $constraints[] = $query->equals('exported', false);
@@ -77,7 +62,7 @@ class FormEntryRepository extends \TYPO3\CMS\Extbase\Persistence\Repository
         }
 
         if (count($constraints)) {
-            $query->matching($query->logicalAnd($constraints));
+            $query->matching($query->logicalAnd(...$constraints));
         }
         return $query->execute();
     }
@@ -138,7 +123,8 @@ class FormEntryRepository extends \TYPO3\CMS\Extbase\Persistence\Repository
             $this->update($entry);
         }
 
-        $persistenceManager = $this->objectManager->get("TYPO3\\CMS\\Extbase\\Persistence\\Generic\\PersistenceManager");
+        $persistenceManager = GeneralUtility::makeInstance(PersistenceManager::class);
+
         $persistenceManager->persistAll();
     }
 }

@@ -3,19 +3,15 @@ namespace Frappant\FrpFormAnswers\Domain\Finishers;
 
 use Frappant\FrpFormAnswers\Event\ManipulateFormValuesEvent;
 use Frappant\FrpFormAnswers\Domain\Model\FormEntry;
+use TYPO3\CMS\Core\Context\Exception\AspectNotFoundException;
 use TYPO3\CMS\Core\EventDispatcher\EventDispatcher;
 use TYPO3\CMS\Extbase\Persistence\Generic\PersistenceManager;
-use TYPO3\CMS\Extbase\Utility\DebuggerUtility;
-use TYPO3\CMS\Form\Domain\Finishers;
-use TYPO3\CMS\Core\Database\ConnectionPool;
-use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Extbase\Domain\Model\FileReference;
 use TYPO3\CMS\Extbase\SignalSlot\Dispatcher;
 use TYPO3\CMS\Form\Domain\Finishers\AbstractFinisher;
-use TYPO3\CMS\Form\Domain\Finishers\Exception\FinisherException;
 use TYPO3\CMS\Form\Domain\Model\FormElements\FormElementInterface;
 use Frappant\FrpFormAnswers\Domain\Repository\FormEntryRepository;
 use Psr\EventDispatcher\EventDispatcherInterface;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 class SaveFormToDatabaseFinisher extends AbstractFinisher
 {
@@ -25,20 +21,6 @@ class SaveFormToDatabaseFinisher extends AbstractFinisher
      * @var \Frappant\FrpFormAnswers\Domain\Repository\FormEntryRepository
      */
     protected $formEntryRepository = null;
-
-    /**
-     * signalSlotDispatcher
-     *
-     * @var \TYPO3\CMS\Extbase\SignalSlot\Dispatcher
-     */
-    protected $signalSlotDispatcher = null;
-
-    /**
-     * @param \TYPO3\CMS\Extbase\SignalSlot\Dispatcher $dispatcher
-     */
-    public function injectDispatcher(Dispatcher $dispatcher) {
-        $this->signalSlotDispatcher = $dispatcher;
-    }
 
     protected EventDispatcherInterface $eventDispatcher;
 
@@ -68,6 +50,7 @@ class SaveFormToDatabaseFinisher extends AbstractFinisher
 
     /**
      * Executes this finisher
+     * @throws AspectNotFoundException
      * @see AbstractFinisher::execute()
      */
     protected function executeInternal()
@@ -83,12 +66,6 @@ class SaveFormToDatabaseFinisher extends AbstractFinisher
         $lastFormUid = 1;
 
         /**
-         * Provide a Signal to manipulate $values before saving
-         * @deprecated since v4 will be removed in v5
-         */
-        $this->signalSlotDispatcher->dispatch(__CLASS__, 'preInsertSignal', array(&$values));
-
-        /**
          * Dispatch an Event to manipulate $values (Use this instead of preInsertSignal above)
          */
         $event = $this->eventDispatcher->dispatch(new ManipulateFormValuesEvent($values));
@@ -98,7 +75,10 @@ class SaveFormToDatabaseFinisher extends AbstractFinisher
         $this->formEntry->setAnswers($values);
 
         $this->formEntry->setForm($identifier);
-        $this->formEntry->setPid($GLOBALS['TSFE']->id);
+
+
+        $pageId = $this->finisherContext->getFormRuntime()->getRequest()->getAttributes()['routing']['pageId'];
+        $this->formEntry->setPid($pageId);
 
         $lastForm = $this->formEntryRepository->getLastFormAnswerByIdentifyer($identifier);
 
