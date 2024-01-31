@@ -8,7 +8,7 @@ use Symfony\Component\ExpressionLanguage\ExpressionFunctionProviderInterface;
 
 class CustomConditionFunctionsProvider implements ExpressionFunctionProviderInterface
 {
-    public function getFunctions()
+    public function getFunctions():array
     {
         return [
             $this->getWebserviceFunction(),
