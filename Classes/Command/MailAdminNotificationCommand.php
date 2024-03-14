@@ -100,7 +100,7 @@ class MailAdminNotificationCommand extends Command
 	 * @param OutputInterface $output
 	 * @throws Exception
 	 */
-    public function execute(InputInterface $input, OutputInterface $output)
+    public function execute(InputInterface $input, OutputInterface $output): int
     {
     	$mailto = $input->getArgument('mailto');
     	$formname = $input->getOption('formname');
@@ -141,10 +141,10 @@ class MailAdminNotificationCommand extends Command
 	                $this->formEntryRepository->update($row);
                 } catch (IllegalObjectTypeException $e) {
                 	$output->writeln($e->getMessage());
-                    return;
+                    return 0;
                 } catch (UnknownObjectException $e) {
 	                $output->writeln($e->getMessage());
-                    return;
+                    return 0;
                 }
             }
             $body = $this->generateMailBody($records);
@@ -167,6 +167,7 @@ class MailAdminNotificationCommand extends Command
         } else {
             $output->writeln("Nothing to send.");
         }
+        return 1;
     }
 
 }
