@@ -39,7 +39,7 @@ class FormAnswersUtility
     public function prepareFormAnswersArray()
     {
 
-        $act_pid = $_GET['id'];
+        $act_pid = $_GET['id'] ?? 0;
         $pageIds = array();
 
         // Get a List from FormEntries in subpages
@@ -65,7 +65,7 @@ class FormAnswersUtility
             }
         }
 
-        $id = $_GET['id'];
+        $id = $_GET['id'] ?? 0;
         unset($pageIds[(int)$id]);
 
         return $pageIds;

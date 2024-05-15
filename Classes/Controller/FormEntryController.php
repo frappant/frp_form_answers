@@ -113,7 +113,7 @@ class FormEntryController extends ActionController
         $this->formEntryRepository = $formEntryRepository;
         $this->dataExporter = $dataExporter;
         $this->pageRepository = $pageRepository;
-        $this->pid = $_GET['id'];
+        $this->pid = $_GET['id'] ?? 0;
         $this->persistenceManager = $persistenceManager;
     }
 
@@ -262,7 +262,7 @@ class FormEntryController extends ActionController
         $format = $args['format'];
         // $this->filename = $args['formEntryDemand']['formName'];
 
-        $charset = (strlen($args['formEntryDemand']['charset']) > 0 ? $args['formEntryDemand']['charset'] : 'iso-8859-1');
+        $charset = (strlen($args['formEntryDemand']['charset'] ?? '') > 0 ? $args['formEntryDemand']['charset'] : 'iso-8859-1');
 
         switch ($format){
             case 'Csv':
@@ -301,7 +301,7 @@ class FormEntryController extends ActionController
     {
 
         $format = $this->request->getArguments()['format'];
-        $formEntryDemand->setAllPids($this->request->getArguments()['allPids']);
+        $formEntryDemand->setAllPids($this->request->getArguments()['allPids'] ?? false);
         $pid = $_GET['id'];
 
         if($formEntryDemand) {
