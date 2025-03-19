@@ -39,7 +39,7 @@ class DataExporter
             }
             foreach ($entry->getAnswers() as $fieldName => $field) {
                 if ($this->isExportableType($field['conf']['inputType'])) {
-                    $rows[$uid][$fieldName] = (is_array($field['value']) ? implode(",", $field['value']) : $field['value']);
+                    $rows[$uid][$fieldName] = (is_array($field['value'] ?? '') ? implode(",", $field['value']) : $field['value']);
                 }
             }
             $rows[$uid]['crdate'] = $entry->_getProperty('crdate');
