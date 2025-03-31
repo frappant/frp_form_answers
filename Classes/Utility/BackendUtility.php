@@ -8,6 +8,7 @@ use TYPO3\CMS\Backend\Utility\BackendUtility as BackendUtilityCore;
 use TYPO3\CMS\Core\Context\Context;
 use TYPO3\CMS\Core\Domain\Repository\PageRepository;
 use TYPO3\CMS\Core\Information\Typo3Version;
+use TYPO3\CMS\Core\Http\ServerRequest; // Import für die Anfrage
 
 /**
  * Class BackendUtility
@@ -51,7 +52,7 @@ class BackendUtility extends BackendUtilityCore
                     ->expr()
                 ;
                 $oldExpression = $expressionBuilder->lt('pages.doktype', 200);
-                $newExpression = $expressionBuilder->neq('pages.doktype', PageRepository::DOKTYPE_RECYCLER);
+                $newExpression = $expressionBuilder->neq('pages.doktype', 255);
                 $pageRepository->where_hid_del = str_replace(
                     $oldExpression,
                     $newExpression,
@@ -85,27 +86,27 @@ class BackendUtility extends BackendUtilityCore
      *   Uses various fallbacks depending on current view and backend module.
      *   ToDo: Ask somebody, how this can be done simple :)
      */
+
+
     public static function getCurrentPid($pageUid = null)
     {
         $context = GeneralUtility::makeInstance(Context::class);
+        $request = GeneralUtility::makeInstance(ServerRequest::class);
 
         if (!$pageUid) {
-            $pageUid = (int) $GLOBALS['_REQUEST']['popViewId'];
+            $pageUid = (int) ($GLOBALS['_REQUEST']['popViewId'] ?? 0);
         }
         if (!$pageUid) {
-            $pageUid = (int) preg_replace('/(.*)(id=)([0-9]*)(.*)/i', '\\3', $GLOBALS['_REQUEST']['returnUrl']);
+            $pageUid = (int) preg_replace('/(.*)(id=)([0-9]*)(.*)/i', '\3', $GLOBALS['_REQUEST']['returnUrl'] ?? '');
         }
         if (!$pageUid) {
-            $pageUid = (int) preg_replace('/(.*)(id=)([0-9]*)(.*)/i', '\\3', $GLOBALS['_POST']['returnUrl']);
+            $pageUid = (int) preg_replace('/(.*)(id=)([0-9]*)(.*)/i', '\3', $GLOBALS['_POST']['returnUrl'] ?? '');
         }
         if (!$pageUid) {
-            $pageUid = (int) preg_replace('/(.*)(id=)([0-9]*)(.*)/i', '\\3', $GLOBALS['_GET']['returnUrl']);
+            $pageUid = (int) preg_replace('/(.*)(id=)([0-9]*)(.*)/i', '\3', $GLOBALS['_GET']['returnUrl'] ?? '');
         }
         if (!$pageUid) {
-            $pageUid = (int) $GLOBALS['TSFE']->id;
-        }
-        if (!$pageUid) {
-            $pageUid = (int) $_GET['id'];
+            $pageUid = (int) ($request->getQueryParams()['id'] ?? 0);
         }
         if (!$pageUid) {
             $pageUid = 0;

@@ -9,6 +9,8 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use TYPO3\CMS\Core\Exception;
+use TYPO3\CMS\Core\Mail\FluidEmail;
+use TYPO3\CMS\Core\Mail\MailerInterface;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Object\ObjectManager;
 use TYPO3\CMS\Extbase\Persistence\Exception\IllegalObjectTypeException;
@@ -62,36 +64,7 @@ class MailAdminNotificationCommand extends Command
 			'Subject Label.'
 			);
 	}
-
-    /**
-     * @param $mails
-     * @return string
-     */
-    public function generateMailBody($mails)
-    {
-        // Rendering of the output via fluid
-        $view = GeneralUtility::makeInstance(StandaloneView::class);
-        $view->setFormat('html');
-        $templateRootPath = GeneralUtility::getFileAbsFileName(
-            'EXT:frp_form_answers/Resources/Private/CommandTask/Templates'
-        );
-        $partialRootPaths = GeneralUtility::getFileAbsFileName(
-            'EXT:frp_form_answers/Resources/Private/CommandTask/Partials'
-        );
-        $layoutRootPaths = GeneralUtility::getFileAbsFileName(
-            'EXT:frp_form_answers/Resources/Private/CommandTask/Layouts'
-        );
-        $view->setTemplateRootPaths(array($templateRootPath));
-        $view->setPartialRootPaths(array($partialRootPaths));
-        $view->setLayoutRootPaths(array($layoutRootPaths));
-        $view->setTemplatePathAndFilename(
-            GeneralUtility::getFileAbsFileName(
-                'EXT:frp_form_answers/Resources/Private/CommandTask/Templates/FormEntries/InMail.html'
-            )
-        );
-        $view->assignMultiple(['mails' => $mails]);
-        return $view->render();
-    }
+    
 
 	/**
 	 * Email notification about sent forms.
@@ -147,22 +120,25 @@ class MailAdminNotificationCommand extends Command
                     return 0;
                 }
             }
-            $body = $this->generateMailBody($records);
+
+
+
             $date = date("d/m/y");
             if (!empty($title)) {
                 $subject = $title;
             } else {
                 $subject = "Scheduler mails update " . $date;
             }
-            $trim = GeneralUtility::trimExplode(',', $mailto, 1);
-            foreach ($trim as $singlemail) {
-                $mail = GeneralUtility::makeInstance(\TYPO3\CMS\Core\Mail\MailMessage::class);
-                $mail
-                    ->setSubject($subject)
-                    ->setFrom(array($from))
-                    ->setTo(array($singlemail))
-                    ->setBody($body, 'text/html')
-                    ->send();
+            $mailto = GeneralUtility::trimExplode(',', $mailto, 1);
+            if(count($mailto) > 1) {
+                $email = new FluidEmail();
+                $email
+                    ->to(...$mailto)
+                    ->subject($message['subject'])
+                    ->format(FluidEmail::FORMAT_HTML) // send HTML and plaintext mail
+                    ->setTemplate('InMail')
+                    ->assignMultiple(['mails'=> $records]);
+                GeneralUtility::makeInstance(MailerInterface::class)->send($email);
             }
         } else {
             $output->writeln("Nothing to send.");

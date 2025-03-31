@@ -34,12 +34,12 @@ class TableViewHelper extends AbstractViewHelper
 
         $pencil = $iconFactory->getIcon(
             'actions-view',
-            Icon::SIZE_SMALL
+            \TYPO3\CMS\Core\Imaging\IconSize::SMALL
         );
 
         $trash = $iconFactory->getIcon(
             'actions-delete',
-            Icon::SIZE_SMALL
+            \TYPO3\CMS\Core\Imaging\IconSize::SMALL
         );
 
 

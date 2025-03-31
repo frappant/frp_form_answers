@@ -1,0 +1,34 @@
+<html xmlns:f="http://xsd.helmut-hummel.de/ns/TYPO3/Fluid/ViewHelpers"
+      data-namespace-typo3-fluid="true">
+<f:layout name="Default"/>
+
+<f:layout name="Default"/>
+
+This Template is responsible for displaying a single view for a domain object
+
+If you modify this template, do not forget to change the overwrite settings
+in /Configuration/ExtensionBuilder/settings.yaml:
+Resources:
+Private:
+Templates:
+Show.html: keep
+
+Otherwise your changes will be overwritten the next time you save the extension in the extension builder
+
+<f:section name="content">
+    <h1>
+        <f:translate
+                key="LLL:EXT:frp_form_answers/Resources/Private/Language/locallang_be.xlf:tx_frpformanswers_backend_templates_formentry_show.singleviewh1"/>
+    </h1>
+
+    <f:flashMessages/>
+    <f:render partial="FormEntry/Properties" arguments="{formEntry:formEntry}"/>
+    <f:link.action action="list">
+        <f:translate
+                key="LLL:EXT:frp_form_answers/Resources/Private/Language/locallang_be.xlf:tx_frpformanswers_backend_templates_formentry_show.list"/>
+    </f:link.action>
+    <br/>
+    <f:link.action action="create">
+        <f:translate
+                key="LLL:EXT:frp_form_answers/Resources/Private/Language/locallang_be.xlf:tx_frpformanswers_backend_templates_formentry_show.create"/>
+</f:section>

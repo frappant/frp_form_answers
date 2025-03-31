@@ -28,7 +28,9 @@ use TYPO3\CMS\Extbase\Persistence\Exception\IllegalObjectTypeException;
 use TYPO3\CMS\Extbase\Persistence\Generic\PersistenceManager;
 use TYPO3\CMS\Extbase\Utility\LocalizationUtility;
 use TYPO3\CMS\Extbase\Utility\DebuggerUtility;
-
+use Psr\Http\Message\ServerRequestInterface;
+use T3docs\BlogExample\Domain\Model\Post;
+use TYPO3\CMS\Backend\Template\ModuleTemplate;
 /***
  *
  * This file is part of the "Form Answer Saver" Extension for TYPO3 CMS.
@@ -45,11 +47,6 @@ use TYPO3\CMS\Extbase\Utility\DebuggerUtility;
  */
 class FormEntryController extends ActionController
 {
-    /**
-     * @var ModuleTemplateFactory $moduleTemplateFactory
-     */
-    protected ModuleTemplateFactory $moduleTemplateFactory;
-
     /**
      * @var IconFactory $iconFactory
      */
@@ -98,8 +95,9 @@ class FormEntryController extends ActionController
     protected $requestHeaders = [];
 
 
+
     public function __construct(
-        ModuleTemplateFactory $moduleTemplateFactory,
+        protected readonly ModuleTemplateFactory $moduleTemplateFactory,
         IconFactory $iconFactory,
         FormAnswersUtility $formAnswersUtility,
         FormEntryRepository $formEntryRepository,
@@ -107,7 +105,6 @@ class FormEntryController extends ActionController
         PageRepository $pageRepository,
         PersistenceManager $persistenceManager
     ) {
-        $this->moduleTemplateFactory = $moduleTemplateFactory;
         $this->iconFactory = $iconFactory;
         $this->formAnswersUtility = $formAnswersUtility;
         $this->formEntryRepository = $formEntryRepository;
@@ -124,23 +121,24 @@ class FormEntryController extends ActionController
      */
     public function listAction(): ResponseInterface
     {
+        $moduleTemplate = $this->moduleTemplateFactory->create($this->request);
         $pageIds = $this->formAnswersUtility->prepareFormAnswersArray();
 
         if (count($pageIds) > 0) {
             $this->view->assign('subPagesWithFormEntries', $this->pageRepository->getMenuForPages(array_keys($pageIds)));
             $this->view->assign('formEntriesStatus', $pageIds);
         }
-        $this->view->assign('pid', $this->pid);
-        $this->view->assign('formNames', $this->formAnswersUtility->getAllFormNames([$this->pid]));
-        $this->view->assign('settings', $this->settings);
+        $moduleTemplate->assign('pid', $this->pid);
+        $moduleTemplate->assign('formNames', $this->formAnswersUtility->getAllFormNames([$this->pid]));
+        $moduleTemplate->assign('settings', $this->settings);
 
-        $moduleTemplate = $this->moduleTemplateFactory->create($this->request);
 
-        $this->createMenu($moduleTemplate);
-	    $this->createButtons($moduleTemplate);
+        /*$this->createMenu($moduleTemplate);
+	    $this->createButtons($moduleTemplate);*/
 
-        $moduleTemplate->setContent($this->view->render());
-        return $this->htmlResponse($moduleTemplate->renderContent());
+
+        return $moduleTemplate->renderResponse('FormEntry/List');
+
     }
 
     /**
@@ -468,7 +466,7 @@ class FormEntryController extends ActionController
         $refreshButton = $buttonBar->makeLinkButton()
             ->setHref(GeneralUtility::getIndpEnv('REQUEST_URI'))
             ->setTitle($this->getLanguageService()->sL('LLL:EXT:core/Resources/Private/Language/locallang_core.xlf:labels.reload'))
-            ->setIcon($this->iconFactory->getIcon('actions-refresh', Icon::SIZE_SMALL));
+            ->setIcon($this->iconFactory->getIcon('actions-refresh', \TYPO3\CMS\Core\Imaging\IconSize::SMALL));
         $buttonBar->addButton($refreshButton, ButtonBar::BUTTON_POSITION_RIGHT);
 
     }
