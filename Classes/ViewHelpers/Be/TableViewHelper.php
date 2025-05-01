@@ -128,7 +128,7 @@ class TableViewHelper extends AbstractViewHelper
 
 
 
-                $output .= '<a href="' . $deleteUri . '" class="btn btn-default btn-sm">' . $trash . '</a>';
+                $output .= '<a href="' . $deleteUri . '" class="btn btn-danger btn-sm ms-1">' . $trash . '</a>';
                 $output .= '</td>';
                 $output .= '</tr>';
             }

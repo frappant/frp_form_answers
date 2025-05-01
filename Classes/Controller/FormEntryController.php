@@ -125,16 +125,13 @@ class FormEntryController extends ActionController
         $pageIds = $this->formAnswersUtility->prepareFormAnswersArray();
 
         if (count($pageIds) > 0) {
-            $this->view->assign('subPagesWithFormEntries', $this->pageRepository->getMenuForPages(array_keys($pageIds)));
-            $this->view->assign('formEntriesStatus', $pageIds);
+            $moduleTemplate->assign('subPagesWithFormEntries', $this->pageRepository->getMenuForPages(array_keys($pageIds)));
+            $moduleTemplate->assign('formEntriesStatus', $pageIds);
         }
         $moduleTemplate->assign('pid', $this->pid);
         $moduleTemplate->assign('formNames', $this->formAnswersUtility->getAllFormNames([$this->pid]));
         $moduleTemplate->assign('settings', $this->settings);
 
-
-        /*$this->createMenu($moduleTemplate);
-	    $this->createButtons($moduleTemplate);*/
 
 
         return $moduleTemplate->renderResponse('FormEntry/List');

@@ -34,7 +34,7 @@ class QueryGenerator
      * @param string $permClause
      * @return string comma separated list of descendant pages
      */
-    public function getTreeList($id, $depth, $begin = 0, $permClause = '')
+    public function getTreeList($id, $depth, $begin = 0, $permClause = ''): int|string
     {
         $depth = (int)$depth;
         $begin = (int)$begin;
