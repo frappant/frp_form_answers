@@ -83,17 +83,17 @@ class ext_update
 		    ->count('uid')
 		    ->from('tx_frpformanswers_domain_model_formentry')
 	        ->where(
-		        $queryBuilder->expr()->eq('submit_uid', $queryBuilder->createNamedParameter(0, \PDO::PARAM_INT))
-	        )->execute();
+		        $queryBuilder->expr()->eq('submit_uid', $queryBuilder->createNamedParameter(0, Connection::PARAM_INT))
+	        )->executeQuery();
 
         if ($row) {
 			$queryBuilder
 				->update('tx_frpformanswers_domain_model_formentry')
 				->where(
-					$queryBuilder->expr()->eq('submit_uid', $queryBuilder->createNamedParameter(0, \PDO::PARAM_INT))
+					$queryBuilder->expr()->eq('submit_uid', $queryBuilder->createNamedParameter(0, Connection::PARAM_INT))
 				)
 				->set('submit_uid', $queryBuilder->quoteIdentifier('uid'), false)
-				->execute();
+				->executeStatement();
 
             $this->messageArray[] = new FlashMessage('Set all submit_uids to value of uid successfully.', $title, \TYPO3\CMS\Core\Type\ContextualFeedbackSeverity::OK);
         }
@@ -117,8 +117,8 @@ class ext_update
 	        ->count('uid')
 	        ->from('tx_frpformanswers_domain_model_formentry')
 	        ->where(
-		        $queryBuilder->expr()->eq('submit_uid', $queryBuilder->createNamedParameter(0, \PDO::PARAM_INT))
-	        )->execute();
+		        $queryBuilder->expr()->eq('submit_uid', $queryBuilder->createNamedParameter(0, Connection::PARAM_INT))
+	        )->executeQuery();
         return ($row === 0);
     }
 

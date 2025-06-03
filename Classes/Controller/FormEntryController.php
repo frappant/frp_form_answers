@@ -13,6 +13,7 @@ use Psr\Http\Message\ResponseInterface;
 use TYPO3\CMS\Backend\Template\Components\ButtonBar;
 use TYPO3\CMS\Backend\Template\Components\Menu\Menu;
 use TYPO3\CMS\Backend\Template\ModuleTemplateFactory;
+use TYPO3\CMS\Core\Database\Connection;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Domain\Repository\PageRepository;
 use TYPO3\CMS\Core\Http\Stream;
@@ -125,22 +126,20 @@ class FormEntryController extends ActionController
     public function listAction(): ResponseInterface
     {
         $pageIds = $this->formAnswersUtility->prepareFormAnswersArray();
+        $moduleTemplate = $this->moduleTemplateFactory->create($this->request);
 
         if (count($pageIds) > 0) {
-            $this->view->assign('subPagesWithFormEntries', $this->pageRepository->getMenuForPages(array_keys($pageIds)));
-            $this->view->assign('formEntriesStatus', $pageIds);
+            $moduleTemplate->assign('subPagesWithFormEntries', $this->pageRepository->getMenuForPages(array_keys($pageIds)));
+            $moduleTemplate->assign('formEntriesStatus', $pageIds);
         }
-        $this->view->assign('pid', $this->pid);
-        $this->view->assign('formNames', $this->formAnswersUtility->getAllFormNames([$this->pid]));
-        $this->view->assign('settings', $this->settings);
+        $moduleTemplate->assign('pid', $this->pid);
+        $moduleTemplate->assign('formNames', $this->formAnswersUtility->getAllFormNames([$this->pid]));
+        $moduleTemplate->assign('settings', $this->settings);
 
-        $moduleTemplate = $this->moduleTemplateFactory->create($this->request);
 
         $this->createMenu($moduleTemplate);
 	    $this->createButtons($moduleTemplate);
-
-        $moduleTemplate->setContent($this->view->render());
-        return $this->htmlResponse($moduleTemplate->renderContent());
+        return $moduleTemplate->renderResponse($this->templateFilenameFromRequest());
     }
 
     /**
@@ -170,19 +169,17 @@ class FormEntryController extends ActionController
 
         $count = $queryBuilder->count('*')
             ->from('tx_frpformanswers_domain_model_formentry')
-            ->where($queryBuilder->expr()->eq('pid', $queryBuilder->createNamedParameter($this->pid, \PDO::PARAM_INT)))
-            ->andWhere($queryBuilder->expr()->eq('deleted', $queryBuilder->createNamedParameter(1, \PDO::PARAM_INT)))
+            ->where($queryBuilder->expr()->eq('pid', $queryBuilder->createNamedParameter($this->pid, Connection::PARAM_INT)))
+            ->andWhere($queryBuilder->expr()->eq('deleted', $queryBuilder->createNamedParameter(1, Connection::PARAM_INT)))
             ->executeQuery()->fetchFirstColumn();
         //DebuggerUtility::var_dump($count);
-        $this->view->assign('count', $count[0]);
-
         $moduleTemplate = $this->moduleTemplateFactory->create($this->request);
+        $moduleTemplate->assign('count', $count[0]);
 
         $this->createMenu($moduleTemplate);
 	    $this->createButtons($moduleTemplate);
 
-        $moduleTemplate->setContent($this->view->render());
-        return $this->htmlResponse($moduleTemplate->renderContent());
+        return $moduleTemplate->renderResponse($this->templateFilenameFromRequest());
     }
 
     /**
@@ -221,13 +218,13 @@ class FormEntryController extends ActionController
         $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('tx_frpformanswers_domain_model_formentry');
 
         $queryBuilder->delete('tx_frpformanswers_domain_model_formentry')
-            ->where($queryBuilder->expr()->eq('pid', $queryBuilder->createNamedParameter($this->pid, \PDO::PARAM_INT)))
-            ->andWhere($queryBuilder->expr()->eq('deleted', $queryBuilder->createNamedParameter(1, \PDO::PARAM_INT)))
-            ->execute();
+            ->where($queryBuilder->expr()->eq('pid', $queryBuilder->createNamedParameter($this->pid, Connection::PARAM_INT)))
+            ->andWhere($queryBuilder->expr()->eq('deleted', $queryBuilder->createNamedParameter(1, Connection::PARAM_INT)))
+            ->executeStatement();
 
         $this->addFlashMessage(
-            LocalizationUtility::translate('LLL:EXT:frp_form_answers/Resources/Private/Language/de.locallang_be.xlf:flashmessage.removeEntries.body', null, [$this->pid]),
-            LocalizationUtility::translate('LLL:EXT:frp_form_answers/Resources/Private/Language/de.locallang_be.xlf:flashmessage.removeEntries.title'),
+            LocalizationUtility::translate('LLL:EXT:frp_form_answers/Resources/Private/Language/locallang_be.xlf:flashmessage.removeEntries.body', null, [$this->pid]),
+            LocalizationUtility::translate('LLL:EXT:frp_form_answers/Resources/Private/Language/locallang_be.xlf:flashmessage.removeEntries.header'),
             \TYPO3\CMS\Core\Type\ContextualFeedbackSeverity::OK,
             true);
 
@@ -242,18 +239,16 @@ class FormEntryController extends ActionController
     public function prepareExportAction(): ResponseInterface
     {
         $demandObject = GeneralUtility::makeInstance(FormEntryDemand::class);
+        $moduleTemplate = $this->moduleTemplateFactory->create($this->request);
 
         $this->formEntryDemand = $demandObject;
-        $this->view->assign('formEntryDemand', $demandObject);
-        $this->view->assign('formHashes', $this->formAnswersUtility->getAllFormHashes($this->pid));
-
-        $moduleTemplate = $this->moduleTemplateFactory->create($this->request);
+        $moduleTemplate->assign('formEntryDemand', $demandObject);
+        $moduleTemplate->assign('formHashes', $this->formAnswersUtility->getAllFormHashes($this->pid));
 
         $this->createMenu($moduleTemplate);
 	    $this->createButtons($moduleTemplate);
 
-        $moduleTemplate->setContent($this->view->render());
-        return $this->htmlResponse($moduleTemplate->renderContent());
+        return $moduleTemplate->renderResponse($this->templateFilenameFromRequest());
     }
 
     public function initializeExportAction(){
@@ -499,4 +494,10 @@ class FormEntryController extends ActionController
         return $GLOBALS['LANG'];
     }
 
+    private function templateFilenameFromRequest() {
+        $extbaseRequestParameters = $this->request->getAttribute('extbase');
+        $templateFileName = $extbaseRequestParameters->getControllerName() . '/' .
+            ucfirst($extbaseRequestParameters->getControllerActionName());
+        return $templateFileName;
+    }
 }

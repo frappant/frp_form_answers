@@ -7,9 +7,8 @@ TYPO3:
             Form:
               renderingOptions:
                 translation:
-                  translationFile:
-                    10: 'EXT:form/Resources/Private/Language/locallang.xlf'
+                  translationFiles:
                     20: 'EXT:frp_form_answers/Resources/Private/Language/locallang.xlf'
           finishersDefinition:
-              SaveFormToDatabase:
-                implementationClassName: 'Frappant\FrpFormAnswers\Domain\Finishers\SaveFormToDatabaseFinisher'
+            SaveFormToDatabase:
+              implementationClassName: Frappant\FrpFormAnswers\Domain\Finishers\SaveFormToDatabaseFinisher
