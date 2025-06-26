@@ -292,7 +292,7 @@ class FormEntryController extends ActionController
 	 * @throws \TYPO3\CMS\Extbase\Mvc\Exception\StopActionException
 	 * @throws \TYPO3\CMS\Extbase\Mvc\Exception\UnsupportedRequestTypeException
 	 */
-    public function exportAction(\Frappant\FrpFormAnswers\Domain\Model\FormEntryDemand $formEntryDemand = null)
+    public function exportAction(?\Frappant\FrpFormAnswers\Domain\Model\FormEntryDemand $formEntryDemand = null)
     {
 
         $format = $this->request->getArguments()['format'];
