@@ -5,7 +5,7 @@
     "homepage": "https://frappant.ch",
     "require": {
         "typo3/cms-core": "^13.0",
-        "phpoffice/phpspreadsheet": "^2.3"
+        "phpoffice/phpspreadsheet": "^4.1",
     },
     "license": "GPL-2.0+",
     "autoload": {
