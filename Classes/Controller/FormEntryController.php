@@ -98,6 +98,8 @@ class FormEntryController extends ActionController
      */
     protected $requestHeaders = [];
 
+    protected FormEntryDemand $formEntryDemand;
+
 
     public function __construct(
         ModuleTemplateFactory $moduleTemplateFactory,
