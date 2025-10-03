@@ -61,16 +61,17 @@ class SaveFormToDatabaseFinisher extends AbstractFinisher
         // so it will be filled in foreach
         $values = $this->getFormValues();
         // Identifier for the yaml file of the form
-        $identifier = $this->finisherContext->getFormRuntime()->getIdentifier();
+        $formRuntime = $this->finisherContext->getFormRuntime();
+
+        $identifier = $formRuntime->getIdentifier();
         // Default Value is new Form
         $lastFormUid = 1;
 
         /**
          * Dispatch an Event to manipulate $values (Use this instead of preInsertSignal above)
          */
-        $event = $this->eventDispatcher->dispatch(new ManipulateFormValuesEvent($values));
+        $event = $this->eventDispatcher->dispatch(new ManipulateFormValuesEvent($values, $formRuntime));
         $values = $event->getValues();
-
         $this->formEntry->setExported(false);
         $this->formEntry->setAnswers($values);
 

@@ -15,7 +15,7 @@ declare(strict_types=1);
 
 namespace Frappant\FrpFormAnswers\Event;
 
-use TYPO3\CMS\Extbase\Utility\DebuggerUtility;
+use TYPO3\CMS\Form\Domain\Runtime\FormRuntime;
 
 /**
  * Collects additional Formvalues to be added in SaveFormToDatabaseFinisher.
@@ -27,8 +27,14 @@ final class ManipulateFormValuesEvent
      */
     protected array $values;
 
-    public function __construct(array $values) {
+    /**
+     * @var FormRuntime $formRuntime
+     */
+    protected FormRuntime $formRuntime;
+
+    public function __construct(array $values, FormRuntime $formRuntime) {
         $this->values = $values;
+        $this->formRuntime = $formRuntime;
     }
 
     /**
@@ -62,4 +68,13 @@ final class ManipulateFormValuesEvent
     {
         return $this->values;
     }
+
+    /**
+     * @return FormRuntime
+     */
+    public function getFormRuntime(): FormRuntime
+    {
+        return $this->formRuntime;
+    }
+
 }

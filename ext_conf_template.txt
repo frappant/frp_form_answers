@@ -1,2 +1,8 @@
 # cat=basic/enable; type=boolean; label=Use the submit uid per form (yaml file) instead of uid (per table - all formAnswers)
 useSubmitUid = false
+
+# cat=basic/enable; type=boolean; label=Append the upload path to the uploaded files
+enableUploadPathEnrichment = false
+
+# cat=basic/enable; type=boolean; label=use the public path to the uploaded files (false = FAL path)
+savePublicUploadPath = false
