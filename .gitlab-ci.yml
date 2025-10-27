@@ -27,7 +27,7 @@ unittest-php7-8:
   <<: *unit_test
   variables:
     DOCKER_TAG: debian-9
-    TYPO3_VERSION: ^8
+    TYPO3_VERSION: ^12
 
 # Unit Tests in PHP 7.0 and TYPO3 (current master)
 # unittest-php7-master:

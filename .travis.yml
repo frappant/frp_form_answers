@@ -1,11 +1,10 @@
 language: php
 
 php:
-  - 7
-  - 7.1
+  - 8.1
 
 env:
-  - TYPO3_VERSION="^8.7.0"
+  - TYPO3_VERSION="^12.4.0"
   # - TYPO3_VERSION="dev-master"
 
 matrix:
