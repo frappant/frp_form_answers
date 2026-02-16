@@ -1,0 +1,5 @@
+name: frappant/frp-form-answers
+label: 'Frappant Form Answers site set'
+
+dependencies:
+  - typo3/form

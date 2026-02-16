@@ -1,0 +1,2 @@
+@import 'EXT:frp_form_answers/Configuration/TypoScript/setupBe.typoscript'
+@import 'EXT:frp_form_answers/Configuration/TypoScript/setupFe.typoscript'
