@@ -1,9 +1,6 @@
 <?php
 namespace Frappant\FrpFormAnswers\View\FormEntry;
 
-use TYPO3\CMS\Fluid\Core\Rendering\RenderingContext;
-use TYPO3\CMS\Extbase\Utility\DebuggerUtility;
-
 /***************************************************************
  *
  *  Copyright notice

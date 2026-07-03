@@ -1,6 +1,7 @@
 <?php
 namespace Frappant\FrpFormAnswers\Tests\Unit\Domain\Finishers;
 
+use TYPO3\CMS\Core\Tests\UnitTestCase;
 use Frappant\FrpFormAnswers\Domain\Finishers\SaveFormToDatabaseFinisher;
 use TYPO3\CMS\Form\Domain\Finishers\FinisherContext;
 use TYPO3\CMS\Extbase\Object\ObjectManager;
@@ -14,10 +15,10 @@ use Frappant\FrpFormAnswers\Domain\Repository\FormEntryRepository;
  *
  * @author !frappant <support@frappant.ch>
  */
-class SaveFormToDatabaseFinisherTest extends \TYPO3\CMS\Core\Tests\UnitTestCase
+class SaveFormToDatabaseFinisherTest extends UnitTestCase
 {
     /**
-     * @var \Frappant\FrpFormAnswers\Domain\Finishers\SaveFormToDatabaseFinisher
+     * @var SaveFormToDatabaseFinisher
      */
     protected $subject = null;
 

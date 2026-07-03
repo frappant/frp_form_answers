@@ -5,7 +5,6 @@ use Frappant\FrpFormAnswers\Domain\Repository\FormEntryRepository;
 use TYPO3\CMS\Core\Domain\Repository\PageRepository;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Persistence\Generic\QuerySettingsInterface;
-use TYPO3\CMS\Extbase\Utility\DebuggerUtility;
 
 class FormAnswersUtility
 {
@@ -13,16 +12,14 @@ class FormAnswersUtility
     /**
      * formEntryRepository
      *
-     * @var \Frappant\FrpFormAnswers\Domain\Repository\FormEntryRepository
-     * @TYPO3\CMS\Extbase\Annotation\Inject
+     * @var FormEntryRepository
      */
     protected $formEntryRepository = null;
 
     /**
      * pageRepository
      *
-     * @var \TYPO3\CMS\Core\Domain\Repository\PageRepository
-     * @TYPO3\CMS\Extbase\Annotation\Inject
+     * @var PageRepository
      */
     protected $pageRepository = null;
 
@@ -107,5 +104,15 @@ class FormAnswersUtility
             $formHashes[$answer->getFieldHash()] = $answer->getFieldHash();
         }
         return array_keys($formHashes);
+    }
+
+    public function injectFormEntryRepository(FormEntryRepository $formEntryRepository): void
+    {
+        $this->formEntryRepository = $formEntryRepository;
+    }
+
+    public function injectPageRepository($pageRepository): void
+    {
+        $this->pageRepository = $pageRepository;
     }
 }

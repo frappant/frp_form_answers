@@ -1,13 +1,12 @@
 <?php
 namespace Frappant\FrpFormAnswers\Domain\Repository;
 
+use TYPO3\CMS\Extbase\Persistence\Repository;
 use Frappant\FrpFormAnswers\Database\QueryGenerator;
 use Frappant\FrpFormAnswers\Domain\Model\FormEntryDemand;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Extbase\Persistence\Exception\IllegalObjectTypeException;
 use TYPO3\CMS\Extbase\Persistence\Generic\PersistenceManager;
 use TYPO3\CMS\Extbase\Persistence\Generic\QueryResult;
-use TYPO3\CMS\Extbase\Persistence\Generic\Typo3QuerySettings;
 use TYPO3\CMS\Extbase\Persistence\QueryInterface;
 use Frappant\FrpFormAnswers\Utility\BackendUtility;
 
@@ -25,11 +24,14 @@ use Frappant\FrpFormAnswers\Utility\BackendUtility;
 /**
  * The repository for FormEntries
  */
-class FormEntryRepository extends \TYPO3\CMS\Extbase\Persistence\Repository
+class FormEntryRepository extends Repository
 {
+    public function __construct(private readonly PersistenceManager $persistenceManager)
+    {
+    }
     /**
      * Finds all FormEntries given by conf Array
-     * @param  \Frappant\FrpFormAnswers\Domain\Model\FormEntryDemand $formEntryDemand
+     * @param FormEntryDemand $formEntryDemand
      * @return QueryResult
      */
     public function findByDemand(FormEntryDemand $formEntryDemand, int $pid = 0)
@@ -106,7 +108,7 @@ class FormEntryRepository extends \TYPO3\CMS\Extbase\Persistence\Repository
         $query->getQuerySettings()->setRespectStoragePage(false);
         $query->setOrderings(
             array(
-                'submitUid' => \TYPO3\CMS\Extbase\Persistence\QueryInterface::ORDER_DESCENDING
+                'submitUid' => QueryInterface::ORDER_DESCENDING
             )
         );
 
@@ -123,7 +125,7 @@ class FormEntryRepository extends \TYPO3\CMS\Extbase\Persistence\Repository
             $this->update($entry);
         }
 
-        $persistenceManager = GeneralUtility::makeInstance(PersistenceManager::class);
+        $persistenceManager = $this->persistenceManager;
 
         $persistenceManager->persistAll();
     }

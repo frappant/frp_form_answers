@@ -2,6 +2,7 @@
 
 namespace Frappant\FrpFormAnswers\Command;
 
+use TYPO3\CMS\Core\Mail\MailMessage;
 use Frappant\FrpFormAnswers\Domain\Model\FormEntryDemand;
 use Frappant\FrpFormAnswers\Domain\Repository\FormEntryRepository;
 use Symfony\Component\Console\Input\InputArgument;
@@ -10,7 +11,6 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use TYPO3\CMS\Core\Exception;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Extbase\Object\ObjectManager;
 use TYPO3\CMS\Extbase\Persistence\Exception\IllegalObjectTypeException;
 use TYPO3\CMS\Extbase\Persistence\Exception\UnknownObjectException;
 use TYPO3\CMS\Fluid\View\StandaloneView;
@@ -23,14 +23,14 @@ class MailAdminNotificationCommand extends Command
     /**
      * FormEntryRepository
      *
-     * @var \Frappant\FrpFormAnswers\Domain\Repository\FormEntryRepository
+     * @var FormEntryRepository
      */
     protected $formEntryRepository;
 
     /**
      * Inject FormEntryRepository
      *
-     * @param \Frappant\FrpFormAnswers\Domain\Repository\FormEntryRepository $pageRepository
+     * @param FormEntryRepository $pageRepository
      */
     public function injectFormEntryRepository(FormEntryRepository $formEntryRepository)
     {
@@ -107,7 +107,7 @@ class MailAdminNotificationCommand extends Command
 	    $title= $input->getOption('title');
 
         if (empty($mailto)) {
-            throw new Exception('You need to provide at least one email address.');
+            throw new Exception('You need to provide at least one email address.', 2340297863);
         }
 
         // $formEntryRepository = GeneralUtility::makeInstance(ObjectManager::class)->get(FormEntryRepository::class);
@@ -127,7 +127,7 @@ class MailAdminNotificationCommand extends Command
         	$output->writeln("Default E-Mail Address: ".$frommail);
             $from = $frommail;
         } else {
-            throw new Exception("['TYPO3_CONF_VARS']['MAIL']['defaultMailFromAddress'] is not set.");
+            throw new Exception("['TYPO3_CONF_VARS']['MAIL']['defaultMailFromAddress'] is not set.", 5763504134);
         }
         $records = $this->formEntryRepository->findByDemand($search);
 
@@ -156,7 +156,7 @@ class MailAdminNotificationCommand extends Command
             }
             $trim = GeneralUtility::trimExplode(',', $mailto, 1);
             foreach ($trim as $singlemail) {
-                $mail = GeneralUtility::makeInstance(\TYPO3\CMS\Core\Mail\MailMessage::class);
+                $mail = GeneralUtility::makeInstance(MailMessage::class);
                 $mail
                     ->setSubject($subject)
                     ->setFrom(array($from))

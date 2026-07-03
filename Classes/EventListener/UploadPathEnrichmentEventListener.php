@@ -11,6 +11,9 @@ use TYPO3\CMS\Core\Resource\Folder;
 
 final class UploadPathEnrichmentEventListener
 {
+    public function __construct(private readonly ResourceFactory $resourceFactory)
+    {
+    }
     public function __invoke(ManipulateFormValuesEvent $event): void
     {
         // Get extension settings
@@ -81,7 +84,7 @@ final class UploadPathEnrichmentEventListener
         }
 
         try {
-            $folder = GeneralUtility::makeInstance(ResourceFactory::class)
+            $folder = $this->resourceFactory
                 ->getFolderObjectFromCombinedIdentifier($combinedFolderIdentifier);
 
             $public = $folder->getPublicUrl(); // e.g. "/fileadmin/user_upload/"
@@ -104,7 +107,7 @@ final class UploadPathEnrichmentEventListener
         // Always search via FAL (combined) to be storage-agnostic
         try {
             /** @var Folder $baseFolder */
-            $baseFolder = GeneralUtility::makeInstance(ResourceFactory::class)
+            $baseFolder = $this->resourceFactory
                 ->getFolderObjectFromCombinedIdentifier($combinedFolderIdentifier);
 
             // Look only at first-level subfolders named form_*

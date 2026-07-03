@@ -102,7 +102,7 @@ class BackendUtility extends BackendUtilityCore
             $pageUid = (int) preg_replace('/(.*)(id=)([0-9]*)(.*)/i', '\\3', $GLOBALS['_GET']['returnUrl']);
         }
         if (!$pageUid) {
-            $pageUid = (int) $GLOBALS['TSFE']->id;
+            $pageUid = (int) $GLOBALS['TYPO3_REQUEST']->getAttribute('frontend.page.information')->getId();
         }
         if (!$pageUid) {
             $pageUid = (int) $_GET['id'];

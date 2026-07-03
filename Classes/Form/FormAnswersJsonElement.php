@@ -3,7 +3,6 @@
 namespace Frappant\FrpFormAnswers\Form;
 
 use TYPO3\CMS\Backend\Form\Element\AbstractFormElement;
-use TYPO3\CMS\Extbase\Utility\DebuggerUtility;
 
 class FormAnswersJsonElement extends AbstractFormElement
 {

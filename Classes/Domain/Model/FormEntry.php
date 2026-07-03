@@ -1,6 +1,8 @@
 <?php
 namespace Frappant\FrpFormAnswers\Domain\Model;
 
+use TYPO3\CMS\Extbase\DomainObject\AbstractEntity;
+
 /***
  *
  * This file is part of the "Form Answer Saver" Extension for TYPO3 CMS.
@@ -11,11 +13,10 @@ namespace Frappant\FrpFormAnswers\Domain\Model;
  *  (c) 2017 !frappant <support@frappant.ch>
  *
  ***/
-
 /**
  * FormEntry
  */
-class FormEntry extends \TYPO3\CMS\Extbase\DomainObject\AbstractEntity
+class FormEntry extends AbstractEntity
 {
     /**
      * answers

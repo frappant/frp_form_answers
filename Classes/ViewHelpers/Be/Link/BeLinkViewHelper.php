@@ -1,8 +1,8 @@
 <?php
 namespace Frappant\FrpFormAnswers\ViewHelpers\Be\Link;
 
+use TYPO3Fluid\Fluid\Core\ViewHelper\AbstractTagBasedViewHelper;
 use TYPO3\CMS\Backend\Routing\Exception\RouteNotFoundException;
-use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Backend\Routing\UriBuilder;
 
@@ -36,13 +36,16 @@ use TYPO3\CMS\Backend\Routing\UriBuilder;
  *
  * /typo3/index.php?route=/record/edit&token=d7b2e14e24824711081ee8731549ca58afac0648&edit[tx_frpredirects_domain_model_redirect][2]=edit&returnUrl=/typo3/index.php?M=web_list&moduleToken=ae0ea6fabda3a2a34a8873319b91f8dc6010bf2f&id=0&imagemode=1
  */
-class BeLinkViewHelper extends \TYPO3Fluid\Fluid\Core\ViewHelper\AbstractTagBasedViewHelper
+class BeLinkViewHelper extends AbstractTagBasedViewHelper
 {
 
     /**
      * @var string
      */
     protected $tagName = 'a';
+    public function __construct(private readonly UriBuilder $uriBuilder)
+    {
+    }
 
     /**
      * Arguments initialization
@@ -83,7 +86,7 @@ class BeLinkViewHelper extends \TYPO3Fluid\Fluid\Core\ViewHelper\AbstractTagBase
      */
     protected function getModuleUrl(array $urlParameters)
     {
-        $uriBuilder = GeneralUtility::makeInstance(UriBuilder::class);
+        $uriBuilder = $this->uriBuilder;
         return $uriBuilder->buildUriFromRoute('web_FrpFormAnswersFormanswers',$urlParameters);
     }
 }

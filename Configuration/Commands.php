@@ -1,4 +1,7 @@
 <?php
+
+use Frappant\FrpFormAnswers\Command\MailAdminNotificationCommand;
+
 /***
  *
  * This file is part of the "!f Commands" Extension for TYPO3 CMS.
@@ -9,7 +12,6 @@
  *  (c) 2018 !frappant <support@frappant.ch>
  *
  ***/
-
 /**
  * Commands to be executed by typo3, where the key of the array
  * is the name of the command (to be called as the first argument after typo3).
@@ -20,6 +22,6 @@
  */
 return [
 	'f:formanswers:mailNotification' => [
-		'class' => \Frappant\FrpFormAnswers\Command\MailAdminNotificationCommand::class,
+		'class' => MailAdminNotificationCommand::class,
 	],
 ];

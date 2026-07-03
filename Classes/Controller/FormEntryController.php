@@ -1,6 +1,8 @@
 <?php
 namespace Frappant\FrpFormAnswers\Controller;
 
+use Frappant\FrpFormAnswers\Domain\Model\FormEntry;
+use TYPO3\CMS\Core\Imaging\IconSize;
 use Frappant\FrpFormAnswers\DataExporter\DataExporter;
 use Frappant\FrpFormAnswers\Domain\Model\FormEntryDemand;
 use Frappant\FrpFormAnswers\Domain\Repository\FormEntryRepository;
@@ -8,7 +10,6 @@ use Frappant\FrpFormAnswers\Utility\FormAnswersUtility;
 use Frappant\FrpFormAnswers\View\FormEntry\ExportCsv;
 use Frappant\FrpFormAnswers\View\FormEntry\ExportXls;
 use Frappant\FrpFormAnswers\View\FormEntry\ExportXml;
-use JetBrains\PhpStorm\NoReturn;
 use Psr\Http\Message\ResponseInterface;
 use TYPO3\CMS\Backend\Template\Components\ButtonBar;
 use TYPO3\CMS\Backend\Template\Components\Menu\Menu;
@@ -18,17 +19,14 @@ use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Domain\Repository\PageRepository;
 use TYPO3\CMS\Core\Http\Stream;
 use TYPO3\CMS\Core\Http\Response;
-use TYPO3\CMS\Core\Imaging\Icon;
 use TYPO3\CMS\Core\Imaging\IconFactory;
 use TYPO3\CMS\Core\Localization\LanguageService;
-use TYPO3\CMS\Core\Messaging\FlashMessage;
 use TYPO3\CMS\Core\Type\ContextualFeedbackSeverity;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Mvc\Controller\ActionController;
 use TYPO3\CMS\Extbase\Persistence\Exception\IllegalObjectTypeException;
 use TYPO3\CMS\Extbase\Persistence\Generic\PersistenceManager;
 use TYPO3\CMS\Extbase\Utility\LocalizationUtility;
-use TYPO3\CMS\Extbase\Utility\DebuggerUtility;
 
 /***
  *
@@ -67,7 +65,7 @@ class FormEntryController extends ActionController
     protected FormEntryRepository $formEntryRepository;
 
     /**
-     * @var \Frappant\FrpFormAnswers\DataExporter\DataExporter
+     * @var DataExporter
      */
     protected DataExporter $dataExporter;
 
@@ -108,7 +106,8 @@ class FormEntryController extends ActionController
         FormEntryRepository $formEntryRepository,
         DataExporter $dataExporter,
         PageRepository $pageRepository,
-        PersistenceManager $persistenceManager
+        PersistenceManager $persistenceManager,
+        private readonly ConnectionPool $connectionPool
     ) {
         $this->moduleTemplateFactory = $moduleTemplateFactory;
         $this->iconFactory = $iconFactory;
@@ -147,10 +146,10 @@ class FormEntryController extends ActionController
     /**
      * action show
      *
-     * @param \Frappant\FrpFormAnswers\Domain\Model\FormEntry $formEntry
+     * @param FormEntry $formEntry
      * @return ResponseInterface
      */
-    public function showAction(\Frappant\FrpFormAnswers\Domain\Model\FormEntry $formEntry): ResponseInterface
+    public function showAction(FormEntry $formEntry): ResponseInterface
     {
         $this->view->assign('formEntry', $formEntry);
 
@@ -166,7 +165,7 @@ class FormEntryController extends ActionController
      */
     public function prepareRemoveAction(): ResponseInterface
     {
-        $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('tx_frpformanswers_domain_model_formentry');
+        $queryBuilder = $this->connectionPool->getQueryBuilderForTable('tx_frpformanswers_domain_model_formentry');
         $queryBuilder->getRestrictions()->removeAll();
 
         $count = $queryBuilder->count('*')
@@ -190,7 +189,7 @@ class FormEntryController extends ActionController
      * @return void
      * @throws IllegalObjectTypeException
      */
-    public function removeEntryAction(): \Psr\Http\Message\ResponseInterface
+    public function removeEntryAction(): ResponseInterface
     {
         $arguments = $this->request->getArguments();
         $uid = $arguments['uid'];
@@ -203,7 +202,7 @@ class FormEntryController extends ActionController
         $this->addFlashMessage(
             'Deleted entry with uid: ' . $uid,
             'Entry deleted',
-            \TYPO3\CMS\Core\Type\ContextualFeedbackSeverity::OK,
+            ContextualFeedbackSeverity::OK,
             true
         );
 
@@ -217,7 +216,7 @@ class FormEntryController extends ActionController
      */
     public function removeAction()
     {
-        $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('tx_frpformanswers_domain_model_formentry');
+        $queryBuilder = $this->connectionPool->getQueryBuilderForTable('tx_frpformanswers_domain_model_formentry');
 
         $queryBuilder->delete('tx_frpformanswers_domain_model_formentry')
             ->where($queryBuilder->expr()->eq('pid', $queryBuilder->createNamedParameter($this->pid, Connection::PARAM_INT)))
@@ -227,7 +226,7 @@ class FormEntryController extends ActionController
         $this->addFlashMessage(
             LocalizationUtility::translate('LLL:EXT:frp_form_answers/Resources/Private/Language/locallang_be.xlf:flashmessage.removeEntries.body', null, [$this->pid]),
             LocalizationUtility::translate('LLL:EXT:frp_form_answers/Resources/Private/Language/locallang_be.xlf:flashmessage.removeEntries.header'),
-            \TYPO3\CMS\Core\Type\ContextualFeedbackSeverity::OK,
+            ContextualFeedbackSeverity::OK,
             true);
 
         return $this->redirect('list', null, null, ['id' => $this->pid]);
@@ -294,7 +293,7 @@ class FormEntryController extends ActionController
 	 * @throws \TYPO3\CMS\Extbase\Mvc\Exception\StopActionException
 	 * @throws \TYPO3\CMS\Extbase\Mvc\Exception\UnsupportedRequestTypeException
 	 */
-    public function exportAction(?\Frappant\FrpFormAnswers\Domain\Model\FormEntryDemand $formEntryDemand = null)
+    public function exportAction(?FormEntryDemand $formEntryDemand = null)
     {
 
         $format = $this->request->getArguments()['format'];
@@ -306,7 +305,7 @@ class FormEntryController extends ActionController
             if (count($formEntries) === 0) {
                 $this->addFlashMessage('No entries found with your criteria',
                     'No Entries found',
-                    \TYPO3\CMS\Core\Type\ContextualFeedbackSeverity::WARNING,
+                    ContextualFeedbackSeverity::WARNING,
                     true
                 );
                 return $this->redirect('list', null, null, ['id' => $this->pid]);
@@ -314,7 +313,7 @@ class FormEntryController extends ActionController
         } else {
             $this->addFlashMessage('No Demand set',
                 'No Demand found',
-                \TYPO3\CMS\Core\Type\ContextualFeedbackSeverity::ERROR,
+                ContextualFeedbackSeverity::ERROR,
                 true
             );
             return $this->redirect('list', null, null, ['id' => $this->pid]);
@@ -403,7 +402,7 @@ class FormEntryController extends ActionController
 
         if(strlen($formName) > 0){
 
-            $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getConnectionForTable('tx_frpformanswers_domain_model_formentry');
+            $queryBuilder = $this->connectionPool->getConnectionForTable('tx_frpformanswers_domain_model_formentry');
 
             $queryBuilder->update(
                 'tx_frpformanswers_domain_model_formentry',
@@ -412,9 +411,9 @@ class FormEntryController extends ActionController
             );
 
             $this->addFlashMessage(
-                LocalizationUtility::translate('LLL:EXT:frp_form_answers/Resources/Private/Language/de.locallang_be.xlf:flashmessage.deleteFormName.body', 'frp_form_answers', [$formName, $this->pid]),
+                LocalizationUtility::translate('LLL:EXT:frp_form_answers/Resources/Private/Language/de.locallang_be.xlf:flashmessage.deleteFormName.body', 'FrpFormAnswers', [$formName, $this->pid]),
                 LocalizationUtility::translate('LLL:EXT:frp_form_answers/Resources/Private/Language/de.locallang_be.xlf:flashmessage.deleteFormName.header'),
-                \TYPO3\CMS\Core\Type\ContextualFeedbackSeverity::OK,
+                ContextualFeedbackSeverity::OK,
                 true);
         }
         return $this->redirect('list', null, null, ['id' => $this->pid]);
@@ -464,8 +463,8 @@ class FormEntryController extends ActionController
         // Refresh
         $refreshButton = $buttonBar->makeLinkButton()
             ->setHref(GeneralUtility::getIndpEnv('REQUEST_URI'))
-            ->setTitle($this->getLanguageService()->sL('LLL:EXT:core/Resources/Private/Language/locallang_core.xlf:labels.reload'))
-            ->setIcon($this->iconFactory->getIcon('actions-refresh', Icon::SIZE_SMALL));
+            ->setTitle($this->getLanguageService()->sL('core.core:labels.reload'))
+            ->setIcon($this->iconFactory->getIcon('actions-refresh', IconSize::SMALL));
         $buttonBar->addButton($refreshButton, ButtonBar::BUTTON_POSITION_RIGHT);
 
     }

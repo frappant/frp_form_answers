@@ -6,47 +6,33 @@ use Frappant\FrpFormAnswers\Domain\Model\FormEntry;
 use TYPO3\CMS\Core\Context\Exception\AspectNotFoundException;
 use TYPO3\CMS\Core\EventDispatcher\EventDispatcher;
 use TYPO3\CMS\Extbase\Persistence\Generic\PersistenceManager;
-use TYPO3\CMS\Extbase\SignalSlot\Dispatcher;
 use TYPO3\CMS\Form\Domain\Finishers\AbstractFinisher;
 use TYPO3\CMS\Form\Domain\Model\FormElements\FormElementInterface;
 use Frappant\FrpFormAnswers\Domain\Repository\FormEntryRepository;
 use Psr\EventDispatcher\EventDispatcherInterface;
-use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 class SaveFormToDatabaseFinisher extends AbstractFinisher
 {
     /**
      * formEntryRepository
      *
-     * @var \Frappant\FrpFormAnswers\Domain\Repository\FormEntryRepository
+     * @var FormEntryRepository
      */
     protected $formEntryRepository = null;
 
     protected EventDispatcherInterface $eventDispatcher;
-
-    public function injectEventDispatcherInterface(EventDispatcherInterface $eventDispatcher) {
+    public function __construct(EventDispatcher $eventDispatcher, FormEntryRepository $formEntryRepository, FormEntry $formEntry, PersistenceManager $persistenceManager)
+    {
         $this->eventDispatcher = $eventDispatcher;
-    }
-
-    /**
-     * @param \Frappant\FrpFormAnswers\Domain\Repository\FormEntryRepository $formEntryRepository
-     */
-    public function injectFormEntryRepository(FormEntryRepository $formEntryRepository) {
         $this->formEntryRepository = $formEntryRepository;
+        $this->formEntry = $formEntry;
+        $this->persistenceManager = $persistenceManager;
     }
 
 
     protected FormEntry $formEntry;
 
-    public function injectFormEntry(FormEntry $formEntry) {
-        $this->formEntry = $formEntry;
-    }
-
     protected PersistenceManager $persistenceManager;
-
-    public function injectPersistenceManager(PersistenceManager $persistenceManager) {
-        $this->persistenceManager = $persistenceManager;
-    }
 
     /**
      * Executes this finisher
@@ -55,7 +41,7 @@ class SaveFormToDatabaseFinisher extends AbstractFinisher
      */
     protected function executeInternal()
     {
-        $this->eventDispatcher = GeneralUtility::makeInstance(EventDispatcher::class);
+        $this->eventDispatcher = $this->eventDispatcher;
 
         // Values of all fields, getFormValues() also gives pages,
         // so it will be filled in foreach

@@ -2,14 +2,17 @@
 
 namespace Frappant\FrpFormAnswers\ViewHelpers\Be;
 
+use TYPO3\CMS\Core\Imaging\IconFactory;
+use TYPO3\CMS\Core\Imaging\IconSize;
 use TYPO3\CMS\Backend\Routing\UriBuilder;
 use TYPO3\CMS\Core\Database\ConnectionPool;
-use TYPO3\CMS\Core\Imaging\Icon;
-use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3Fluid\Fluid\Core\ViewHelper\AbstractViewHelper;
 
 class TableViewHelper extends AbstractViewHelper
 {
+    public function __construct(private readonly UriBuilder $uriBuilder, private readonly IconFactory $iconFactory, private readonly ConnectionPool $connectionPool)
+    {
+    }
     public function initializeArguments()
     {
         $this->registerArgument('table', 'string', 'Database table name', true);
@@ -21,25 +24,25 @@ class TableViewHelper extends AbstractViewHelper
     public function render()
     {
 
-        $uriBuilder = GeneralUtility::makeInstance(UriBuilder::class);
+        $uriBuilder = $this->uriBuilder;
         $table = $this->arguments['table'];
         $filter = $this->arguments['filter'];
         $columns = $this->arguments['columns'];
         $pid = $this->arguments['pid'];
 
-        $iconFactory = GeneralUtility::makeInstance(\TYPO3\CMS\Core\Imaging\IconFactory::class);
+        $iconFactory = $this->iconFactory;
 
-        $connection = GeneralUtility::makeInstance(ConnectionPool::class)->getConnectionForTable($table);
+        $connection = $this->connectionPool->getConnectionForTable($table);
         $queryBuilder = $connection->createQueryBuilder();
 
         $pencil = $iconFactory->getIcon(
             'actions-view',
-            Icon::SIZE_SMALL
+            IconSize::SMALL
         );
 
         $trash = $iconFactory->getIcon(
             'actions-delete',
-            Icon::SIZE_SMALL
+            IconSize::SMALL
         );
 
 

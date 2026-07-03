@@ -1,22 +1,25 @@
 <?php
 namespace Frappant\FrpFormAnswers\Tests\Unit\Domain\Model;
 
+use TYPO3\CMS\Core\Tests\UnitTestCase;
+use Frappant\FrpFormAnswers\Domain\Model\FormEntry;
+
 /**
  * Test case.
  *
  * @author !frappant <support@frappant.ch>
  */
-class FormEntryTest extends \TYPO3\CMS\Core\Tests\UnitTestCase
+class FormEntryTest extends UnitTestCase
 {
     /**
-     * @var \Frappant\FrpFormAnswers\Domain\Model\FormEntry
+     * @var FormEntry
      */
     protected $subject = null;
 
     protected function setUp()
     {
         parent::setUp();
-        $this->subject = new \Frappant\FrpFormAnswers\Domain\Model\FormEntry();
+        $this->subject = new FormEntry();
     }
 
     protected function tearDown()

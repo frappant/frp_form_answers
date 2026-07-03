@@ -5,11 +5,9 @@ return [
         'label' => 'uid',
         'tstamp' => 'tstamp',
         'crdate' => 'crdate',
-        'cruser_id' => 'cruser_id',
         'delete' => 'deleted',
         'enablecolumns' => [
         ],
-        'searchFields' => 'answers,field_hash,form,exported',
         'iconfile' => 'EXT:frp_form_answers/Resources/Public/Icons/tx_frpformanswers_domain_model_formentry.svg'
     ],
     'types' => [
@@ -31,7 +29,8 @@ return [
                 'type' => 'input',
                 'size' => 30,
                 'readOnly' =>1,
-                'eval' => 'trim, int'
+                'eval' => 'trim, int',
+                'searchable' => false
             ],
         ],
         'field_hash' => [
@@ -61,7 +60,7 @@ return [
                 'type' => 'check',
                 'items' => [
                     0 => [
-                        '0' => 'LLL:EXT:frp_form_answers/Resources/Private/Language/locallang_db.xlf:tx_frpformanswers_domain_model_formentry.exported'
+                        'label' => 'LLL:EXT:frp_form_answers/Resources/Private/Language/locallang_db.xlf:tx_frpformanswers_domain_model_formentry.exported'
                     ]
                 ],
                 'readOnly' =>1,
@@ -77,6 +76,7 @@ return [
                 'renderType' => 'InputDateTime',
                 'size' => 20,
                 'readOnly' => true,
+                'searchable' => false,
             ],
         ],
     ],
