@@ -126,7 +126,7 @@ class FormEntryController extends ActionController
      */
     public function listAction(): ResponseInterface
     {
-        $pageIds = $this->formAnswersUtility->prepareFormAnswersArray();
+        $pageIds = $this->formAnswersUtility->prepareFormAnswersArray($this->request);
         $moduleTemplate = $this->moduleTemplateFactory->create($this->request);
 
         if (count($pageIds) > 0) {

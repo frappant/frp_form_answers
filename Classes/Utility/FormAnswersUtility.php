@@ -1,118 +1,152 @@
 <?php
+
+declare(strict_types=1);
+
 namespace Frappant\FrpFormAnswers\Utility;
 
 use Frappant\FrpFormAnswers\Domain\Repository\FormEntryRepository;
-use TYPO3\CMS\Core\Domain\Repository\PageRepository;
-use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Extbase\Persistence\Generic\QuerySettingsInterface;
+use Psr\Http\Message\ServerRequestInterface;
+use TYPO3\CMS\Core\Authentication\BackendUserAuthentication;
 
-class FormAnswersUtility
+final class FormAnswersUtility
 {
+    public function __construct(
+        private readonly FormEntryRepository $formEntryRepository,
+    ) {}
 
     /**
-     * formEntryRepository
-     *
-     * @var FormEntryRepository
+     * @return array<int, array<string, array{tot: int, new?: int}>>
      */
-    protected $formEntryRepository = null;
-
-    /**
-     * pageRepository
-     *
-     * @var PageRepository
-     */
-    protected $pageRepository = null;
-
-    public function __construct(PageRepository $pageRepository, FormEntryRepository $formEntryRepository)
+    public function prepareFormAnswersArray(?ServerRequestInterface $request = null): array
     {
-        $this->pageRepository = $pageRepository;
-        $this->formEntryRepository = $formEntryRepository;
-    }
+        $currentPageId = $this->getCurrentPageId($request);
+        $startPageIds = $this->getStartPageIds($currentPageId);
 
-    /**
-     * [prepareFormAnswersArray description]
-     * @return [type]       [description]
-     */
-    public function prepareFormAnswersArray()
-    {
+        $pageIds = [];
 
-        $act_pid = $_GET['id'] ?? 0;
-        $pageIds = array();
-
-        // Get a List from FormEntries in subpages
-        $startPointPids = ($act_pid > 0 ? [$act_pid] : $GLOBALS['BE_USER']->returnWebmounts());
-        // Get all Pids with a formEntry list
-        foreach ($startPointPids as $pageId) {
-            foreach ($this->formEntryRepository->findAllInPidAndRootline($pageId) as $formEntry) {
-                if((is_int($formEntry->getPid())) && ($formEntry->getForm() !== null)) {
-                    if(isset($pageIds[$formEntry->getPid()][$formEntry->getForm()]['tot'])) {
-                        $pageIds[$formEntry->getPid()][$formEntry->getForm()]['tot'] += 1;
-                    } else {
-                        $pageIds[$formEntry->getPid()][$formEntry->getForm()]['tot'] = 1;
-                    }
-
-                    if (!$formEntry->isExported()) {
-                        if(isset($pageIds[$formEntry->getPid()][$formEntry->getForm()]['new'])) {
-                            $pageIds[$formEntry->getPid()][$formEntry->getForm()]['new'] += 1;
-                        } else {
-                            $pageIds[$formEntry->getPid()][$formEntry->getForm()]['new'] = 1;
-                        }
-                    }
-                }
-            }
+        foreach ($startPageIds as $pageId) {
+            $this->addFormEntryCountsForPage($pageIds, $pageId);
         }
 
-        $id = $_GET['id'] ?? 0;
-        unset($pageIds[(int)$id]);
+        unset($pageIds[$currentPageId]);
 
         return $pageIds;
     }
+
     /**
-     * Get all names of the saved Forms
-     * @return array Formnames
+     * Get all names of the saved forms.
+     *
+     * @return list<string>
      */
-    public function getAllFormNames($pid)
+    public function getAllFormNames(int $pid): array
     {
-        $querySettings = GeneralUtility::makeInstance(QuerySettingsInterface::class);
-        $querySettings->setRespectStoragePage(true);
-        $querySettings->setStoragePageIds($pid);
-        $this->formEntryRepository->setDefaultQuerySettings($querySettings);
-        $allFormAnswers = $this->formEntryRepository->findAll();
-        $formNames = [];
-        // Get FormNames from this page. We will separate them in the list View
-        foreach ($allFormAnswers as $answer) {
-            $formNames[$answer->getForm()] = $answer->getForm();
-        }
-        return array_keys($formNames);
+        return $this->getUniqueFormValues(
+            $pid,
+            static fn (object $answer): ?string => $answer->getForm(),
+        );
     }
 
     /**
-     * Get all hashes of the saved Forms
-     * @return array Formhashes
+     * Get all hashes of the saved forms.
+     *
+     * @return list<string>
      */
-    public function getAllFormHashes($pid)
+    public function getAllFormHashes(int $pid): array
     {
-        $querySettings = GeneralUtility::makeInstance(QuerySettingsInterface::class);
-        $querySettings->setRespectStoragePage(true);
-        $querySettings->setStoragePageIds([$pid]);
-        $this->formEntryRepository->setDefaultQuerySettings($querySettings);
-        $allFormAnswers = $this->formEntryRepository->findAll();
+        return $this->getUniqueFormValues(
+            $pid,
+            static fn (object $answer): ?string => $answer->getFieldHash(),
+        );
+    }
 
-        $formHashes = [];
-        // Get FormNames from this page. We will separate them in the list View
-        foreach ($allFormAnswers as $answer) {
-            $formHashes[$answer->getFieldHash()] = $answer->getFieldHash();
+    private function getCurrentPageId(?ServerRequestInterface $request): int
+    {
+        $request ??= $this->getRequest();
+
+        if (!$request instanceof ServerRequestInterface) {
+            return 0;
         }
-        return array_keys($formHashes);
+
+        return max(0, (int)($request->getQueryParams()['id'] ?? 0));
     }
 
-    public function injectFormEntryRepository(FormEntryRepository $formEntryRepository): void
+    /**
+     * @return list<int>
+     */
+    private function getStartPageIds(int $currentPageId): array
     {
-        $this->formEntryRepository = $formEntryRepository;
+        if ($currentPageId > 0) {
+            return [$currentPageId];
+        }
+
+        return array_map(
+            'intval',
+            $this->getBackendUser()->getWebmounts(),
+        );
     }
 
-    public function injectPageRepository($pageRepository): void
+    /**
+     * @param array<int, array<string, array{tot: int, new?: int}>> $pageIds
+     */
+    private function addFormEntryCountsForPage(array &$pageIds, int $pageId): void
     {
-        $this->pageRepository = $pageRepository;
+        foreach ($this->formEntryRepository->findAllInPidAndRootline($pageId) as $formEntry) {
+            $pid = $formEntry->getPid();
+            $formName = $formEntry->getForm();
+
+            if (!is_int($pid) || $formName === null || $formName === '') {
+                continue;
+            }
+
+            $pageIds[$pid][$formName]['tot'] = ($pageIds[$pid][$formName]['tot'] ?? 0) + 1;
+
+            if (!$formEntry->isExported()) {
+                $pageIds[$pid][$formName]['new'] = ($pageIds[$pid][$formName]['new'] ?? 0) + 1;
+            }
+        }
+    }
+
+    /**
+     * @param callable(object): ?string $valueGetter
+     * @return list<string>
+     */
+    private function getUniqueFormValues(int $pid, callable $valueGetter): array
+    {
+        $values = [];
+
+        foreach ($this->findAllByStoragePid($pid) as $answer) {
+            $value = $valueGetter($answer);
+
+            if ($value === null || $value === '') {
+                continue;
+            }
+
+            $values[$value] = true;
+        }
+
+        return array_keys($values);
+    }
+
+    private function findAllByStoragePid(int $pid): iterable
+    {
+        $query = $this->formEntryRepository->createQuery();
+
+        $query->getQuerySettings()
+            ->setRespectStoragePage(true)
+            ->setStoragePageIds([$pid]);
+
+        return $query->execute();
+    }
+
+    private function getRequest(): ?ServerRequestInterface
+    {
+        $request = $GLOBALS['TYPO3_REQUEST'] ?? null;
+
+        return $request instanceof ServerRequestInterface ? $request : null;
+    }
+
+    private function getBackendUser(): BackendUserAuthentication
+    {
+        return $GLOBALS['BE_USER'];
     }
 }
