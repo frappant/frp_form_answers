@@ -4,7 +4,6 @@ namespace Frappant\FrpFormAnswers\Domain\Finishers;
 use Frappant\FrpFormAnswers\Event\ManipulateFormValuesEvent;
 use Frappant\FrpFormAnswers\Domain\Model\FormEntry;
 use TYPO3\CMS\Core\Context\Exception\AspectNotFoundException;
-use TYPO3\CMS\Core\EventDispatcher\EventDispatcher;
 use TYPO3\CMS\Extbase\Persistence\Generic\PersistenceManager;
 use TYPO3\CMS\Form\Domain\Finishers\AbstractFinisher;
 use TYPO3\CMS\Form\Domain\Model\FormElements\FormElementInterface;
@@ -13,26 +12,11 @@ use Psr\EventDispatcher\EventDispatcherInterface;
 
 class SaveFormToDatabaseFinisher extends AbstractFinisher
 {
-    /**
-     * formEntryRepository
-     *
-     * @var FormEntryRepository
-     */
-    protected $formEntryRepository = null;
-
-    protected EventDispatcherInterface $eventDispatcher;
-    public function __construct(EventDispatcher $eventDispatcher, FormEntryRepository $formEntryRepository, FormEntry $formEntry, PersistenceManager $persistenceManager)
+    public function __construct(protected EventDispatcherInterface $eventDispatcher, protected FormEntryRepository $formEntryRepository, protected FormEntry $formEntry, protected PersistenceManager $persistenceManager)
     {
-        $this->eventDispatcher = $eventDispatcher;
-        $this->formEntryRepository = $formEntryRepository;
         $this->formEntry = $formEntry;
         $this->persistenceManager = $persistenceManager;
     }
-
-
-    protected FormEntry $formEntry;
-
-    protected PersistenceManager $persistenceManager;
 
     /**
      * Executes this finisher
@@ -41,10 +25,7 @@ class SaveFormToDatabaseFinisher extends AbstractFinisher
      */
     protected function executeInternal()
     {
-        $this->eventDispatcher = $this->eventDispatcher;
-
-        // Values of all fields, getFormValues() also gives pages,
-        // so it will be filled in foreach
+        // Values of all fields, getFormValues() also gives pages, so it will be filled in foreach
         $values = $this->getFormValues();
         // Identifier for the yaml file of the form
         $formRuntime = $this->finisherContext->getFormRuntime();
