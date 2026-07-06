@@ -8,7 +8,6 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Persistence\Generic\QueryResult;
 use TYPO3\CMS\Extbase\Persistence\QueryInterface;
 use Frappant\FrpFormAnswers\Utility\BackendUtility;
-use TYPO3\CMS\Extbase\Persistence\PersistenceManagerInterface;
 
 /***
  *
@@ -26,9 +25,6 @@ use TYPO3\CMS\Extbase\Persistence\PersistenceManagerInterface;
  */
 class FormEntryRepository extends Repository
 {
-    public function __construct(protected PersistenceManagerInterface $persistenceManager)
-    {
-    }
     /**
      * Finds all FormEntries given by conf Array
      * @param FormEntryDemand $formEntryDemand
@@ -118,15 +114,13 @@ class FormEntryRepository extends Repository
         return $query->execute()->getFirst();
     }
 
-    public function setFormsToExported($forms)
+    public function setFormsToExported(QueryResult $forms)
     {
         foreach ($forms as $entry) {
             $entry->setExported(true);
             $this->update($entry);
         }
 
-        $persistenceManager = $this->persistenceManager;
-
-        $persistenceManager->persistAll();
+        $this->persistenceManager->persistAll();
     }
 }
