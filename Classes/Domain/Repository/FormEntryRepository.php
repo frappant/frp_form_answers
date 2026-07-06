@@ -5,10 +5,10 @@ use TYPO3\CMS\Extbase\Persistence\Repository;
 use Frappant\FrpFormAnswers\Database\QueryGenerator;
 use Frappant\FrpFormAnswers\Domain\Model\FormEntryDemand;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Extbase\Persistence\Generic\PersistenceManager;
 use TYPO3\CMS\Extbase\Persistence\Generic\QueryResult;
 use TYPO3\CMS\Extbase\Persistence\QueryInterface;
 use Frappant\FrpFormAnswers\Utility\BackendUtility;
+use TYPO3\CMS\Extbase\Persistence\PersistenceManagerInterface;
 
 /***
  *
@@ -26,7 +26,7 @@ use Frappant\FrpFormAnswers\Utility\BackendUtility;
  */
 class FormEntryRepository extends Repository
 {
-    public function __construct(private readonly PersistenceManager $persistenceManager)
+    public function __construct(protected PersistenceManagerInterface $persistenceManager)
     {
     }
     /**
