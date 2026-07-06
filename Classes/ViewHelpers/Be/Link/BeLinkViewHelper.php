@@ -1,10 +1,14 @@
 <?php
+
+declare(strict_types=1);
+
 namespace Frappant\FrpFormAnswers\ViewHelpers\Be\Link;
 
-use TYPO3Fluid\Fluid\Core\ViewHelper\AbstractTagBasedViewHelper;
+use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Message\UriInterface;
 use TYPO3\CMS\Backend\Routing\Exception\RouteNotFoundException;
-use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Backend\Routing\UriBuilder;
+use TYPO3Fluid\Fluid\Core\ViewHelper\AbstractTagBasedViewHelper;
 
 /***************************************************************
  *
@@ -36,57 +40,81 @@ use TYPO3\CMS\Backend\Routing\UriBuilder;
  *
  * /typo3/index.php?route=/record/edit&token=d7b2e14e24824711081ee8731549ca58afac0648&edit[tx_frpredirects_domain_model_redirect][2]=edit&returnUrl=/typo3/index.php?M=web_list&moduleToken=ae0ea6fabda3a2a34a8873319b91f8dc6010bf2f&id=0&imagemode=1
  */
-class BeLinkViewHelper extends AbstractTagBasedViewHelper
+final class BeLinkViewHelper extends AbstractTagBasedViewHelper
 {
-
-    /**
-     * @var string
-     */
     protected $tagName = 'a';
-    public function __construct(private readonly UriBuilder $uriBuilder)
-    {
+
+    public function __construct(
+        private readonly UriBuilder $uriBuilder,
+    ) {
+        parent::__construct();
     }
 
-    /**
-     * Arguments initialization
-     *
-     * @return void
-     */
-    public function initializeArguments()
+    public function initializeArguments(): void
     {
-        $this->registerUniversalTagAttributes();
-        $this->registerTagAttribute('name', 'string', 'Specifies the name of an anchor');
-        $this->registerTagAttribute('rel', 'string', 'Specifies the relationship between the current document and the linked document');
-        $this->registerTagAttribute('rev', 'string', 'Specifies the relationship between the linked document and the current document');
-        $this->registerTagAttribute('target', 'string', 'Specifies where to open the linked document');
-        $this->registerTagAttribute('pageUid', 'int', 'Page Uid');
+        parent::initializeArguments();
+
+        $this->registerArgument(
+            'pageUid',
+            'int',
+            'Page UID',
+            true,
+        );
     }
 
-    public function render()
+    public function render(): string
     {
-        $returnUrl = $this->getRequestUri();
         $urlParameters = [
-            'returnUrl' => $returnUrl,
-            'id' => $this->arguments['pageUid']
+            'returnUrl' => $this->getRequestUri(),
+            'id' => $this->arguments['pageUid'],
         ];
-        $uri = $this->getModuleUrl($urlParameters);
-        $this->tag->addAttribute('href', $uri);
-        $this->tag->setContent($this->renderChildren());
+
+        $this->tag->addAttribute(
+            'href',
+            (string)$this->getModuleUrl($urlParameters),
+        );
+
+        $this->tag->setContent((string)$this->renderChildren());
         $this->tag->forceClosingTag(true);
+
         return $this->tag->render();
     }
 
-    protected function getRequestUri()
+    private function getRequestUri(): string
     {
-        return GeneralUtility::getIndpEnv('REQUEST_URI');
+        $request = $this->getRequest();
+
+        if (!$request instanceof ServerRequestInterface) {
+            return '';
+        }
+
+        $uri = $request->getUri();
+        $requestUri = $uri->getPath();
+
+        if ($uri->getQuery() !== '') {
+            $requestUri .= '?' . $uri->getQuery();
+        }
+
+        return $requestUri;
+    }
+
+    private function getRequest(): ?ServerRequestInterface
+    {
+        if ($this->renderingContext->hasAttribute(ServerRequestInterface::class)) {
+            return $this->renderingContext->getAttribute(ServerRequestInterface::class);
+        }
+
+        return null;
     }
 
     /**
      * @throws RouteNotFoundException
      */
-    protected function getModuleUrl(array $urlParameters)
+    private function getModuleUrl(array $urlParameters): UriInterface
     {
-        $uriBuilder = $this->uriBuilder;
-        return $uriBuilder->buildUriFromRoute('web_FrpFormAnswersFormanswers',$urlParameters);
+        return $this->uriBuilder->buildUriFromRoute(
+            'web_FrpFormAnswersFormanswers',
+            $urlParameters,
+        );
     }
 }
