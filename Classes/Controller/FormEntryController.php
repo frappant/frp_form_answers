@@ -324,9 +324,7 @@ class FormEntryController extends ActionController
             $menu->addMenuItem($item);
         }
 
-        if ($menu instanceof Menu) {
-            $moduleTemplate->getDocHeaderComponent()->getMenuRegistry()->addMenu($menu);
-        }
+        $moduleTemplate->getDocHeaderComponent()->getMenuRegistry()->addMenu($menu);
     }
 
     protected function createButtons(ModuleTemplate $moduleTemplate): void
@@ -372,6 +370,7 @@ class FormEntryController extends ActionController
             'Csv' => ['export.csv', 'text/csv; charset=' . $charset],
             'Xls' => ['export.xlsx', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'],
             'Xml' => ['export.xml', 'application/xml; charset=' . $charset],
+            default => throw new \InvalidArgumentException('Unsupported export format: ' . $format, 1710001001),
         };
 
         return $this->responseFactory->createResponse()

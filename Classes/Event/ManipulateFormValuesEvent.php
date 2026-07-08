@@ -23,7 +23,7 @@ use TYPO3\CMS\Form\Domain\Runtime\FormRuntime;
 final class ManipulateFormValuesEvent
 {
     /**
-     * @var array
+     * @var array<string, array{value:mixed, conf: array{label:mixed, inputType:string}}>
      */
     protected array $values;
 
@@ -32,14 +32,16 @@ final class ManipulateFormValuesEvent
      */
     protected FormRuntime $formRuntime;
 
+    /**
+     * @param array<string, array{value:mixed, conf: array{label:mixed, inputType:string}}> $values
+     */
     public function __construct(array $values, FormRuntime $formRuntime) {
         $this->values = $values;
         $this->formRuntime = $formRuntime;
     }
 
     /**
-     * @param array $value
-     * @return void
+     * @param array<string, array{value:mixed, conf: array{label:mixed, inputType:string}}> $addedValues
      */
     public function addValue(array $addedValues): void
     {
@@ -62,7 +64,7 @@ final class ManipulateFormValuesEvent
     }
 
     /**
-     * @return array
+     * @return array<string, array{value:mixed, conf: array{label:mixed, inputType:string}}>
      */
     public function getValues(): array
     {

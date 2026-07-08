@@ -60,6 +60,9 @@ final class MailAdminNotificationCommand extends Command
             );
     }
 
+    /**
+     * @param iterable<FormEntry> $mails
+     */
     private function generateMailBody(iterable $mails): string
     {
         $viewFactoryData = new ViewFactoryData(

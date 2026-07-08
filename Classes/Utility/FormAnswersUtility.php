@@ -127,6 +127,9 @@ final class FormAnswersUtility
         return array_keys($values);
     }
 
+    /**
+     * @return iterable<\Frappant\FrpFormAnswers\Domain\Model\FormEntry>
+     */
     private function findAllByStoragePid(int $pid): iterable
     {
         $query = $this->formEntryRepository->createQuery();

@@ -23,7 +23,7 @@ class SaveFormToDatabaseFinisher extends AbstractFinisher
      * @throws AspectNotFoundException
      * @see AbstractFinisher::execute()
      */
-    protected function executeInternal()
+    protected function executeInternal(): void
     {
         // Values of all fields, getFormValues() also gives pages, so it will be filled in foreach
         $values = $this->getFormValues();
@@ -45,7 +45,8 @@ class SaveFormToDatabaseFinisher extends AbstractFinisher
         $this->formEntry->setForm($identifier);
 
 
-        $pageId = $this->finisherContext->getFormRuntime()->getRequest()->getAttributes()['routing']['pageId'];
+        $attrs = $this->finisherContext->getFormRuntime()->getRequest()->getAttributes();
+        $pageId = (int)($attrs['routing']['pageId'] ?? 0);
         $this->formEntry->setPid($pageId);
 
         $lastForm = $this->formEntryRepository->getLastFormAnswerByIdentifyer($identifier);
@@ -64,7 +65,7 @@ class SaveFormToDatabaseFinisher extends AbstractFinisher
     /**
      * Returns the values of the submitted form
      *
-     * @return []
+     * @return array<string, array{value:mixed, conf: array{label:mixed, inputType:string}}>
      */
     protected function getFormValues(): array
     {
@@ -76,13 +77,17 @@ class SaveFormToDatabaseFinisher extends AbstractFinisher
         foreach ($this->finisherContext->getFormRuntime()->getPages() as $page) {
             foreach ($page->getElementsRecursively() as $pageElem) {
                 if ($pageElem->getType() !== 'Honeypot') {
-                	if($pageElem->getType() !== 'FileUpload' && $pageElem->getType() !== 'ImageUpload'){
-		                $values[$pageElem->getIdentifier()]['value'] = $valuesWithPages[$pageElem->getIdentifier()];
-	                }else{
-                		if($valuesWithPages[$pageElem->getIdentifier()]){
-			                $values[$pageElem->getIdentifier()]['value'] = $valuesWithPages[$pageElem->getIdentifier()]->getOriginalResource()->getName();
-		                }
-	                }
+                    if ($pageElem->getType() !== 'FileUpload' && $pageElem->getType() !== 'ImageUpload') {
+                        $values[$pageElem->getIdentifier()]['value'] = $valuesWithPages[$pageElem->getIdentifier()] ?? null;
+                    } else {
+                        $upload = $valuesWithPages[$pageElem->getIdentifier()] ?? null;
+                        if (is_object($upload) && method_exists($upload, 'getOriginalResource')) {
+                            $resource = $upload->getOriginalResource();
+                            if (is_object($resource) && method_exists($resource, 'getName')) {
+                                $values[$pageElem->getIdentifier()]['value'] = $resource->getName();
+                            }
+                        }
+                    }
                     $values[$pageElem->getIdentifier()]['conf']['label'] = $pageElem->getLabel();
                     $values[$pageElem->getIdentifier()]['conf']['inputType'] = $pageElem->getType();
                 }
@@ -97,7 +102,7 @@ class SaveFormToDatabaseFinisher extends AbstractFinisher
      * @param string $elementIdentifier
      * @return NULL|FormElementInterface
      */
-    protected function getElementByIdentifier(string $elementIdentifier)
+    protected function getElementByIdentifier(string $elementIdentifier): ?FormElementInterface
     {
         return $this
             ->finisherContext

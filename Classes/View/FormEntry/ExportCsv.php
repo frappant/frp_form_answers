@@ -32,7 +32,7 @@ namespace Frappant\FrpFormAnswers\View\FormEntry;
 class ExportCsv {
     /**
      * Delimiter Array
-     * @var array
+     * @var array<string, string>
      */
     protected $delimiter = array(
         'komma' => ',',
@@ -42,7 +42,7 @@ class ExportCsv {
 
     /**
      * Enclosure Array
-     * @var array
+     * @var array<string, string>
      */
     protected $enclosure = array(
         'single' => '\'',
@@ -52,7 +52,7 @@ class ExportCsv {
     /**
      * View variables and their values
      *
-     * @var array
+     * @var array<string, mixed>
      * @see assign()
      */
     protected $variables = [];
@@ -65,7 +65,7 @@ class ExportCsv {
      * @param mixed $value Value of object
      * @return ExportCsv an instance of $this, to enable chaining
      */
-    public function assign($key, $value)
+    public function assign(string $key, mixed $value): self
     {
         $this->variables[$key] = $value;
         return $this;
@@ -74,7 +74,7 @@ class ExportCsv {
     /**
      * Add multiple variables to $this->viewData.
      *
-     * @param array $values array in the format array(key1 => value1, key2 => value2).
+     * @param array<string, mixed> $values array in the format array(key1 => value1, key2 => value2).
      * @return ExportCsv an instance of $this, to enable chaining
      */
     public function assignMultiple(array $values)
@@ -85,9 +85,8 @@ class ExportCsv {
         return $this;
     }
 
-    public function initializeView()
+    public function initializeView(): void
     {
-        return null;
     }
 
     /**
@@ -96,7 +95,7 @@ class ExportCsv {
      * @return string The rendered view
      * @api
      */
-    public function render()
+    public function render(): string
     {
         ob_start();
             foreach ($this->variables['rows'] as $fields) {
@@ -114,11 +113,11 @@ class ExportCsv {
      *
      * @param string $partialName
      * @param string $sectionName
-     * @param array $variables
+     * @param array<string, mixed> $variables
      * @param boolean $ignoreUnknown Ignore an unknown section and just return an empty string
      * @return string
      */
-    public function renderPartial($partialName, $sectionName, array $variables, $ignoreUnknown = false)
+    public function renderPartial(string $partialName, string $sectionName, array $variables, bool $ignoreUnknown = false): string
     {
         return $this->render();
     }
@@ -127,12 +126,11 @@ class ExportCsv {
      * Renders a given section.
      *
      * @param string $sectionName Name of section to render
-     * @param array $variables The variables to use
+     * @param array<string, mixed> $variables The variables to use
      * @param boolean $ignoreUnknown Ignore an unknown section and just return an empty string
      * @return string rendered template for the section
-     * @throws Exception\InvalidSectionException
      */
-    public function renderSection($sectionName, array $variables = [], $ignoreUnknown = false)
+    public function renderSection(string $sectionName, array $variables = [], bool $ignoreUnknown = false): string
     {
         return $this->render();
     }
@@ -141,13 +139,13 @@ class ExportCsv {
      * function fputscv2
      * Funktion gem. php.net
      * Behebt mögliche Fehlerfälle der ursprünglichen Funktion fputcsv
-     * @param array $fields
+     * @param array<int, mixed> $fields
      * @param string $delimiter
      * @param string $enclosure
      * @param boolean $mysql_null
      * @return string
      */
-    private function fputcsv2(array $fields, $delimiter = ';', $enclosure = '"', $mysql_null = false)
+    private function fputcsv2(array $fields, string $delimiter = ';', string $enclosure = '"', bool $mysql_null = false): string
     {
         $delimiter_esc = preg_quote($delimiter, '/');
         $enclosure_esc = preg_quote($enclosure, '/');
@@ -162,6 +160,7 @@ class ExportCsv {
                 $field = $field->format('r');
             }
 
+            $field = (string)$field;
             $output[] = preg_match("/(?:{$delimiter_esc}|{$enclosure_esc}|\s)/", $field) ? (
                 $enclosure . str_replace($enclosure, $enclosure . $enclosure, $field) . $enclosure
             ) : $field;

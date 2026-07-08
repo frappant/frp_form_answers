@@ -3,9 +3,10 @@ namespace Frappant\FrpFormAnswers\Domain\Repository;
 
 use TYPO3\CMS\Extbase\Persistence\Repository;
 use Frappant\FrpFormAnswers\Database\QueryGenerator;
+use Frappant\FrpFormAnswers\Domain\Model\FormEntry;
 use Frappant\FrpFormAnswers\Domain\Model\FormEntryDemand;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Extbase\Persistence\Generic\QueryResult;
+use TYPO3\CMS\Extbase\Persistence\QueryResultInterface;
 use TYPO3\CMS\Extbase\Persistence\QueryInterface;
 use Frappant\FrpFormAnswers\Utility\BackendUtility;
 
@@ -23,14 +24,17 @@ use Frappant\FrpFormAnswers\Utility\BackendUtility;
 /**
  * The repository for FormEntries
  */
+/**
+ * @extends Repository<FormEntry>
+ */
 class FormEntryRepository extends Repository
 {
     /**
      * Finds all FormEntries given by conf Array
      * @param FormEntryDemand $formEntryDemand
-     * @return QueryResult
+     * @return QueryResultInterface<int, FormEntry>
      */
-    public function findByDemand(FormEntryDemand $formEntryDemand, int $pid = 0)
+    public function findByDemand(FormEntryDemand $formEntryDemand, int $pid = 0): QueryResultInterface
     {
 
         $query = $this->createQuery();
@@ -69,21 +73,21 @@ class FormEntryRepository extends Repository
      * Find all within a Page and all subpages
      *
      * @param int $pid start page identifier
-     * @return QueryResult
+     * @return QueryResultInterface<int, FormEntry>
      */
-    public function findAllInPidAndRootline($pid)
+    public function findAllInPidAndRootline(int $pid): QueryResultInterface
     {
         $query = $this->createQuery();
         $query->getQuerySettings()->setRespectStoragePage(false);
 
         $queryGenerator = GeneralUtility::makeInstance(QueryGenerator::class);
-        $pids = GeneralUtility::trimExplode(',', $queryGenerator->getTreeList($pid, 20, 0, 1), true);
+        $pids = GeneralUtility::trimExplode(',', $queryGenerator->getTreeList($pid, 20, 0, '1'), true);
 
         if (!BackendUtility::isBackendAdmin()) {
             $pids = BackendUtility::filterPagesForAccess($pids);
         }
 
-        if (is_array($pids) && count($pids)) {
+        if (count($pids)) {
             $query->matching($query->in('pid', $pids));
         }
 
@@ -95,10 +99,10 @@ class FormEntryRepository extends Repository
     /**
      * Finds the last Form Entry of a given yaml File (form) - used to set the submitUid in SaveFormToDatabaseFinisher
      *
-     * @param String $form
-     * @return QueryResult
+     * @param string $form
+     * @return FormEntry|null
      */
-    public function getLastFormAnswerByIdentifyer($form)
+    public function getLastFormAnswerByIdentifyer(string $form): ?FormEntry
     {
         $query = $this->createQuery();
         $query->getQuerySettings()->setRespectStoragePage(false);
@@ -111,10 +115,14 @@ class FormEntryRepository extends Repository
         $query->matching($query->equals('form', $form));
         $query->setLimit(1);
 
-        return $query->execute()->getFirst();
+        $first = $query->execute()->getFirst();
+        return $first instanceof FormEntry ? $first : null;
     }
 
-    public function setFormsToExported(QueryResult $forms)
+    /**
+     * @param QueryResultInterface<int, FormEntry> $forms
+     */
+    public function setFormsToExported(QueryResultInterface $forms): void
     {
         foreach ($forms as $entry) {
             $entry->setExported(true);

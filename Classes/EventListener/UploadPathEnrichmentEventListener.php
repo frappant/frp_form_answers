@@ -135,6 +135,9 @@ final class UploadPathEnrichmentEventListener
     /**
      * Prepend final prefix per value (handles string or string[]).
      * For each file, detect correct form_* folder and prefix accordingly.
+     *
+     * @param string|list<string> $value
+     * @return string|list<string>
      */
     private function prependWithSubmissionPrefix(string|array $value, string $combinedTarget, bool $usePublic): string|array
     {

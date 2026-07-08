@@ -110,6 +110,10 @@ final class BeLinkViewHelper extends AbstractTagBasedViewHelper
     /**
      * @throws RouteNotFoundException
      */
+    /**
+     * @param array<string, int|string> $urlParameters
+     * @throws RouteNotFoundException
+     */
     private function getModuleUrl(array $urlParameters): UriInterface
     {
         return $this->uriBuilder->buildUriFromRoute(
