@@ -45,7 +45,8 @@ class DataExporter
                     $rows[$uid][$fieldName] = (is_array($field['value'] ?? '') ? implode(",", $field['value']) : ($field['value'] ?? ''));
                 }
             }
-            $rows[$uid]['crdate'] = $entry->_getProperty('crdate');
+            // The model stores crdate as unix timestamp; exporters format \DateTime values
+            $rows[$uid]['crdate'] = (new \DateTime())->setTimestamp($entry->getCrdate());
         }
 
         array_unshift($rows, $header);
