@@ -57,7 +57,7 @@ final class TableViewHelper extends AbstractViewHelper
         $queryBuilder = $connection->createQueryBuilder();
 
         $queryBuilder
-            ->select($connection->quoteIdentifier('uid'))
+            ->select('uid')
             ->from($table)
             ->andWhere(
                 $queryBuilder->expr()->eq(
@@ -67,7 +67,7 @@ final class TableViewHelper extends AbstractViewHelper
             );
 
         foreach ($columns as $column) {
-            $queryBuilder->addSelect($connection->quoteIdentifier($column));
+            $queryBuilder->addSelect($column);
         }
 
         if ($filter !== []) {
