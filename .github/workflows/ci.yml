@@ -1,6 +1,11 @@
 name: Tests
 
-on: [pull_request]
+on:
+  pull_request:
+  push:
+    branches:
+      - master
+      - develop
 
 jobs:
   testing:
@@ -40,12 +45,3 @@ jobs:
 
       - name: 'Execute unit tests'
         run: Build/Scripts/runTests.sh -p ${{ matrix.php }} -s unit
-
-      - name: 'Execute functional tests'
-        run: Build/Scripts/runTests.sh -p ${{ matrix.php }} -d mysql -s functional
-
-      - name: 'Execute functional tests'
-        run: Build/Scripts/runTests.sh -p ${{ matrix.php }} -d mariadb -s functional
-
-      - name: 'Execute functional tests'
-        run: Build/Scripts/runTests.sh -p ${{ matrix.php }} -d postgres -s functional

@@ -237,7 +237,7 @@ fi
 
 # Option defaults
 # @todo Consider to switch from cgl to help as default
-TEST_SUITE="cgl"
+TEST_SUITE="unit"
 DATABASE_DRIVER=""
 DBMS="sqlite"
 DBMS_VERSION=""
@@ -422,7 +422,7 @@ case ${TEST_SUITE} in
         ;;
     composerNormalize)
         if [ "${CGLCHECK_DRY_RUN}" -eq 1 ]; then
-            COMMAND=(composer normalize -n)
+            COMMAND=(composer normalize --dry-run)
         else
             COMMAND=(composer normalize)
         fi
