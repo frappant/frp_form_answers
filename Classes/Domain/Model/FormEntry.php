@@ -1,5 +1,7 @@
 <?php
+
 declare(strict_types=1);
+
 namespace Frappant\FrpFormAnswers\Domain\Model;
 
 use TYPO3\CMS\Extbase\DomainObject\AbstractEntity;
@@ -80,7 +82,7 @@ class FormEntry extends AbstractEntity
         $this->answers = (string)json_encode($answers);
         ksort($answers);
 
-        $fields = "";
+        $fields = '';
         foreach ($answers as $field => $value) {
             $fields .= $field;
         }

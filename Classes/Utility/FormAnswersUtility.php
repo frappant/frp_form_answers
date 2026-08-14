@@ -42,7 +42,7 @@ final class FormAnswersUtility
     {
         return $this->getUniqueFormValues(
             $pid,
-            static fn (object $answer): ?string => $answer->getForm(),
+            static fn(object $answer): ?string => $answer->getForm(),
         );
     }
 
@@ -55,7 +55,7 @@ final class FormAnswersUtility
     {
         return $this->getUniqueFormValues(
             $pid,
-            static fn (object $answer): ?string => $answer->getFieldHash(),
+            static fn(object $answer): ?string => $answer->getFieldHash(),
         );
     }
 

@@ -21,7 +21,7 @@ return [
                 'prepareExport',
                 'export',
                 'deleteFormname',
-                'removeEntry'
+                'removeEntry',
             ],
         ],
     ],

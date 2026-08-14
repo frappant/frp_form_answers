@@ -1,5 +1,38 @@
 {
     "name": "frappant/frp-form-answers",
+    "description": "Adds the possibility, as a finisher, to save and export the form entries from customers.",
+    "license": "GPL-2.0+",
+    "type": "typo3-cms-extension",
+    "homepage": "https://frappant.ch",
+    "require": {
+        "phpoffice/phpspreadsheet": "^5.2.0",
+        "typo3/cms-core": "^14.0",
+        "typo3/cms-form": "^14.0"
+    },
+    "require-dev": {
+        "a9f/fractor-composer-json": "^0.5.11",
+        "a9f/typo3-fractor": "^0.5.11",
+        "ergebnis/composer-normalize": "^2.44",
+        "phpstan/phpstan": "^2.1.25",
+        "phpunit/phpunit": "^11.2.5",
+        "typo3/coding-standards": "^0.8",
+        "typo3/testing-framework": "^9.0.1"
+    },
+    "autoload": {
+        "psr-4": {
+            "Frappant\\FrpFormAnswers\\": "Classes"
+        }
+    },
+    "config": {
+        "allow-plugins": {
+            "a9f/fractor-extension-installer": true,
+            "ergebnis/composer-normalize": true,
+            "typo3/class-alias-loader": true,
+            "typo3/cms-composer-installers": true
+        },
+        "bin-dir": ".Build/bin",
+        "vendor-dir": ".Build/vendor"
+    },
     "extra": {
         "branch-alias": {
             "dev-master": "1.0.x-dev"
@@ -8,38 +41,5 @@
             "extension-key": "frp_form_answers",
             "web-dir": ".Build/web"
         }
-    },
-    "config": {
-        "allow-plugins": {
-            "ergebnis/composer-normalize": true,
-            "typo3/class-alias-loader": true,
-            "typo3/cms-composer-installers": true,
-            "a9f/fractor-extension-installer": true
-        },
-        "bin-dir": ".Build/bin",
-        "vendor-dir": ".Build/vendor"
-    },
-    "description": "Adds the possibility, as a finisher, to save and export the form entries from customers.",
-    "type": "typo3-cms-extension",
-    "homepage": "https://frappant.ch",
-    "require": {
-        "typo3/cms-core": "^14.0",
-        "typo3/cms-form": "^14.0",
-        "phpoffice/phpspreadsheet": "^5.2.0"
-    },
-    "autoload": {
-        "psr-4": {
-            "Frappant\\FrpFormAnswers\\": "Classes"
-        }
-    },
-    "require-dev": {
-        "ergebnis/composer-normalize": "^2.44",
-        "phpstan/phpstan": "^2.1.25",
-        "phpunit/phpunit": "^11.2.5",
-        "typo3/coding-standards": "^0.8",
-        "typo3/testing-framework": "^9.0.1",
-        "a9f/typo3-fractor": "^0.5.11",
-        "a9f/fractor-composer-json": "^0.5.11"
-    },
-    "license": "GPL-2.0+"
+    }
 }

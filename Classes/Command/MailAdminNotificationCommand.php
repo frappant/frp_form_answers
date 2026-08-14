@@ -95,7 +95,7 @@ final class MailAdminNotificationCommand extends Command
 
         $recipients = array_values(array_filter(
             array_map('trim', explode(',', $mailto)),
-            static fn (string $email): bool => $email !== ''
+            static fn(string $email): bool => $email !== ''
         ));
 
         if ($recipients === []) {

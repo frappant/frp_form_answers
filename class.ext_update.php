@@ -25,13 +25,11 @@
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
-use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Extbase\Object\ObjectManager;
+use TYPO3\CMS\Core\Database\Connection;
+use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Messaging\FlashMessage;
 use TYPO3\CMS\Core\Messaging\FlashMessageRendererResolver;
-use TYPO3\CMS\Extbase\SignalSlot\Dispatcher;
-use TYPO3\CMS\Core\Database\ConnectionPool;
-use TYPO3\CMS\Core\Database\Connection;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /**
  * Update extension script.
@@ -43,7 +41,7 @@ class ext_update
      *
      * @var array
      */
-    protected $messageArray = array();
+    protected $messageArray = [];
 
     /**
      * @var \TYPO3\CMS\Core\Messaging\Renderer\FlashMessageRendererInterface
@@ -78,22 +76,22 @@ class ext_update
     protected function setSubmitUidsToFormEntryUid()
     {
         $title = 'Set all submit_uids to value of uid.';
-	    $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('tx_frpformanswers_domain_model_formentry');
-	    $row = $queryBuilder
-		    ->count('uid')
-		    ->from('tx_frpformanswers_domain_model_formentry')
-	        ->where(
-		        $queryBuilder->expr()->eq('submit_uid', $queryBuilder->createNamedParameter(0, Connection::PARAM_INT))
-	        )->executeQuery();
+        $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('tx_frpformanswers_domain_model_formentry');
+        $row = $queryBuilder
+            ->count('uid')
+            ->from('tx_frpformanswers_domain_model_formentry')
+            ->where(
+                $queryBuilder->expr()->eq('submit_uid', $queryBuilder->createNamedParameter(0, Connection::PARAM_INT))
+            )->executeQuery();
 
         if ($row) {
-			$queryBuilder
-				->update('tx_frpformanswers_domain_model_formentry')
-				->where(
-					$queryBuilder->expr()->eq('submit_uid', $queryBuilder->createNamedParameter(0, Connection::PARAM_INT))
-				)
-				->set('submit_uid', $queryBuilder->quoteIdentifier('uid'), false)
-				->executeStatement();
+            $queryBuilder
+                ->update('tx_frpformanswers_domain_model_formentry')
+                ->where(
+                    $queryBuilder->expr()->eq('submit_uid', $queryBuilder->createNamedParameter(0, Connection::PARAM_INT))
+                )
+                ->set('submit_uid', $queryBuilder->quoteIdentifier('uid'), false)
+                ->executeStatement();
 
             $this->messageArray[] = new FlashMessage('Set all submit_uids to value of uid successfully.', $title, \TYPO3\CMS\Core\Type\ContextualFeedbackSeverity::OK);
         }
@@ -114,12 +112,12 @@ class ext_update
         $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('tx_frpformanswers_domain_model_formentry');
 
         $row = $queryBuilder
-	        ->count('uid')
-	        ->from('tx_frpformanswers_domain_model_formentry')
-	        ->where(
-		        $queryBuilder->expr()->eq('submit_uid', $queryBuilder->createNamedParameter(0, Connection::PARAM_INT))
-	        )->executeQuery();
-        return ($row === 0);
+            ->count('uid')
+            ->from('tx_frpformanswers_domain_model_formentry')
+            ->where(
+                $queryBuilder->expr()->eq('submit_uid', $queryBuilder->createNamedParameter(0, Connection::PARAM_INT))
+            )->executeQuery();
+        return $row === 0;
     }
 
     /**

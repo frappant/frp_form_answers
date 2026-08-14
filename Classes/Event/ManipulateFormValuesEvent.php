@@ -35,7 +35,8 @@ final class ManipulateFormValuesEvent
     /**
      * @param array<string, array{value:mixed, conf: array{label:mixed, inputType:string}}> $values
      */
-    public function __construct(array $values, FormRuntime $formRuntime) {
+    public function __construct(array $values, FormRuntime $formRuntime)
+    {
         $this->values = $values;
         $this->formRuntime = $formRuntime;
     }

@@ -2,8 +2,8 @@
 
 namespace Frappant\FrpFormAnswers\DataExporter;
 
-use Frappant\FrpFormAnswers\Domain\Model\FormEntryDemand;
 use Frappant\FrpFormAnswers\Domain\Model\FormEntry;
+use Frappant\FrpFormAnswers\Domain\Model\FormEntryDemand;
 use TYPO3\CMS\Extbase\Utility\LocalizationUtility;
 
 class DataExporter
@@ -42,7 +42,7 @@ class DataExporter
             }
             foreach ($entry->getAnswers() as $fieldName => $field) {
                 if ($this->isExportableType($field['conf']['inputType'])) {
-                    $rows[$uid][$fieldName] = (is_array($field['value'] ?? '') ? implode(",", $field['value']) : ($field['value'] ?? ''));
+                    $rows[$uid][$fieldName] = (is_array($field['value'] ?? '') ? implode(',', $field['value']) : ($field['value'] ?? ''));
                 }
             }
             // The model stores crdate as unix timestamp; exporters format \DateTime values
@@ -80,7 +80,7 @@ class DataExporter
         $typesToSkip = [
             'Fieldset',
             'StaticText',
-            'GridRow'
+            'GridRow',
         ];
         return !\in_array($inputType, $typesToSkip);
     }

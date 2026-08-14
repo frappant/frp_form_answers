@@ -1,14 +1,15 @@
 <?php
+
 namespace Frappant\FrpFormAnswers\Domain\Finishers;
 
-use Frappant\FrpFormAnswers\Event\ManipulateFormValuesEvent;
 use Frappant\FrpFormAnswers\Domain\Model\FormEntry;
+use Frappant\FrpFormAnswers\Domain\Repository\FormEntryRepository;
+use Frappant\FrpFormAnswers\Event\ManipulateFormValuesEvent;
+use Psr\EventDispatcher\EventDispatcherInterface;
 use TYPO3\CMS\Core\Context\Exception\AspectNotFoundException;
 use TYPO3\CMS\Extbase\Persistence\Generic\PersistenceManager;
 use TYPO3\CMS\Form\Domain\Finishers\AbstractFinisher;
 use TYPO3\CMS\Form\Domain\Model\FormElements\FormElementInterface;
-use Frappant\FrpFormAnswers\Domain\Repository\FormEntryRepository;
-use Psr\EventDispatcher\EventDispatcherInterface;
 
 class SaveFormToDatabaseFinisher extends AbstractFinisher
 {
@@ -43,7 +44,6 @@ class SaveFormToDatabaseFinisher extends AbstractFinisher
         $this->formEntry->setAnswers($values);
 
         $this->formEntry->setForm($identifier);
-
 
         $attrs = $this->finisherContext->getFormRuntime()->getRequest()->getAttributes();
         $pageId = (int)($attrs['routing']['pageId'] ?? 0);
@@ -100,7 +100,7 @@ class SaveFormToDatabaseFinisher extends AbstractFinisher
      * Returns a form element object for a given identifier.
      *
      * @param string $elementIdentifier
-     * @return NULL|FormElementInterface
+     * @return FormElementInterface|null
      */
     protected function getElementByIdentifier(string $elementIdentifier): ?FormElementInterface
     {

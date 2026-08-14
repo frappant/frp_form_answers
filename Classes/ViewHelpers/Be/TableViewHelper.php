@@ -47,7 +47,7 @@ final class TableViewHelper extends AbstractViewHelper
         $this->assertValidIdentifier($table);
 
         $columns = array_values(array_unique(array_map('strval', $columns)));
-        $columns = array_values(array_filter($columns, static fn (string $column): bool => $column !== 'uid'));
+        $columns = array_values(array_filter($columns, static fn(string $column): bool => $column !== 'uid'));
 
         foreach ($columns as $column) {
             $this->assertValidIdentifier($column);

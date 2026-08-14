@@ -1,19 +1,18 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Frappant\FrpFormAnswers\EventListener;
 
 use Frappant\FrpFormAnswers\Event\ManipulateFormValuesEvent;
 use TYPO3\CMS\Core\Configuration\ExtensionConfiguration;
-use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Core\Resource\ResourceFactory;
 use TYPO3\CMS\Core\Resource\Folder;
+use TYPO3\CMS\Core\Resource\ResourceFactory;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 final class UploadPathEnrichmentEventListener
 {
-    public function __construct(private readonly ResourceFactory $resourceFactory)
-    {
-    }
+    public function __construct(private readonly ResourceFactory $resourceFactory) {}
     public function __invoke(ManipulateFormValuesEvent $event): void
     {
         // Get extension settings

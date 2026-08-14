@@ -1,4 +1,5 @@
 <?php
+
 namespace Frappant\FrpFormAnswers\View\FormEntry;
 
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
@@ -34,7 +35,6 @@ use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
  */
 class ExportXls
 {
-
     /**
      * @var Spreadsheet|null
      */
@@ -83,10 +83,10 @@ class ExportXls
      */
     public function render(mixed $data = null): string
     {
-        if (null === self::$spreadsheet) {
+        if (self::$spreadsheet === null) {
             self::$spreadsheet = new Spreadsheet();
-            self::$spreadsheet->getProperties()->setCreator("Frappant Forms Export")
-                ->setLastModifiedBy("Frappant Forms Export")
+            self::$spreadsheet->getProperties()->setCreator('Frappant Forms Export')
+                ->setLastModifiedBy('Frappant Forms Export')
                 ->setCreated(time());
         }
 

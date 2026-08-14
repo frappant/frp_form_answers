@@ -1,4 +1,5 @@
 <?php
+
 namespace Frappant\FrpFormAnswers\View\FormEntry;
 
 /***************************************************************
@@ -67,8 +68,7 @@ class ExportXml
         return $this;
     }
 
-    public function initializeView(mixed $view): void {
-    }
+    public function initializeView(mixed $view): void {}
 
     /**
      * Renders the view
@@ -111,14 +111,14 @@ class ExportXml
      */
     protected function arr2xml(array $arr, int $index): string
     {
-        $str = "\t<row index=\"".$index."\" type=\"array\">\n";
+        $str = "\t<row index=\"" . $index . "\" type=\"array\">\n";
 
         foreach ($arr as $field => $value) {
             if ($value instanceof \DateTime) {
                 $value = $value->format('c');
             }
             $value = (string)$value;
-            $str .= "\t\t<".$field.">".htmlspecialchars(stripslashes($value))."</".$field.">\n";
+            $str .= "\t\t<" . $field . '>' . htmlspecialchars(stripslashes($value)) . '</' . $field . ">\n";
         }
 
         $str .= "\t</row>\n";

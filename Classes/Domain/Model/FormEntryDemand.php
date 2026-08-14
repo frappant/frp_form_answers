@@ -1,4 +1,5 @@
 <?php
+
 namespace Frappant\FrpFormAnswers\Domain\Model;
 
 use TYPO3\CMS\Extbase\DomainObject\AbstractEntity;
@@ -109,9 +110,8 @@ class FormEntryDemand extends AbstractEntity
      * Sets the selectAll
      *
      * @param bool $selectAll
-     * @return void
      */
-    public function setSelectAll($selectAll)
+    public function setSelectAll($selectAll): void
     {
         $this->selectAll = $selectAll;
     }
@@ -140,9 +140,8 @@ class FormEntryDemand extends AbstractEntity
      * Sets the allPids
      *
      * @param bool $allPids
-     * @return void
      */
-    public function setAllPids($allPids)
+    public function setAllPids($allPids): void
     {
         $this->allPids = $allPids;
     }
@@ -171,9 +170,8 @@ class FormEntryDemand extends AbstractEntity
      * Sets the exportType
      *
      * @param string $exportType
-     * @return void
      */
-    public function setExportType($exportType)
+    public function setExportType($exportType): void
     {
         $this->exportType = $exportType;
     }
@@ -192,9 +190,8 @@ class FormEntryDemand extends AbstractEntity
      * Sets the uidLabel
      *
      * @param string $uidLabel
-     * @return void
      */
-    public function setUidLabel($uidLabel)
+    public function setUidLabel($uidLabel): void
     {
         $this->uidLabel = $uidLabel;
     }
@@ -213,18 +210,17 @@ class FormEntryDemand extends AbstractEntity
      * Sets the form
      *
      * @param string $form
-     * @return void
      */
-    public function setForm($form)
+    public function setForm($form): void
     {
         $this->form = $form;
     }
 
-     /**
-     * Returns the formName
-     *
-     * @return string $formName
-     */
+    /**
+    * Returns the formName
+    *
+    * @return string $formName
+    */
     public function getFormName()
     {
         return $this->formName;
@@ -234,9 +230,8 @@ class FormEntryDemand extends AbstractEntity
      * Sets the formName
      *
      * @param string $formName
-     * @return void
      */
-    public function setFormName($formName)
+    public function setFormName($formName): void
     {
         $this->formName = $formName;
     }
@@ -255,9 +250,8 @@ class FormEntryDemand extends AbstractEntity
      * Sets the fileName
      *
      * @param string $fileName
-     * @return void
      */
-    public function setFileName($fileName)
+    public function setFileName($fileName): void
     {
         $this->fileName = $fileName;
     }
@@ -276,18 +270,17 @@ class FormEntryDemand extends AbstractEntity
      * Sets the charset
      *
      * @param string $charset
-     * @return void
      */
-    public function setCharset($charset)
+    public function setCharset($charset): void
     {
         $this->charset = $charset;
     }
 
-     /**
-     * Returns the delimiter
-     *
-     * @return string $delimiter
-     */
+    /**
+    * Returns the delimiter
+    *
+    * @return string $delimiter
+    */
     public function getDelimiter()
     {
         return $this->delimiter;
@@ -297,9 +290,8 @@ class FormEntryDemand extends AbstractEntity
      * Sets the delimiter
      *
      * @param string $delimiter
-     * @return void
      */
-    public function setDelimiter($delimiter)
+    public function setDelimiter($delimiter): void
     {
         $this->delimiter = $delimiter;
     }
@@ -318,9 +310,8 @@ class FormEntryDemand extends AbstractEntity
      * Sets the enclosure
      *
      * @param string $enclosure
-     * @return void
      */
-    public function setEnclosure($enclosure)
+    public function setEnclosure($enclosure): void
     {
         $this->enclosure = $enclosure;
     }
@@ -339,9 +330,8 @@ class FormEntryDemand extends AbstractEntity
      * Sets the uidField
      *
      * @param string $uidField
-     * @return void
      */
-    public function setUidField($uidField)
+    public function setUidField($uidField): void
     {
         $this->uidField = $uidField;
     }

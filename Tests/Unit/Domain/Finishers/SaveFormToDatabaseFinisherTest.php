@@ -1,4 +1,5 @@
 <?php
+
 namespace Frappant\FrpFormAnswers\Tests\Unit\Domain\Finishers;
 
 use Frappant\FrpFormAnswers\Domain\Finishers\SaveFormToDatabaseFinisher;

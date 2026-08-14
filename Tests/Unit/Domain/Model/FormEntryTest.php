@@ -1,4 +1,5 @@
 <?php
+
 namespace Frappant\FrpFormAnswers\Tests\Unit\Domain\Model;
 
 use Frappant\FrpFormAnswers\Domain\Model\FormEntry;

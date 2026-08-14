@@ -7,7 +7,6 @@ use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
 class FormExportUtility
 {
-
     /**
      * tableName
      *
@@ -19,7 +18,6 @@ class FormExportUtility
     {
         $this->spreadsheet = new Spreadsheet();
     }
-
 
     /**
      * function export

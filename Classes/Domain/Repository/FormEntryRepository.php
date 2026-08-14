@@ -1,14 +1,15 @@
 <?php
+
 namespace Frappant\FrpFormAnswers\Domain\Repository;
 
-use TYPO3\CMS\Extbase\Persistence\Repository;
 use Frappant\FrpFormAnswers\Database\QueryGenerator;
 use Frappant\FrpFormAnswers\Domain\Model\FormEntry;
 use Frappant\FrpFormAnswers\Domain\Model\FormEntryDemand;
-use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Extbase\Persistence\QueryResultInterface;
-use TYPO3\CMS\Extbase\Persistence\QueryInterface;
 use Frappant\FrpFormAnswers\Utility\BackendUtility;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Extbase\Persistence\QueryInterface;
+use TYPO3\CMS\Extbase\Persistence\QueryResultInterface;
+use TYPO3\CMS\Extbase\Persistence\Repository;
 
 /***
  *
@@ -52,7 +53,6 @@ class FormEntryRepository extends Repository
             $query->getQuerySettings()->setRespectStoragePage(true);
             $query->getQuerySettings()->setStoragePageIds([$pid]);
         }
-
 
         $constraints = [];
 
@@ -111,9 +111,9 @@ class FormEntryRepository extends Repository
         $query = $this->createQuery();
         $query->getQuerySettings()->setRespectStoragePage(false);
         $query->setOrderings(
-            array(
-                'submitUid' => QueryInterface::ORDER_DESCENDING
-            )
+            [
+                'submitUid' => QueryInterface::ORDER_DESCENDING,
+            ]
         );
 
         $query->matching($query->equals('form', $form));

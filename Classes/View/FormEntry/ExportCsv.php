@@ -1,4 +1,5 @@
 <?php
+
 namespace Frappant\FrpFormAnswers\View\FormEntry;
 
 /***************************************************************
@@ -29,25 +30,26 @@ namespace Frappant\FrpFormAnswers\View\FormEntry;
 /**
  * ExportCSV
  */
-class ExportCsv {
+class ExportCsv
+{
     /**
      * Delimiter Array
      * @var array<string, string>
      */
-    protected $delimiter = array(
+    protected $delimiter = [
         'komma' => ',',
         'semikolon' => ';',
-        'tab' => '\t'
-    );
+        'tab' => '\t',
+    ];
 
     /**
      * Enclosure Array
      * @var array<string, string>
      */
-    protected $enclosure = array(
+    protected $enclosure = [
         'single' => '\'',
-        'double' => '"'
-    );
+        'double' => '"',
+    ];
 
     /**
      * View variables and their values
@@ -85,9 +87,7 @@ class ExportCsv {
         return $this;
     }
 
-    public function initializeView(): void
-    {
-    }
+    public function initializeView(): void {}
 
     /**
      * Renders the view
@@ -98,13 +98,13 @@ class ExportCsv {
     public function render(): string
     {
         ob_start();
-            foreach ($this->variables['rows'] as $fields) {
-                echo $this->fputcsv2(
-                    $fields,
-                    $this->delimiter[$this->variables['formEntryDemand']->getDelimiter()],
-                    $this->enclosure[$this->variables['formEntryDemand']->getEnclosure()]
-                );
-            }
+        foreach ($this->variables['rows'] as $fields) {
+            echo $this->fputcsv2(
+                $fields,
+                $this->delimiter[$this->variables['formEntryDemand']->getDelimiter()],
+                $this->enclosure[$this->variables['formEntryDemand']->getEnclosure()]
+            );
+        }
         return ob_get_clean();
     }
 
@@ -114,7 +114,7 @@ class ExportCsv {
      * @param string $partialName
      * @param string $sectionName
      * @param array<string, mixed> $variables
-     * @param boolean $ignoreUnknown Ignore an unknown section and just return an empty string
+     * @param bool $ignoreUnknown Ignore an unknown section and just return an empty string
      * @return string
      */
     public function renderPartial(string $partialName, string $sectionName, array $variables, bool $ignoreUnknown = false): string
@@ -127,7 +127,7 @@ class ExportCsv {
      *
      * @param string $sectionName Name of section to render
      * @param array<string, mixed> $variables The variables to use
-     * @param boolean $ignoreUnknown Ignore an unknown section and just return an empty string
+     * @param bool $ignoreUnknown Ignore an unknown section and just return an empty string
      * @return string rendered template for the section
      */
     public function renderSection(string $sectionName, array $variables = [], bool $ignoreUnknown = false): string
@@ -142,7 +142,7 @@ class ExportCsv {
      * @param array<int, mixed> $fields
      * @param string $delimiter
      * @param string $enclosure
-     * @param boolean $mysql_null
+     * @param bool $mysql_null
      * @return string
      */
     private function fputcsv2(array $fields, string $delimiter = ';', string $enclosure = '"', bool $mysql_null = false): string
@@ -150,7 +150,7 @@ class ExportCsv {
         $delimiter_esc = preg_quote($delimiter, '/');
         $enclosure_esc = preg_quote($enclosure, '/');
 
-        $output = array();
+        $output = [];
         foreach ($fields as $field) {
             if ($field === null && $mysql_null) {
                 $output[] = 'NULL';
@@ -165,6 +165,6 @@ class ExportCsv {
                 $enclosure . str_replace($enclosure, $enclosure . $enclosure, $field) . $enclosure
             ) : $field;
         }
-        return join($delimiter, $output) . "\n";
+        return implode($delimiter, $output) . "\n";
     }
 }

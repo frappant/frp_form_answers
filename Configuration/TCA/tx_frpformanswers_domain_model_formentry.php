@@ -1,4 +1,5 @@
 <?php
+
 return [
     'ctrl' => [
         'title'    => 'LLL:EXT:frp_form_answers/Resources/Private/Language/locallang_db.xlf:tx_frpformanswers_domain_model_formentry',
@@ -11,7 +12,7 @@ return [
         'security' => [
             'ignorePageTypeRestriction' => true,
         ],
-        'iconfile' => 'EXT:frp_form_answers/Resources/Public/Icons/tx_frpformanswers_domain_model_formentry.svg'
+        'iconfile' => 'EXT:frp_form_answers/Resources/Public/Icons/tx_frpformanswers_domain_model_formentry.svg',
     ],
     'types' => [
         '1' => ['showitem' => 'submit_uid, answers, field_hash, form, exported'],
@@ -23,7 +24,7 @@ return [
             'config' => [
                 'type' => 'user',
                 'renderType' => 'formAnswersJsonElement',
-            ]
+            ],
         ],
         'submit_uid' => [
             'exclude' => true,
@@ -31,9 +32,9 @@ return [
             'config' => [
                 'type' => 'input',
                 'size' => 30,
-                'readOnly' =>1,
+                'readOnly' => 1,
                 'eval' => 'trim, int',
-                'searchable' => false
+                'searchable' => false,
             ],
         ],
         'field_hash' => [
@@ -42,8 +43,8 @@ return [
             'config' => [
                 'type' => 'input',
                 'size' => 30,
-                'readOnly' =>1,
-                'eval' => 'trim'
+                'readOnly' => 1,
+                'eval' => 'trim',
             ],
         ],
         'form' => [
@@ -52,8 +53,8 @@ return [
             'config' => [
                 'type' => 'input',
                 'size' => 30,
-                'readOnly' =>1,
-                'eval' => 'trim'
+                'readOnly' => 1,
+                'eval' => 'trim',
             ],
         ],
         'exported' => [
@@ -63,12 +64,12 @@ return [
                 'type' => 'check',
                 'items' => [
                     0 => [
-                        'label' => 'LLL:EXT:frp_form_answers/Resources/Private/Language/locallang_db.xlf:tx_frpformanswers_domain_model_formentry.exported'
-                    ]
+                        'label' => 'LLL:EXT:frp_form_answers/Resources/Private/Language/locallang_db.xlf:tx_frpformanswers_domain_model_formentry.exported',
+                    ],
                 ],
-                'readOnly' =>1,
-                'default' => 0
-            ]
+                'readOnly' => 1,
+                'default' => 0,
+            ],
         ],
         'crdate' => [
             'exclude' => true,
