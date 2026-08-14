@@ -19,7 +19,6 @@ return [
                 'prepareRemove',
                 'remove',
                 'prepareExport',
-                'initializeExport',
                 'export',
                 'deleteFormname',
                 'removeEntry'
