@@ -8,6 +8,9 @@ return [
         'delete' => 'deleted',
         'enablecolumns' => [
         ],
+        'security' => [
+            'ignorePageTypeRestriction' => true,
+        ],
         'iconfile' => 'EXT:frp_form_answers/Resources/Public/Icons/tx_frpformanswers_domain_model_formentry.svg'
     ],
     'types' => [
