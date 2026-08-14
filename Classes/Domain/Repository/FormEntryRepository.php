@@ -29,6 +29,11 @@ use Frappant\FrpFormAnswers\Utility\BackendUtility;
  */
 class FormEntryRepository extends Repository
 {
+    public function __construct(private readonly QueryGenerator $queryGenerator)
+    {
+        parent::__construct();
+    }
+
     /**
      * Finds all FormEntries given by conf Array
      * @param FormEntryDemand $formEntryDemand
@@ -80,8 +85,7 @@ class FormEntryRepository extends Repository
         $query = $this->createQuery();
         $query->getQuerySettings()->setRespectStoragePage(false);
 
-        $queryGenerator = GeneralUtility::makeInstance(QueryGenerator::class);
-        $pids = GeneralUtility::trimExplode(',', $queryGenerator->getTreeList($pid, 20, 0, '1'), true);
+        $pids = GeneralUtility::trimExplode(',', $this->queryGenerator->getTreeList($pid, 20, 0, '1'), true);
 
         if (!BackendUtility::isBackendAdmin()) {
             $pids = BackendUtility::filterPagesForAccess($pids);
