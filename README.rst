@@ -108,6 +108,7 @@ Please note that pull requests to the *master* branch will be ignored. Please pu
 
 Changelog
 ---------
+:6.1.3: Security update, the entry table binds its query instead of building it as text
 :6.1.1: Security update, remove old packages and update phpspreadsheet to 5.2
 :6.1.0: added options to append file path to exported data.
 :6.0.0: Compatibility to TYPO3 v13
