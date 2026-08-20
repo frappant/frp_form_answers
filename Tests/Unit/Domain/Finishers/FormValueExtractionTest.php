@@ -69,6 +69,26 @@ class FormValueExtractionTest extends UnitTestCase
                 'choices',
                 ['a', 'b'],
             ],
+            'empty identifier yields null instead of throwing' => [
+                ['name' => 'Ada'],
+                '',
+                null,
+            ],
+            'identifier stored flat wins over path traversal' => [
+                ['container.0.street' => 'flat value', 'container' => [0 => ['street' => 'path value']]],
+                'container.0.street',
+                'flat value',
+            ],
+            'identifier containing a quote is not parsed as csv' => [
+                ['say "hi"' => 'quoted'],
+                'say "hi"',
+                'quoted',
+            ],
+            'null value is preserved' => [
+                ['name' => null],
+                'name',
+                null,
+            ],
         ];
     }
 

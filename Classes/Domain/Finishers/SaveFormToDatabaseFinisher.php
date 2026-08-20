@@ -114,6 +114,16 @@ class SaveFormToDatabaseFinisher extends AbstractFinisher
             return null;
         }
 
+        // An identifier that is stored as it is wins, so the usual case keeps
+        // working exactly as before
+        if (array_key_exists($identifier, $submittedValues)) {
+            return $submittedValues[$identifier];
+        }
+
+        if ($identifier === '' || !str_contains($identifier, '.')) {
+            return null;
+        }
+
         try {
             return ArrayUtility::getValueByPath($submittedValues, $identifier, '.');
         } catch (MissingArrayPathException) {
