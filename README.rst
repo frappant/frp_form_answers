@@ -108,6 +108,7 @@ Please note that pull requests to the *master* branch will be ignored. Please pu
 
 Changelog
 ---------
+:7.0.1: Fixed the coding guidelines check and added PHP 8.4 to the test matrix
 :7.0.0: Compatibility to TYPO3 v14, TYPO3 v13 support dropped
 :6.1.1: Security update, remove old packages and update phpspreadsheet to 5.2
 :6.1.0: added options to append file path to exported data.
