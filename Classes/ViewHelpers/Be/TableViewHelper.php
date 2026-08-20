@@ -13,7 +13,7 @@ class TableViewHelper extends AbstractViewHelper
     public function initializeArguments()
     {
         $this->registerArgument('table', 'string', 'Database table name', true);
-        $this->registerArgument('filter', 'array', 'Filter conditions', false, []);
+        $this->registerArgument('formName', 'string', 'Restrict to the entries of this form', false, '');
         $this->registerArgument('columns', 'array', 'Columns to display', true);
         $this->registerArgument('pid', 'int', 'PID', true);
     }
@@ -23,9 +23,11 @@ class TableViewHelper extends AbstractViewHelper
 
         $uriBuilder = GeneralUtility::makeInstance(UriBuilder::class);
         $table = $this->arguments['table'];
-        $filter = $this->arguments['filter'];
+        $formName = (string)$this->arguments['formName'];
         $columns = $this->arguments['columns'];
-        $pid = $this->arguments['pid'];
+        // Fluid does not coerce an argument to its declared type, and the page
+        // id reaches the template straight from the url
+        $pid = (int)$this->arguments['pid'];
 
         $iconFactory = GeneralUtility::makeInstance(\TYPO3\CMS\Core\Imaging\IconFactory::class);
 
@@ -48,8 +50,15 @@ class TableViewHelper extends AbstractViewHelper
             $queryBuilder->addSelect($column);
         }
         $queryBuilder->from($table)
-            ->where(...$filter)
-            ->andWhere('pid = ' . $pid);
+            ->where(
+                $queryBuilder->expr()->eq('pid', $queryBuilder->createNamedParameter($pid, \PDO::PARAM_INT))
+            );
+
+        if ($formName !== '') {
+            $queryBuilder->andWhere(
+                $queryBuilder->expr()->eq('form', $queryBuilder->createNamedParameter($formName))
+            );
+        }
 
         $entries = $queryBuilder->executeQuery()->fetchAllAssociative();
 
