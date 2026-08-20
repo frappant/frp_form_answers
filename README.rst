@@ -108,6 +108,7 @@ Please note that pull requests to the *master* branch will be ignored. Please pu
 
 Changelog
 ---------
+:7.1.0: Works with large data sets, exports honour charset and file name, backend uses the current TYPO3 styling, hardened the form filter in the entry table
 :7.0.1: Fixed the coding guidelines check and added PHP 8.4 to the test matrix
 :7.0.0: Compatibility to TYPO3 v14, TYPO3 v13 support dropped
 :6.1.1: Security update, remove old packages and update phpspreadsheet to 5.2
