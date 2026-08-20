@@ -52,8 +52,8 @@ final class UploadPathEnrichmentEventListener
             $entry = $values[$fieldIdentifier];
 
             // Expect documented structure: ['value' => string|array, 'conf' => ...]
-            // Anything else - an element without a file, or a value another
-            // listener replaced - is left untouched
+            // A value another listener replaced by something that is no file
+            // name is left untouched
             if (is_array($entry) && (is_string($entry['value'] ?? null) || is_array($entry['value'] ?? null))) {
 
                 // Determine final prefix per file (handles form_<hash> folder)

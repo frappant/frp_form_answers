@@ -55,6 +55,35 @@ class UploadPathEnrichmentEventListenerTest extends UnitTestCase
         self::assertSame($value, $event->getValues()['attachment']['value']);
     }
 
+    #[Test]
+    public function aFileNameIsPrefixedWithItsTarget(): void
+    {
+        $event = $this->dispatch([
+            'attachment' => [
+                'value' => 'letter.pdf',
+                'conf' => ['label' => 'Attachment', 'inputType' => 'FileUpload'],
+            ],
+        ]);
+
+        self::assertSame('1:/user_upload/letter.pdf', $event->getValues()['attachment']['value']);
+    }
+
+    #[Test]
+    public function everyFileNameOfAMultipleUploadIsPrefixed(): void
+    {
+        $event = $this->dispatch([
+            'attachment' => [
+                'value' => ['first.pdf', 'second.pdf'],
+                'conf' => ['label' => 'Attachment', 'inputType' => 'FileUpload'],
+            ],
+        ]);
+
+        self::assertSame(
+            ['1:/user_upload/first.pdf', '1:/user_upload/second.pdf'],
+            $event->getValues()['attachment']['value'],
+        );
+    }
+
     /**
      * @param array<string, mixed> $values
      */

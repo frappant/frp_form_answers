@@ -129,7 +129,7 @@ class FormValueExtractionTest extends UnitTestCase
     }
 
     #[Test]
-    public function everyElementOfEveryPageIsCollected(): void
+    public function everyElementIsCollectedWithItsLabelAndTypeExceptTheHoneypot(): void
     {
         $storage = new ObjectStorage();
         $storage->attach($this->createFileReference('first.pdf'));
