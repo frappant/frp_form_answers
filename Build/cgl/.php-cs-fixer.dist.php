@@ -12,9 +12,10 @@ if (PHP_SAPI !== 'cli') {
 return (new Config())
     ->setFinder(
         (new Finder())
-            ->in(__DIR__ . '/../../')
-            ->exclude(__DIR__ . '/../../.Build')
-            ->exclude(__DIR__ . '/../../var')
+            ->in(dirname(__DIR__, 2))
+            // Finder::exclude() expects directory names relative to in(),
+            // absolute paths are silently ignored
+            ->exclude(['.Build', 'var', 'public', 'vendor'])
     )
     ->setRiskyAllowed(true)
     ->setRules([
