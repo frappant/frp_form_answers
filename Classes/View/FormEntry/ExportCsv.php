@@ -39,7 +39,7 @@ class ExportCsv
     protected $delimiter = [
         'komma' => ',',
         'semikolon' => ';',
-        'tab' => '\t',
+        'tab' => "\t",
     ];
 
     /**
