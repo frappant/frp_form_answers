@@ -2,6 +2,8 @@
 
 namespace Frappant\FrpFormAnswers\View\FormEntry;
 
+use PhpOffice\PhpSpreadsheet\Cell\Cell;
+use PhpOffice\PhpSpreadsheet\Cell\StringValueBinder;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
@@ -96,13 +98,23 @@ class ExportXls
             $this->setIndexedArray($rows[$key]);
         }
 
-        self::$spreadsheet->getActiveSheet()->fromArray($rows, null, 'A1');
+        // Bind all values as strings: user-submitted values starting with "="
+        // must not be treated as formulas (crashes the writer and enables
+        // spreadsheet formula injection against the person opening the export)
+        $previousValueBinder = Cell::getValueBinder();
+        Cell::setValueBinder(new StringValueBinder());
 
-        $objWriter = new Xlsx(self::$spreadsheet);
+        try {
+            self::$spreadsheet->getActiveSheet()->fromArray($rows, null, 'A1');
 
-        ob_start();
-        $objWriter->save('php://output');
-        return (string)ob_get_clean();
+            $objWriter = new Xlsx(self::$spreadsheet);
+
+            ob_start();
+            $objWriter->save('php://output');
+            return (string)ob_get_clean();
+        } finally {
+            Cell::setValueBinder($previousValueBinder);
+        }
     }
 
     /**

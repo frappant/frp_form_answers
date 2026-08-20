@@ -161,6 +161,12 @@ class ExportCsv
             }
 
             $field = (string)$field;
+            // Neutralize spreadsheet formula injection: values starting with
+            // =, +, -, @, tab or CR would execute as formulas when the CSV is
+            // opened in Excel/LibreOffice
+            if (preg_match('/^[=+\-@\t\r]/', $field)) {
+                $field = "'" . $field;
+            }
             $output[] = preg_match("/(?:{$delimiter_esc}|{$enclosure_esc}|\s)/", $field) ? (
                 $enclosure . str_replace($enclosure, $enclosure . $enclosure, $field) . $enclosure
             ) : $field;
