@@ -12,6 +12,11 @@ use TYPO3\CMS\Core\Resource\FileReference as CoreFileReference;
 use TYPO3\CMS\Extbase\Domain\Model\FileReference;
 use TYPO3\CMS\Extbase\Persistence\Generic\PersistenceManager;
 use TYPO3\CMS\Extbase\Persistence\ObjectStorage;
+use TYPO3\CMS\Form\Domain\Finishers\AbstractFinisher;
+use TYPO3\CMS\Form\Domain\Finishers\FinisherContext;
+use TYPO3\CMS\Form\Domain\Model\FormElements\FormElementInterface;
+use TYPO3\CMS\Form\Domain\Model\FormElements\Page;
+use TYPO3\CMS\Form\Domain\Runtime\FormRuntime;
 use TYPO3\TestingFramework\Core\Unit\UnitTestCase;
 
 /**
@@ -100,6 +105,84 @@ class FormValueExtractionTest extends UnitTestCase
     public function emptyMultipleUploadYieldsAnEmptyList(): void
     {
         self::assertSame([], $this->callGetUploadedFileNames(new ObjectStorage()));
+    }
+
+    #[Test]
+    public function everyElementOfEveryPageIsCollected(): void
+    {
+        $storage = new ObjectStorage();
+        $storage->attach($this->createFileReference('first.pdf'));
+        $storage->attach($this->createFileReference('second.pdf'));
+
+        $elements = [
+            $this->createElement('fullname', 'Text', 'Full name'),
+            $this->createElement('container.0.street', 'Text', 'Street'),
+            $this->createElement('attachment', 'FileUpload', 'Attachment'),
+            $this->createElement('trap', 'Honeypot', 'Honeypot'),
+        ];
+
+        $submitted = [
+            'fullname' => 'Ada',
+            'container' => [0 => ['street' => 'Bahnhofstrasse']],
+            'attachment' => $storage,
+            'trap' => 'should not be stored',
+        ];
+
+        $values = $this->callGetFormValues($elements, $submitted);
+
+        self::assertSame(['fullname', 'container.0.street', 'attachment'], array_keys($values));
+        self::assertSame('Ada', $values['fullname']['value']);
+        self::assertSame('Bahnhofstrasse', $values['container.0.street']['value']);
+        self::assertSame(['first.pdf', 'second.pdf'], $values['attachment']['value']);
+        self::assertSame('Attachment', $values['attachment']['conf']['label']);
+        self::assertSame('FileUpload', $values['attachment']['conf']['inputType']);
+    }
+
+    #[Test]
+    public function elementsWithoutASubmittedValueKeepTheValueKey(): void
+    {
+        $values = $this->callGetFormValues(
+            [$this->createElement('optional', 'Text', 'Optional')],
+            [],
+        );
+
+        self::assertArrayHasKey('value', $values['optional']);
+        self::assertNull($values['optional']['value']);
+    }
+
+    private function createElement(string $identifier, string $type, string $label): FormElementInterface
+    {
+        $element = $this->createMock(FormElementInterface::class);
+        $element->method('getIdentifier')->willReturn($identifier);
+        $element->method('getType')->willReturn($type);
+        $element->method('getLabel')->willReturn($label);
+
+        return $element;
+    }
+
+    /**
+     * @param list<FormElementInterface> $elements
+     * @param array<string, mixed> $submitted
+     * @return array<string, array{value: mixed, conf: array{label: mixed, inputType: string}}>
+     */
+    private function callGetFormValues(array $elements, array $submitted): array
+    {
+        $page = $this->createMock(Page::class);
+        $page->method('getElementsRecursively')->willReturn($elements);
+
+        $formRuntime = $this->createMock(FormRuntime::class);
+        $formRuntime->method('getPages')->willReturn([$page]);
+
+        $finisherContext = $this->createMock(FinisherContext::class);
+        $finisherContext->method('getFormValues')->willReturn($submitted);
+        $finisherContext->method('getFormRuntime')->willReturn($formRuntime);
+
+        $contextProperty = new \ReflectionProperty(AbstractFinisher::class, 'finisherContext');
+        $contextProperty->setValue($this->subject, $finisherContext);
+
+        $method = new \ReflectionMethod(SaveFormToDatabaseFinisher::class, 'getFormValues');
+
+        return $method->invoke($this->subject);
     }
 
     private function createFileReference(string $name): FileReference
