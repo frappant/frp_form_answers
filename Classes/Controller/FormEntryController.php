@@ -287,12 +287,12 @@ class FormEntryController extends ActionController
 
             $this->addFlashMessage(
                 LocalizationUtility::translate(
-                    'LLL:EXT:frp_form_answers/Resources/Private/Language/de.locallang_be.xlf:flashmessage.deleteFormName.body',
+                    'LLL:EXT:frp_form_answers/Resources/Private/Language/locallang_be.xlf:flashmessage.deleteFormName.body',
                     'FrpFormAnswers',
                     [$formName, $this->pid],
                 ) ?? '',
                 LocalizationUtility::translate(
-                    'LLL:EXT:frp_form_answers/Resources/Private/Language/de.locallang_be.xlf:flashmessage.deleteFormName.header',
+                    'LLL:EXT:frp_form_answers/Resources/Private/Language/locallang_be.xlf:flashmessage.deleteFormName.header',
                 ) ?? '',
                 ContextualFeedbackSeverity::OK,
                 true,
