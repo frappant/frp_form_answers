@@ -108,6 +108,24 @@
             <trans-unit id="tx_frpformanswers_backend_templates_formentry_list.nothingsaved">
                 <source>No saved formEntries</source>
             </trans-unit>
+            <trans-unit id="table.entries">
+                <source>Entries (%s)</source>
+            </trans-unit>
+            <trans-unit id="table.actions">
+                <source>Actions</source>
+            </trans-unit>
+            <trans-unit id="table.noentries">
+                <source>No entries available</source>
+            </trans-unit>
+            <trans-unit id="tx_frpformanswers_backend_templates_formentry_list.page">
+                <source>Page</source>
+            </trans-unit>
+            <trans-unit id="tx_frpformanswers_backend_templates_formentry_prepareexport.csvonly">
+                <source>Applies to the CSV export</source>
+            </trans-unit>
+            <trans-unit id="tx_frpformanswers_backend_templates_formentry_prepareexport.header">
+                <source>Forms Export</source>
+            </trans-unit>
         </body>
     </file>
 </xliff>

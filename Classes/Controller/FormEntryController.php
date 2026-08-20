@@ -247,8 +247,7 @@ class FormEntryController extends ActionController
             return $this->redirect('list', null, null, ['id' => $this->pid]);
         }
 
-        $formEntries = $this->formEntryRepository->findbyDemand($formEntryDemand, $this->pid);
-        if (count($formEntries) === 0) {
+        if ($this->formEntryRepository->countByDemand($formEntryDemand, $this->pid) === 0) {
             $this->addFlashMessage(
                 'No entries found with your criteria',
                 'No Entries found',
@@ -261,7 +260,22 @@ class FormEntryController extends ActionController
 
         $extensionConfiguration = $this->getExtensionConfiguration();
         $useSubmitUid = (bool)($extensionConfiguration['useSubmitUid']['value'] ?? $extensionConfiguration['useSubmitUid'] ?? false);
-        $exportData = $this->dataExporter->getExport($formEntries->toArray(), $formEntryDemand, $useSubmitUid);
+
+        // Stream the entries through the exporter and remember which ones were
+        // written, instead of holding every hydrated entry in memory
+        $exportedUids = [];
+        $entries = (function () use ($formEntryDemand, &$exportedUids): \Generator {
+            foreach ($this->formEntryRepository->iterateByDemand($formEntryDemand, $this->pid) as $entry) {
+                $uid = $entry->getUid();
+                if ($uid !== null) {
+                    $exportedUids[] = $uid;
+                }
+
+                yield $entry;
+            }
+        })();
+
+        $exportData = $this->dataExporter->getExport($entries, $formEntryDemand, $useSubmitUid);
 
         $exporter->assign('rows', $exportData);
         $exporter->assign('formEntryDemand', $formEntryDemand);
@@ -278,7 +292,7 @@ class FormEntryController extends ActionController
             $formEntryDemand->getFileName() ?: (string)$formEntryDemand->getFormName(),
         );
 
-        $this->formEntryRepository->setFormsToExported($formEntries);
+        $this->formEntryRepository->setExportedByUids($exportedUids);
 
         return $response;
     }

@@ -40,10 +40,7 @@ final class FormAnswersUtility
      */
     public function getAllFormNames(int $pid): array
     {
-        return $this->getUniqueFormValues(
-            $pid,
-            static fn(object $answer): ?string => $answer->getForm(),
-        );
+        return $this->formEntryRepository->findDistinctValues('form', $pid);
     }
 
     /**
@@ -53,10 +50,7 @@ final class FormAnswersUtility
      */
     public function getAllFormHashes(int $pid): array
     {
-        return $this->getUniqueFormValues(
-            $pid,
-            static fn(object $answer): ?string => $answer->getFieldHash(),
-        );
+        return $this->formEntryRepository->findDistinctValues('field_hash', $pid);
     }
 
     private function getCurrentPageId(?ServerRequestInterface $request): int
@@ -90,55 +84,19 @@ final class FormAnswersUtility
      */
     private function addFormEntryCountsForPage(array &$pageIds, int $pageId): void
     {
-        foreach ($this->formEntryRepository->findAllInPidAndRootline($pageId) as $formEntry) {
-            $pid = $formEntry->getPid();
-            $formName = $formEntry->getForm();
+        // Counting happens in the database. Loading the entries as objects
+        // exhausts the memory limit on pages with tens of thousands of them.
+        $accessiblePids = $this->formEntryRepository->findAccessiblePidsInRootline($pageId);
 
-            if (!is_int($pid) || $formName === null || $formName === '') {
-                continue;
-            }
+        foreach ($this->formEntryRepository->countByPidAndForm($accessiblePids) as $pid => $formCounts) {
+            foreach ($formCounts as $formName => $counts) {
+                $pageIds[$pid][$formName]['tot'] = ($pageIds[$pid][$formName]['tot'] ?? 0) + $counts['tot'];
 
-            $pageIds[$pid][$formName]['tot'] = ($pageIds[$pid][$formName]['tot'] ?? 0) + 1;
-
-            if (!$formEntry->isExported()) {
-                $pageIds[$pid][$formName]['new'] = ($pageIds[$pid][$formName]['new'] ?? 0) + 1;
+                if ($counts['new'] > 0) {
+                    $pageIds[$pid][$formName]['new'] = ($pageIds[$pid][$formName]['new'] ?? 0) + $counts['new'];
+                }
             }
         }
-    }
-
-    /**
-     * @param callable(object): ?string $valueGetter
-     * @return list<string>
-     */
-    private function getUniqueFormValues(int $pid, callable $valueGetter): array
-    {
-        $values = [];
-
-        foreach ($this->findAllByStoragePid($pid) as $answer) {
-            $value = $valueGetter($answer);
-
-            if ($value === null || $value === '') {
-                continue;
-            }
-
-            $values[$value] = true;
-        }
-
-        return array_keys($values);
-    }
-
-    /**
-     * @return iterable<\Frappant\FrpFormAnswers\Domain\Model\FormEntry>
-     */
-    private function findAllByStoragePid(int $pid): iterable
-    {
-        $query = $this->formEntryRepository->createQuery();
-
-        $query->getQuerySettings()
-            ->setRespectStoragePage(true)
-            ->setStoragePageIds([$pid]);
-
-        return $query->execute();
     }
 
     private function getRequest(): ?ServerRequestInterface

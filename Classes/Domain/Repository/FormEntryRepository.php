@@ -49,7 +49,14 @@ class FormEntryRepository extends Repository
      */
     public function findByDemand(FormEntryDemand $formEntryDemand, int $pid = 0): QueryResultInterface
     {
+        return $this->buildDemandQuery($formEntryDemand, $pid)->execute();
+    }
 
+    /**
+     * @return QueryInterface<FormEntry>
+     */
+    private function buildDemandQuery(FormEntryDemand $formEntryDemand, int $pid): QueryInterface
+    {
         $query = $this->createQuery();
 
         if ($formEntryDemand->getAllPids()) {
@@ -78,33 +85,141 @@ class FormEntryRepository extends Repository
         if (count($constraints)) {
             $query->matching($query->logicalAnd(...$constraints));
         }
-        return $query->execute();
+
+        // A stable order is required: the export reads the result in chunks,
+        // and without it the database may return a row twice or not at all
+        $query->setOrderings(['uid' => QueryInterface::ORDER_ASCENDING]);
+
+        return $query;
     }
 
     /**
-     * Find all within a Page and all subpages
+     * Yields the entries of a demand in chunks, so that an export does not
+     * hold tens of thousands of hydrated objects at once. The persistence
+     * session is cleared per chunk, otherwise the objects would pile up in
+     * the identity map anyway.
      *
-     * @param int $pid start page identifier
-     * @return QueryResultInterface<int, FormEntry>
+     * @return \Generator<int, FormEntry>
      */
-    public function findAllInPidAndRootline(int $pid): QueryResultInterface
+    public function iterateByDemand(FormEntryDemand $formEntryDemand, int $pid = 0, int $chunkSize = 500): \Generator
     {
-        $query = $this->createQuery();
-        $query->getQuerySettings()->setRespectStoragePage(false);
+        $offset = 0;
 
+        do {
+            $query = $this->buildDemandQuery($formEntryDemand, $pid);
+            $query->setOffset($offset);
+            $query->setLimit($chunkSize);
+
+            $entries = $query->execute()->toArray();
+
+            foreach ($entries as $entry) {
+                yield $entry;
+            }
+
+            $offset += $chunkSize;
+            $fetched = count($entries);
+
+            $this->persistenceManager->clearState();
+        } while ($fetched === $chunkSize);
+    }
+
+    /**
+     * Counts the entries of a demand without loading them.
+     */
+    public function countByDemand(FormEntryDemand $formEntryDemand, int $pid = 0): int
+    {
+        return $this->buildDemandQuery($formEntryDemand, $pid)->execute()->count();
+    }
+
+    /**
+     * The pages below (and including) the given one that the current backend
+     * user is allowed to see.
+     *
+     * @return list<int>
+     */
+    public function findAccessiblePidsInRootline(int $pid): array
+    {
         $pids = GeneralUtility::trimExplode(',', $this->queryGenerator->getTreeList($pid, 20, 0, '1'), true);
 
         if (!BackendUtility::isBackendAdmin()) {
             $pids = BackendUtility::filterPagesForAccess($pids);
         }
 
-        if (count($pids)) {
-            $query->matching($query->in('pid', $pids));
+        return array_values(array_map('intval', $pids));
+    }
+
+    /**
+     * Counts the entries per page and form name, without loading them.
+     *
+     * @param list<int> $pids
+     * @return array<int, array<string, array{tot: int, new: int}>>
+     */
+    public function countByPidAndForm(array $pids): array
+    {
+        if ($pids === []) {
+            return [];
         }
 
-        $query->setOrderings(['pid' => QueryInterface::ORDER_ASCENDING]);
+        $queryBuilder = $this->connectionPool->getQueryBuilderForTable(self::TABLE_NAME);
+        $rows = $queryBuilder
+            ->select('pid', 'form')
+            ->addSelectLiteral(
+                'COUNT(*) AS ' . $queryBuilder->quoteIdentifier('tot'),
+                'SUM(' . $queryBuilder->quoteIdentifier('exported') . ') AS ' . $queryBuilder->quoteIdentifier('exported_count'),
+            )
+            ->from(self::TABLE_NAME)
+            ->where(
+                $queryBuilder->expr()->in(
+                    'pid',
+                    $queryBuilder->createNamedParameter($pids, ArrayParameterType::INTEGER),
+                ),
+            )
+            ->groupBy('pid', 'form')
+            ->executeQuery()
+            ->fetchAllAssociative();
 
-        return $query->execute();
+        $counts = [];
+        foreach ($rows as $row) {
+            $formName = (string)$row['form'];
+            if ($formName === '') {
+                continue;
+            }
+
+            $total = (int)$row['tot'];
+            $counts[(int)$row['pid']][$formName] = [
+                'tot' => $total,
+                'new' => $total - (int)$row['exported_count'],
+            ];
+        }
+
+        return $counts;
+    }
+
+    /**
+     * Returns the distinct values of a column for one page, without loading
+     * the entries themselves.
+     *
+     * @return list<string>
+     */
+    public function findDistinctValues(string $column, int $pid): array
+    {
+        if (!in_array($column, ['form', 'field_hash'], true)) {
+            throw new \InvalidArgumentException('Unsupported column: ' . $column, 1755690000);
+        }
+
+        $queryBuilder = $this->connectionPool->getQueryBuilderForTable(self::TABLE_NAME);
+        $values = $queryBuilder
+            ->select($column)
+            ->from(self::TABLE_NAME)
+            ->where(
+                $queryBuilder->expr()->eq('pid', $queryBuilder->createNamedParameter($pid, Connection::PARAM_INT)),
+            )
+            ->groupBy($column)
+            ->orderBy($column)
+            ->executeQuery()
+            ->fetchFirstColumn();
+
+        return array_values(array_filter(array_map('strval', $values), static fn(string $value): bool => $value !== ''));
     }
 
     /**
@@ -131,16 +246,11 @@ class FormEntryRepository extends Repository
     }
 
     /**
-     * @param QueryResultInterface<int, FormEntry> $forms
+     * @param array<int, int|null> $uids
      */
-    public function setFormsToExported(QueryResultInterface $forms): void
+    public function setExportedByUids(array $uids): void
     {
-        $uids = [];
-        foreach ($forms as $entry) {
-            $uids[] = $entry->getUid();
-        }
-
-        $uids = array_values(array_filter($uids, static fn(?int $uid): bool => $uid !== null));
+        $uids = array_values(array_unique(array_filter($uids, static fn(?int $uid): bool => $uid !== null)));
         if ($uids === []) {
             return;
         }
