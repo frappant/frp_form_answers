@@ -7,6 +7,7 @@ namespace Frappant\FrpFormAnswers\ViewHelpers\Be;
 use Doctrine\DBAL\ParameterType;
 use TYPO3\CMS\Backend\Routing\Exception\RouteNotFoundException;
 use TYPO3\CMS\Backend\Routing\UriBuilder;
+use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Imaging\IconFactory;
 use TYPO3\CMS\Core\Imaging\IconSize;
@@ -165,7 +166,9 @@ final class TableViewHelper extends AbstractViewHelper
             $output .= '<tr>';
 
             $iterator = 0;
-            foreach ($entry as $value) {
+            foreach ($entry as $column => $value) {
+                $value = $this->formatValue($table, (string)$column, $value);
+
                 if ($iterator++ === 0) {
                     $output .= '<td><a href="' . $this->escape($editUri) . '">' . $this->escape($value) . '</a></td>';
                     continue;
@@ -204,6 +207,17 @@ final class TableViewHelper extends AbstractViewHelper
         $output .= '</div>';
 
         return $output;
+    }
+
+    /**
+     * Renders a raw database value the way the backend would, so that for
+     * example date columns show a date instead of a unix timestamp.
+     */
+    private function formatValue(string $table, string $column, mixed $value): string
+    {
+        $rawValue = (string)($value ?? '');
+
+        return BackendUtility::getProcessedValue($table, $column, $rawValue) ?? $rawValue;
     }
 
     private function escape(mixed $value): string
