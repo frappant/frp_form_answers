@@ -30,31 +30,36 @@ class DataExporter
 
     /**
      * getExport
-     * @param array<int, FormEntry> $rowAnswers
+     *
+     * Accepts any iterable, so that the caller can feed the entries in
+     * chunks instead of loading tens of thousands of them at once.
+     *
+     * @param iterable<FormEntry> $rowAnswers
      * @return array<int, array<string, mixed>>
      */
-    public function getExport(array $rowAnswers, FormEntryDemand $formEntryDemand, bool $useSubmitUid): array
+    public function getExport(iterable $rowAnswers, FormEntryDemand $formEntryDemand, bool $useSubmitUid): array
     {
-        if ($rowAnswers === []) {
-            return [];
-        }
-
         $rows = [];
         $header = [];
-        $headerKeys = array_values($rowAnswers[0]->getAnswers());
+        $headerWritten = false;
 
-        // add header for crdate
-        $headerKeys[] = [
-            'value' => '',
-            'conf' => [
-                'label' => LocalizationUtility::translate('LLL:EXT:frp_form_answers/Resources/Private/Language/locallang_db.xlf:tx_frpformanswers_domain_model_formentry.crdate'),
-                'inputType' => 'DateTime',
-            ],
-        ];
+        foreach ($rowAnswers as $entry) {
+            if (!$headerWritten) {
+                $headerKeys = array_values($entry->getAnswers());
 
-        $this->setHeaders($formEntryDemand, $headerKeys, $header);
+                // add header for crdate
+                $headerKeys[] = [
+                    'value' => '',
+                    'conf' => [
+                        'label' => LocalizationUtility::translate('LLL:EXT:frp_form_answers/Resources/Private/Language/locallang_db.xlf:tx_frpformanswers_domain_model_formentry.crdate'),
+                        'inputType' => 'DateTime',
+                    ],
+                ];
 
-        foreach ($rowAnswers as $key => $entry) {
+                $this->setHeaders($formEntryDemand, $headerKeys, $header);
+                $headerWritten = true;
+            }
+
             $uid = ($useSubmitUid) ? $entry->getSubmitUid() : $entry->getUid();
 
             if ($formEntryDemand->getUidLabel()) {
@@ -67,6 +72,10 @@ class DataExporter
             }
             // The model stores crdate as unix timestamp; exporters format \DateTime values
             $rows[$uid]['crdate'] = (new \DateTime())->setTimestamp($entry->getCrdate());
+        }
+
+        if ($rows === []) {
+            return [];
         }
 
         array_unshift($rows, $header);
