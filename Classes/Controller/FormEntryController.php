@@ -378,7 +378,6 @@ class FormEntryController extends ActionController
         string $fileName = '',
     ): ResponseInterface {
         $charset = $charset !== null && $charset !== '' ? $charset : 'utf-8';
-        $content = $this->convertCharset($content, $charset);
         $baseName = $this->sanitizeFileName($fileName);
 
         [$filename, $contentType] = match ($format) {
@@ -387,6 +386,12 @@ class FormEntryController extends ActionController
             'Xml' => [$baseName . '.xml', 'application/xml; charset=' . $charset],
             default => throw new \InvalidArgumentException('Unsupported export format: ' . $format, 1710001001),
         };
+
+        // Only the text formats carry a charset. Converting the xlsx would
+        // destroy the binary zip it consists of.
+        if ($format !== 'Xls') {
+            $content = $this->convertCharset($content, $charset);
+        }
 
         return $this->responseFactory->createResponse()
             ->withHeader('Content-Type', $contentType)
