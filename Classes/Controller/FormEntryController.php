@@ -24,6 +24,7 @@ use TYPO3\CMS\Core\Http\NormalizedParams;
 use TYPO3\CMS\Core\Imaging\IconFactory;
 use TYPO3\CMS\Core\Imaging\IconSize;
 use TYPO3\CMS\Core\Localization\LanguageService;
+use TYPO3\CMS\Core\Page\PageRenderer;
 use TYPO3\CMS\Core\Type\ContextualFeedbackSeverity;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Mvc\Controller\ActionController;
@@ -61,6 +62,7 @@ class FormEntryController extends ActionController
         protected readonly PageRepository $pageRepository,
         protected readonly PersistenceManager $persistenceManager,
         protected readonly ConnectionPool $connectionPool,
+        protected readonly PageRenderer $pageRenderer,
     ) {}
 
     protected function initializeAction(): void
@@ -69,6 +71,12 @@ class FormEntryController extends ActionController
         $parsedBody = $this->request->getParsedBody();
 
         $this->pid = (int)($queryParams['id'] ?? (is_array($parsedBody) ? ($parsedBody['id'] ?? 0) : 0));
+
+        // The delete links ask before they act, and the class that does it is
+        // only bound once this module is loaded. Core pulls it in on its own
+        // through other modules, but not for a reason that has anything to do
+        // with confirmations, so ask for it here.
+        $this->pageRenderer->loadJavaScriptModule('@typo3/backend/modal.js');
     }
 
     /**
@@ -324,7 +332,7 @@ class FormEntryController extends ActionController
             $this->addFlashMessage(
                 LocalizationUtility::translate(
                     'LLL:EXT:frp_form_answers/Resources/Private/Language/locallang_be.xlf:flashmessage.deleteFormName.body',
-                    'FrpFormAnswers',
+                    null,
                     [$formName, $this->pid],
                 ) ?? '',
                 LocalizationUtility::translate(

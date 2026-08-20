@@ -56,8 +56,8 @@
 				<target>Eintrag gelöscht</target>
 			</trans-unit>
 			<trans-unit id="flashmessage.removeEntry.body">
-				<source>The entry with the uid %s has been deleted.</source>
-				<target>Der Eintrag mit der uid %s wurde gelöscht.</target>
+				<source>The entry with the UID %s has been deleted.</source>
+				<target>Der Eintrag mit der UID %s wurde gelöscht.</target>
 			</trans-unit>
 			<trans-unit id="flashmessage.entryNotFound.header">
 				<source>Entry not found</source>
@@ -96,8 +96,8 @@
 				<target>Beim Entfernen werden die Datensätze endgültig gelöscht. Sie lassen sich danach auch nicht mehr über den Papierkorb wiederherstellen.</target>
 			</trans-unit>
 			<trans-unit id="removeDeletedEntries.nothingToRemove">
-				<source>There is no deleted entry on this page to remove.</source>
-				<target>Auf dieser Seite gibt es keinen gelöschten Eintrag zum Entfernen.</target>
+				<source>There are no deleted entries on this page.</source>
+				<target>Auf dieser Seite gibt es keine gelöschten Einträge.</target>
 			</trans-unit>
 			<trans-unit id="removeDeletedEntries.confirmation.title">
 				<source>Really remove the deleted entries</source>

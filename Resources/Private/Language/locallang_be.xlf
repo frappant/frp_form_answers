@@ -43,7 +43,7 @@
 				<source>Entry deleted</source>
 			</trans-unit>
 			<trans-unit id="flashmessage.removeEntry.body">
-				<source>The entry with the uid %s has been deleted.</source>
+				<source>The entry with the UID %s has been deleted.</source>
 			</trans-unit>
 			<trans-unit id="flashmessage.entryNotFound.header">
 				<source>Entry not found</source>
@@ -73,7 +73,7 @@
 				<source>Removing them deletes the records for good. They cannot be restored from the recycler afterwards.</source>
 			</trans-unit>
 			<trans-unit id="removeDeletedEntries.nothingToRemove">
-				<source>There is no deleted entry on this page to remove.</source>
+				<source>There are no deleted entries on this page.</source>
 			</trans-unit>
 			<trans-unit id="removeDeletedEntries.confirmation.title">
 				<source>Really remove the deleted entries</source>
