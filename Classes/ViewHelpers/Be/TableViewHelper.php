@@ -35,7 +35,7 @@ final class TableViewHelper extends AbstractViewHelper
         parent::initializeArguments();
 
         $this->registerArgument('table', 'string', 'Database table name', true);
-        $this->registerArgument('filter', 'array', 'Filter conditions', false, []);
+        $this->registerArgument('formName', 'string', 'Restrict to entries of this form', false, '');
         $this->registerArgument('columns', 'array', 'Columns to display', true);
         $this->registerArgument('pid', 'int', 'PID', true);
         $this->registerArgument('itemsPerPage', 'int', 'Number of entries per page', false, self::DEFAULT_ITEMS_PER_PAGE);
@@ -48,7 +48,7 @@ final class TableViewHelper extends AbstractViewHelper
     public function render(): string
     {
         $table = (string)$this->arguments['table'];
-        $filter = (array)$this->arguments['filter'];
+        $formName = (string)$this->arguments['formName'];
         $columns = (array)$this->arguments['columns'];
         $pid = (int)$this->arguments['pid'];
 
@@ -78,8 +78,13 @@ final class TableViewHelper extends AbstractViewHelper
             $queryBuilder->addSelect($column);
         }
 
-        if ($filter !== []) {
-            $queryBuilder->andWhere(...$filter);
+        if ($formName !== '') {
+            $queryBuilder->andWhere(
+                $queryBuilder->expr()->eq(
+                    'form',
+                    $queryBuilder->createNamedParameter($formName),
+                ),
+            );
         }
 
         $itemsPerPage = max(1, (int)$this->arguments['itemsPerPage']);
@@ -90,6 +95,7 @@ final class TableViewHelper extends AbstractViewHelper
         // Never render the whole table: a page can hold tens of thousands of
         // entries, and every row costs three backend uris
         $entries = $queryBuilder
+            ->orderBy('uid')
             ->setFirstResult(($currentPage - 1) * $itemsPerPage)
             ->setMaxResults($itemsPerPage)
             ->executeQuery()
@@ -304,7 +310,7 @@ final class TableViewHelper extends AbstractViewHelper
      */
     private function pageParameterName(string $table): string
     {
-        return 'entryPage_' . substr(md5($table . '-' . ($this->arguments['filter'][0] ?? '')), 0, 8);
+        return 'entryPage_' . substr(md5($table . '-' . (string)$this->arguments['formName']), 0, 8);
     }
 
     private function renderEmptyTable(): string

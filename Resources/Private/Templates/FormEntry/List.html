@@ -53,7 +53,7 @@
                     </div>
                 </f:form>
             </div>
-            <f:format.raw><frp:table columns="{0:'uid', 1: 'form', 2: 'crdate', 3: 'exported'}" filter="{0: 'form = \'{formName}\''}" table="tx_frpformanswers_domain_model_formentry" pid="{pid}"/></f:format.raw>
+            <frp:table columns="{0:'uid', 1: 'form', 2: 'crdate', 3: 'exported'}" formName="{formName}" table="tx_frpformanswers_domain_model_formentry" pid="{pid}"/>
         </div>
     </f:for>
 
