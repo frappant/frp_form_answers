@@ -1,6 +1,6 @@
-<html xmlns:f="http://xsd.helmut-hummel.de/ns/TYPO3/Fluid/ViewHelpers"
+<html xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers"
+      xmlns:core="http://typo3.org/ns/TYPO3/CMS/Core/ViewHelpers"
       xmlns:frp="http://typo3.org/ns/Frappant/FrpFormAnswers/ViewHelpers/Be"
-
       data-namespace-typo3-fluid="true">
 <f:layout name="Module"/>
 
@@ -11,60 +11,91 @@
     </h1>
     <f:flashMessages/>
 
-    <f:variable name="title"><f:translate key="LLL:EXT:frp_form_answers/Resources/Private/Language/locallang_be.xlf:deleteFormName.confirmation.title" /></f:variable>
-    <f:variable name="content"><f:translate key="LLL:EXT:frp_form_answers/Resources/Private/Language/locallang_be.xlf:deleteFormName.confirmation.content" /></f:variable>
+    <f:variable name="title"><f:translate key="LLL:EXT:frp_form_answers/Resources/Private/Language/locallang_be.xlf:deleteFormName.confirmation.title"/></f:variable>
+    <f:variable name="content"><f:translate key="LLL:EXT:frp_form_answers/Resources/Private/Language/locallang_be.xlf:deleteFormName.confirmation.content"/></f:variable>
+
     <f:for each="{formNames}" as="formName">
-        <f:form action="export" class="form-inline" method="POST" object="{formEntryDemand}" format="Xls"
-                objectName="formEntryDemand">
-            <f:form.hidden property="allPids" value="1"/>
-            <f:form.hidden property="uidLabel" value="uid"/>
-            <f:form.hidden property="formName" value="{formName}"/>
-            <div class="form-group">
-                <f:form.select property="selectAll" class="form-control" options="{
-                    1: '{f:translate(key:\'LLL:EXT:frp_form_answers/Resources/Private/Language/locallang_be.xlf:tx_frpformanswers_backend_templates_formentry_prepareexport.exportall\')}',
-                    0: '{f:translate(key:\'LLL:EXT:frp_form_answers/Resources/Private/Language/locallang_be.xlf:tx_frpformanswers_backend_templates_formentry_prepareexport.exportnew\')}'
-                    }"
-                />
+        <div class="panel panel-default mb-4">
+            <div class="panel-heading">
+                <h2 class="panel-title mb-0">{formName}</h2>
             </div>
-            <div class="form-group">
-                <f:form.submit class="btn btn-sm btn-default "
-                               value="{f:translate(key:'LLL:EXT:frp_form_answers/Resources/Private/Language/locallang_be.xlf:tx_frpformanswers_backend_templates_formentry_prepareexport.export')}"
-                />
+            <div class="panel-body">
+                <f:form action="export" method="POST" object="{formEntryDemand}" format="Xls"
+                        objectName="formEntryDemand">
+                    <f:form.hidden property="allPids" value="1"/>
+                    <f:form.hidden property="uidLabel" value="uid"/>
+                    <f:form.hidden property="formName" value="{formName}"/>
+                    <f:form.hidden property="fileName" value="{formName}"/>
+
+                    <div class="row g-2 align-items-end">
+                        <div class="col-auto">
+                            <label class="form-label" for="frp-selectall-{formName}">
+                                <f:translate
+                                        key="LLL:EXT:frp_form_answers/Resources/Private/Language/locallang_be.xlf:tx_frpformanswers_backend_templates_formentry_prepareexport.selectedentries"/>
+                            </label>
+                            <f:form.select id="frp-selectall-{formName}" property="selectAll" class="form-select" options="{
+                                1: '{f:translate(key:\'LLL:EXT:frp_form_answers/Resources/Private/Language/locallang_be.xlf:tx_frpformanswers_backend_templates_formentry_prepareexport.exportall\')}',
+                                0: '{f:translate(key:\'LLL:EXT:frp_form_answers/Resources/Private/Language/locallang_be.xlf:tx_frpformanswers_backend_templates_formentry_prepareexport.exportnew\')}'
+                                }"/>
+                        </div>
+                        <div class="col-auto">
+                            <f:form.submit class="btn btn-default"
+                                           value="{f:translate(key:'LLL:EXT:frp_form_answers/Resources/Private/Language/locallang_be.xlf:tx_frpformanswers_backend_templates_formentry_prepareexport.export')}"/>
+                        </div>
+                        <div class="col-auto">
+                            <f:link.action action="deleteFormname" class="btn btn-danger t3js-modal-trigger"
+                                           arguments="{formName: formName}" data="{title:title,content:content}">
+                                <core:icon identifier="actions-delete" size="small"/>
+                                <f:translate
+                                        key="LLL:EXT:frp_form_answers/Resources/Private/Language/locallang_be.xlf:tx_frpformanswers_backend_templates_formentry_show.delete"/>
+                            </f:link.action>
+                        </div>
+                    </div>
+                </f:form>
             </div>
-            <div class="form-group">
-                <f:link.action action="deleteFormname" class="btn btn-sm btn-default t3js-modal-trigger" arguments="{formName: formName}" data="{title:title,content:content}">
-                    {f:translate(key:'LLL:EXT:frp_form_answers/Resources/Private/Language/locallang_be.xlf:tx_frpformanswers_backend_templates_formentry_show.delete')}
-                </f:link.action>
-            </div>
-        </f:form>
-        <f:format.raw><frp:table columns="{0:'uid', 1: 'form', 2: 'crdate', 3: 'exported'}" filter="{0: 'form = \'{formName}\''}" table="tx_frpformanswers_domain_model_formentry"  pid="{pid}" /></f:format.raw>
+            <f:format.raw><frp:table columns="{0:'uid', 1: 'form', 2: 'crdate', 3: 'exported'}" filter="{0: 'form = \'{formName}\''}" table="tx_frpformanswers_domain_model_formentry" pid="{pid}"/></f:format.raw>
+        </div>
     </f:for>
+
     <f:if condition="{subPagesWithFormEntries}">
         <h2>
             <f:translate
                     key="LLL:EXT:frp_form_answers/Resources/Private/Language/locallang_be.xlf:tx_frpformanswers_backend_templates_formentry_list.listh2"/>
         </h2>
-        <ul style="list-style-type: none;">
-            <f:for each="{subPagesWithFormEntries}" as="page">
-                <li>
-                    <core:icon identifier="apps-pagetree-page-default" size="small" /> <frp:link.beLink title="{page.title}" pageUid="{page.uid}">{page.title} ({page.uid})</frp:link.beLink>
-                     <f:for each="{formEntriesStatus.{page.uid}}" as="formData" key="formName">
-                        <li style="margin-bottom: 15px;">
-                            Form: {formName}
-                            <ul>
-                                <li><f:translate key="tx_frpformanswers_domain_model_formentry.tot" /> : <f:format.number decimals="0">{formData.tot}</f:format.number></li>
-                                <li><f:translate key="tx_frpformanswers_domain_model_formentry.new" /> : <f:format.number decimals="0">{formData.new}</f:format.number></li>
-                            </ul>
-                        </li>
+        <div class="table-fit">
+            <table class="table table-striped">
+                <thead>
+                <tr>
+                    <th><f:translate key="LLL:EXT:frp_form_answers/Resources/Private/Language/locallang_be.xlf:tx_frpformanswers_backend_templates_formentry_list.page" default="Page"/></th>
+                    <th><f:translate key="LLL:EXT:frp_form_answers/Resources/Private/Language/locallang_db.xlf:tx_frpformanswers_domain_model_formentry.form" default="Form"/></th>
+                    <th class="text-end"><f:translate key="tx_frpformanswers_domain_model_formentry.tot"/></th>
+                    <th class="text-end"><f:translate key="tx_frpformanswers_domain_model_formentry.new"/></th>
+                </tr>
+                </thead>
+                <tbody>
+                <f:for each="{subPagesWithFormEntries}" as="page">
+                    <f:for each="{formEntriesStatus.{page.uid}}" as="formData" key="formName">
+                        <tr>
+                            <td>
+                                <core:icon identifier="apps-pagetree-page-default" size="small"/>
+                                <frp:link.beLink title="{page.title}" pageUid="{page.uid}">{page.title} ({page.uid})</frp:link.beLink>
+                            </td>
+                            <td>{formName}</td>
+                            <td class="text-end"><f:format.number decimals="0">{formData.tot}</f:format.number></td>
+                            <td class="text-end"><f:format.number decimals="0">{formData.new}</f:format.number></td>
+                        </tr>
                     </f:for>
-                </li>
-            </f:for>
-        </ul>
+                </f:for>
+                </tbody>
+            </table>
+        </div>
     </f:if>
 
     <f:if condition="{subPagesWithFormEntries ->f:count()} == 0 && {formNames->f:count()} == 0">
-        <f:translate
-                key="LLL:EXT:frp_form_answers/Resources/Private/Language/locallang_be.xlf:tx_frpformanswers_backend_templates_formentry_list.nothingsaved"/>
-
+        <div class="callout callout-info">
+            <f:translate
+                    key="LLL:EXT:frp_form_answers/Resources/Private/Language/locallang_be.xlf:tx_frpformanswers_backend_templates_formentry_list.nothingsaved"/>
+        </div>
     </f:if>
 </f:section>
+</html>

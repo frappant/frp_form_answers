@@ -143,6 +143,30 @@
                 <source>No saved formEntries</source>
                 <target>Keine gespeicherten Einträge</target>
             </trans-unit>
+			<trans-unit id="table.entries">
+				<source>Entries (%s)</source>
+				<target>Einträge (%s)</target>
+			</trans-unit>
+			<trans-unit id="table.actions">
+				<source>Actions</source>
+				<target>Aktionen</target>
+			</trans-unit>
+			<trans-unit id="table.noentries">
+				<source>No entries available</source>
+				<target>Keine Einträge vorhanden</target>
+			</trans-unit>
+			<trans-unit id="tx_frpformanswers_backend_templates_formentry_list.page">
+				<source>Page</source>
+				<target>Seite</target>
+			</trans-unit>
+			<trans-unit id="tx_frpformanswers_backend_templates_formentry_prepareexport.csvonly">
+				<source>Applies to the CSV export</source>
+				<target>Gilt für den CSV-Export</target>
+			</trans-unit>
+			<trans-unit id="tx_frpformanswers_backend_templates_formentry_prepareexport.header">
+				<source>Forms Export</source>
+				<target>Formular-Export</target>
+			</trans-unit>
 		</body>
 	</file>
 </xliff>

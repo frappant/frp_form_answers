@@ -13,6 +13,7 @@ use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Database\Query\QueryBuilder;
 use TYPO3\CMS\Core\Imaging\IconFactory;
 use TYPO3\CMS\Core\Imaging\IconSize;
+use TYPO3\CMS\Extbase\Utility\LocalizationUtility;
 use TYPO3Fluid\Fluid\Core\ViewHelper\AbstractViewHelper;
 
 final class TableViewHelper extends AbstractViewHelper
@@ -166,7 +167,7 @@ final class TableViewHelper extends AbstractViewHelper
         $output = '<div class="recordlist mb-5 mt-4 border">';
         $output .= '<div class="recordlist-heading row m-0 p-2 g-0 gap-1 align-items-center multi-record-selection-panel">
             <div class="col ms-2">
-                <div class="recordlist-heading-title">Entry (' . $numberOfEntries . ')</div>
+                <div class="recordlist-heading-title">' . $this->escape($this->translate('table.entries', [$numberOfEntries])) . '</div>
             </div>
         </div>';
 
@@ -177,7 +178,7 @@ final class TableViewHelper extends AbstractViewHelper
         foreach (array_keys($entries[0]) as $key) {
             $output .= '<th>' . $this->escape($key) . '</th>';
         }
-        $output .= '<th>Actions</th>';
+        $output .= '<th>' . $this->escape($this->translate('table.actions')) . '</th>';
         $output .= '</tr></thead>';
 
         $output .= '<tbody>';
@@ -311,11 +312,11 @@ final class TableViewHelper extends AbstractViewHelper
         $output = '<div class="recordlist mb-5 mt-4 border">';
         $output .= '<div class="recordlist-heading row m-0 p-2 g-0 gap-1 align-items-center multi-record-selection-panel">
             <div class="col ms-2">
-                <div class="recordlist-heading-title">Entry (0)</div>
+                <div class="recordlist-heading-title">' . $this->escape($this->translate('table.entries', [0])) . '</div>
             </div>
         </div>';
         $output .= '<div class="recordlist-body">';
-        $output .= '<div class="alert alert-info">Keine Einträge vorhanden</div>';
+        $output .= '<div class="alert alert-info">' . $this->escape($this->translate('table.noentries')) . '</div>';
         $output .= '</div>';
         $output .= '</div>';
 
@@ -331,6 +332,18 @@ final class TableViewHelper extends AbstractViewHelper
         $rawValue = (string)($value ?? '');
 
         return BackendUtility::getProcessedValue($table, $column, $rawValue) ?? $rawValue;
+    }
+
+    /**
+     * @param array<int, mixed> $arguments
+     */
+    private function translate(string $key, array $arguments = []): string
+    {
+        return LocalizationUtility::translate(
+            'LLL:EXT:frp_form_answers/Resources/Private/Language/locallang_be.xlf:' . $key,
+            null,
+            $arguments,
+        ) ?? $key;
     }
 
     private function escape(mixed $value): string
