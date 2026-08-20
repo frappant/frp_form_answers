@@ -4,12 +4,8 @@ namespace Frappant\FrpFormAnswers\View\FormEntry;
 
 use PhpOffice\PhpSpreadsheet\Cell\Cell;
 use PhpOffice\PhpSpreadsheet\Cell\StringValueBinder;
-use PhpOffice\PhpSpreadsheet\Settings;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
-use Symfony\Component\Cache\Adapter\FilesystemAdapter;
-use Symfony\Component\Cache\Psr16Cache;
-use TYPO3\CMS\Core\Core\Environment;
 
 /***************************************************************
  *
@@ -95,15 +91,6 @@ class ExportXls
                 ->setLastModifiedBy('Frappant Forms Export')
                 ->setCreated(time());
         }
-
-        // Keep the cells on disk instead of in memory. Without this an export
-        // of a few ten thousand entries exhausts the memory limit, because
-        // PhpSpreadsheet holds every single cell as an object.
-        Settings::setCache(new Psr16Cache(new FilesystemAdapter(
-            'frp_form_answers_export',
-            0,
-            Environment::getVarPath() . '/cache/data/frp_form_answers',
-        )));
 
         $rows = $this->variables['rows'];
         // PHPExcel does not work with associative arrays - then to indexed array
