@@ -20,26 +20,18 @@ class FormAnswersJsonElement extends AbstractFormElement
 
         if (is_array($fieldValues)) {
             foreach ($fieldValues as $fieldKey => $fieldValue) {
-                if ($fieldValue['conf']['label']) {
-                    $out .= '<li>' .
-                        htmlspecialchars($fieldValue['conf']['label']) .
-                        ' - ' .
-                        htmlspecialchars(
-                            is_array($fieldValue['value']) ? implode(',', $fieldValue['value']) : $fieldValue['value']
-                        )
-                        .
-                        '</li>'
-                    ;
-                } else {
-                    $out .= '<li>' .
-                        htmlspecialchars($fieldKey) .
-                        ' - ' .
-                        htmlspecialchars(
-                            is_array($fieldValue['value']) ? implode(',', $fieldValue['value']) : $fieldValue['value']
-                        ) .
-                        '</li>'
-                    ;
-                }
+                // Entries saved by an older version can miss the value
+                // altogether, and an unanswered field has none
+                $value = $fieldValue['value'] ?? '';
+                $value = is_array($value) ? implode(',', $value) : (string)$value;
+                $label = $fieldValue['conf']['label'] ?? '';
+
+                $out .= '<li>' .
+                    htmlspecialchars($label !== '' ? $label : $fieldKey) .
+                    ' - ' .
+                    htmlspecialchars($value) .
+                    '</li>'
+                ;
             }
         }
         $out .= '</ul>';
