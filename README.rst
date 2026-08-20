@@ -103,12 +103,13 @@ Pull request
 
 Pull request are welcome through `GitHub <https://github.com/frappant/frp_form_answers>`_.
 
-Please note that pull requests to the *master* branch will be ignored. Please pull to the *develop* branch.
+Development happens on *master*, which carries the TYPO3 v14 line. The older lines live on
+*release/6.x* (TYPO3 v13) and *release/5.x* (TYPO3 v12) and take security fixes only.
 
 
 Changelog
 ---------
-:7.1.0: Works with large data sets, exports honour charset and file name, backend uses the current TYPO3 styling, hardened the form filter in the entry table, stores every submitted value including uploads and dotted identifiers, entries can be deleted and removed from the module
+:7.1.1: Works with large data sets, exports honour charset and file name, backend uses the current TYPO3 styling, hardened the form filter in the entry table, stores every submitted value including uploads and dotted identifiers, entries can be deleted and removed from the module
 :7.0.1: Fixed the coding guidelines check and added PHP 8.4 to the test matrix
 :7.0.0: Compatibility to TYPO3 v14, TYPO3 v13 support dropped
 :6.1.1: Security update, remove old packages and update phpspreadsheet to 5.2
