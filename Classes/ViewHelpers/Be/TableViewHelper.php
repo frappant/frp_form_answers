@@ -237,7 +237,12 @@ final class TableViewHelper extends AbstractViewHelper
 
             $output .= '<td>';
             $output .= '<a href="' . $this->escape($editUri) . '" class="btn btn-default btn-sm">' . $pencilIcon . '</a>';
-            $output .= '<a href="' . $this->escape($deleteUri) . '" class="btn btn-default btn-sm">' . $trashIcon . '</a>';
+            // Same confirmation the backend puts on its own delete buttons -
+            // the link deletes as soon as it is followed
+            $output .= '<a href="' . $this->escape($deleteUri) . '" class="btn btn-default btn-sm t3js-modal-trigger"'
+                . ' data-title="' . $this->escape($this->translate('removeEntry.confirmation.title')) . '"'
+                . ' data-content="' . $this->escape($this->translate('removeEntry.confirmation.content')) . '">'
+                . $trashIcon . '</a>';
             $output .= '</td>';
 
             $output .= '</tr>';

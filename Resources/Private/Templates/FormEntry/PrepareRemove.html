@@ -1,6 +1,46 @@
+<html xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers"
+      xmlns:core="http://typo3.org/ns/TYPO3/CMS/Core/ViewHelpers"
+      data-namespace-typo3-fluid="true">
 <f:layout name="Module"/>
 
 <f:section name="Content">
-<f:translate key="LLL:EXT:frp_form_answers/Resources/Private/Language/locallang_be.xlf:countDeletedEntries" arguments="{0: count}" /><br />
-<f:link.action style="font-weight: bold; text-decoration: underline;" action="remove"><f:translate key="LLL:EXT:frp_form_answers/Resources/Private/Language/locallang_be.xlf:removeDeletedEntries" /></f:link.action>
+    <h1>
+        <f:translate
+                key="LLL:EXT:frp_form_answers/Resources/Private/Language/locallang_be.xlf:tx_frpformanswers_backend_templates_formentry_prepareremove.h1"/>
+    </h1>
+    <f:flashMessages/>
+
+    <f:if condition="{count}">
+        <f:then>
+            <f:variable name="title"><f:translate key="LLL:EXT:frp_form_answers/Resources/Private/Language/locallang_be.xlf:removeDeletedEntries.confirmation.title"/></f:variable>
+            <f:variable name="content"><f:translate key="LLL:EXT:frp_form_answers/Resources/Private/Language/locallang_be.xlf:removeDeletedEntries.confirmation.content"/></f:variable>
+
+            <div class="panel panel-default mb-4">
+                <div class="panel-body">
+                    <div class="callout callout-warning">
+                        <f:translate
+                                key="LLL:EXT:frp_form_answers/Resources/Private/Language/locallang_be.xlf:countDeletedEntries"
+                                arguments="{0: count}"/>
+                        <br/>
+                        <f:translate
+                                key="LLL:EXT:frp_form_answers/Resources/Private/Language/locallang_be.xlf:removeDeletedEntries.warning"/>
+                    </div>
+
+                    <f:link.action action="remove" class="btn btn-danger t3js-modal-trigger"
+                                   data="{title:title,content:content}">
+                        <core:icon identifier="actions-delete" size="small"/>
+                        <f:translate
+                                key="LLL:EXT:frp_form_answers/Resources/Private/Language/locallang_be.xlf:removeDeletedEntries"/>
+                    </f:link.action>
+                </div>
+            </div>
+        </f:then>
+        <f:else>
+            <div class="callout callout-info">
+                <f:translate
+                        key="LLL:EXT:frp_form_answers/Resources/Private/Language/locallang_be.xlf:removeDeletedEntries.nothingToRemove"/>
+            </div>
+        </f:else>
+    </f:if>
 </f:section>
+</html>

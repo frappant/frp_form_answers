@@ -49,10 +49,31 @@
 				<source>Do you really want to delete all form entries with this name?</source>
 			</trans-unit>
 			<trans-unit id="countDeletedEntries">
-				<source>There are %s deleted entries to remove</source>
+				<source>Deleted entries on this page: %s</source>
 			</trans-unit>
 			<trans-unit id="removeDeletedEntries">
 				<source>Ultimate delete form entries</source>
+			</trans-unit>
+			<trans-unit id="tx_frpformanswers_backend_templates_formentry_prepareremove.h1">
+				<source>Remove deleted entries</source>
+			</trans-unit>
+			<trans-unit id="removeDeletedEntries.warning">
+				<source>Removing them deletes the records for good. They cannot be restored from the recycler afterwards.</source>
+			</trans-unit>
+			<trans-unit id="removeDeletedEntries.nothingToRemove">
+				<source>There is no deleted entry on this page to remove.</source>
+			</trans-unit>
+			<trans-unit id="removeDeletedEntries.confirmation.title">
+				<source>Really remove the deleted entries</source>
+			</trans-unit>
+			<trans-unit id="removeDeletedEntries.confirmation.content">
+				<source>The entries are deleted for good and cannot be restored. Do you want to continue?</source>
+			</trans-unit>
+			<trans-unit id="removeEntry.confirmation.title">
+				<source>Really delete this entry</source>
+			</trans-unit>
+			<trans-unit id="removeEntry.confirmation.content">
+				<source>Do you really want to delete this entry?</source>
 			</trans-unit>
             <trans-unit id="tx_frpformanswers_backend_templates_formentry_prepareexport.selectedentries">
                 <source>Selected entries</source>
