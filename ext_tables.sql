@@ -19,5 +19,7 @@ CREATE TABLE tx_frpformanswers_domain_model_formentry (
 
 	PRIMARY KEY (uid),
 	KEY parent (pid),
+	KEY pid_deleted_form (pid, deleted, form, exported),
+	KEY form_submit (form, deleted, submit_uid),
 
 );
