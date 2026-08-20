@@ -113,7 +113,7 @@ class FormEntryController extends ActionController
         $this->formEntryRepository = $formEntryRepository;
         $this->dataExporter = $dataExporter;
         $this->pageRepository = $pageRepository;
-        $this->pid = $_GET['id'] ?? 0;
+        $this->pid = (int)($_GET['id'] ?? 0);
         $this->persistenceManager = $persistenceManager;
     }
 
@@ -302,7 +302,7 @@ class FormEntryController extends ActionController
 
         $format = $this->request->getArguments()['format'];
         $formEntryDemand->setAllPids($this->request->getArguments()['allPids'] ?? false);
-        $pid = $_GET['id'];
+        $pid = (int)($_GET['id'] ?? 0);
 
         if($formEntryDemand) {
             $formEntries = $this->formEntryRepository->findbyDemand($formEntryDemand, $pid);
