@@ -116,9 +116,10 @@ class FormValueExtractionTest extends UnitTestCase
     }
 
     #[Test]
-    public function emptyUploadYieldsNull(): void
+    public function emptyUploadYieldsAnEmptyList(): void
     {
-        self::assertNull($this->callGetUploadedFileNames(null));
+        // Not null: the upload path enrichment takes a string or a list
+        self::assertSame([], $this->callGetUploadedFileNames(null));
     }
 
     #[Test]
@@ -170,6 +171,58 @@ class FormValueExtractionTest extends UnitTestCase
         self::assertNull($values['optional']['value']);
     }
 
+    /**
+     * @return array<string, array{0: string}>
+     */
+    public static function uploadElementTypeDataProvider(): array
+    {
+        return [
+            'file upload' => ['FileUpload'],
+            'image upload' => ['ImageUpload'],
+        ];
+    }
+
+    #[Test]
+    #[DataProvider('uploadElementTypeDataProvider')]
+    public function anUploadElementWithoutAFileYieldsAnEmptyList(string $type): void
+    {
+        // The form runtime writes the key with a null value when the visitor
+        // leaves an optional upload empty
+        $values = $this->callGetFormValues(
+            [$this->createElement('attachment', $type, 'Attachment')],
+            ['attachment' => null],
+        );
+
+        self::assertSame([], $values['attachment']['value']);
+    }
+
+    #[Test]
+    #[DataProvider('uploadElementTypeDataProvider')]
+    public function anUploadElementOfEitherTypeIsReducedToItsFileName(string $type): void
+    {
+        $values = $this->callGetFormValues(
+            [$this->createElement('attachment', $type, 'Attachment')],
+            ['attachment' => $this->createFileReference('letter.pdf')],
+        );
+
+        self::assertSame('letter.pdf', $values['attachment']['value']);
+    }
+
+    #[Test]
+    public function elementsOfEveryPageAreCollected(): void
+    {
+        $values = $this->callGetFormValuesForPages(
+            [
+                [$this->createElement('first', 'Text', 'First')],
+                [$this->createElement('second', 'Text', 'Second')],
+            ],
+            ['first' => 'one', 'second' => 'two'],
+        );
+
+        self::assertSame(['first', 'second'], array_keys($values));
+        self::assertSame('two', $values['second']['value']);
+    }
+
     private function createElement(string $identifier, string $type, string $label): FormElementInterface
     {
         $element = $this->createMock(FormElementInterface::class);
@@ -187,11 +240,25 @@ class FormValueExtractionTest extends UnitTestCase
      */
     private function callGetFormValues(array $elements, array $submitted): array
     {
-        $page = $this->createMock(Page::class);
-        $page->method('getElementsRecursively')->willReturn($elements);
+        return $this->callGetFormValuesForPages([$elements], $submitted);
+    }
+
+    /**
+     * @param list<list<FormElementInterface>> $pages
+     * @param array<string, mixed> $submitted
+     * @return array<string, array{value: mixed, conf: array{label: mixed, inputType: string}}>
+     */
+    private function callGetFormValuesForPages(array $pages, array $submitted): array
+    {
+        $pageMocks = [];
+        foreach ($pages as $elements) {
+            $page = $this->createMock(Page::class);
+            $page->method('getElementsRecursively')->willReturn($elements);
+            $pageMocks[] = $page;
+        }
 
         $formRuntime = $this->createMock(FormRuntime::class);
-        $formRuntime->method('getPages')->willReturn([$page]);
+        $formRuntime->method('getPages')->willReturn($pageMocks);
 
         $finisherContext = $this->createMock(FinisherContext::class);
         $finisherContext->method('getFormValues')->willReturn($submitted);
@@ -226,7 +293,7 @@ class FormValueExtractionTest extends UnitTestCase
         return $method->invoke($this->subject, $submitted, $identifier);
     }
 
-    private function callGetUploadedFileNames(mixed $upload): string|array|null
+    private function callGetUploadedFileNames(mixed $upload): string|array
     {
         $method = new \ReflectionMethod(SaveFormToDatabaseFinisher::class, 'getUploadedFileNames');
 

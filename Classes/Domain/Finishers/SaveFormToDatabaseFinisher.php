@@ -7,9 +7,9 @@ use Frappant\FrpFormAnswers\Domain\Repository\FormEntryRepository;
 use Frappant\FrpFormAnswers\Event\ManipulateFormValuesEvent;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use TYPO3\CMS\Core\Context\Exception\AspectNotFoundException;
+use TYPO3\CMS\Core\Resource\FileInterface;
 use TYPO3\CMS\Core\Utility\ArrayUtility;
 use TYPO3\CMS\Core\Utility\Exception\MissingArrayPathException;
-use TYPO3\CMS\Extbase\Domain\Model\FileReference;
 use TYPO3\CMS\Extbase\Persistence\Generic\PersistenceManager;
 use TYPO3\CMS\Form\Domain\Finishers\AbstractFinisher;
 use TYPO3\CMS\Form\Domain\Model\FormElements\FormElementInterface;
@@ -136,14 +136,22 @@ class SaveFormToDatabaseFinisher extends AbstractFinisher
      * accepts multiple files - those arrive as an ObjectStorage of file
      * references instead of a single one.
      *
-     * @return string|list<string>|null
+     * An element without a file gives an empty list rather than null, so that
+     * consumers of the stored values - the upload path enrichment among them -
+     * always see a string or a list. Anything that does not resolve to a file
+     * name is left out of that list.
+     *
+     * @return string|list<string>
      */
-    private function getUploadedFileNames(mixed $upload): string|array|null
+    private function getUploadedFileNames(mixed $upload): string|array
     {
-        if ($upload instanceof FileReference || (is_object($upload) && method_exists($upload, 'getOriginalResource'))) {
-            $resource = $upload->getOriginalResource();
+        // Same order as the core finishers use when they read an upload
+        if (is_object($upload) && method_exists($upload, 'getOriginalResource')) {
+            $upload = $upload->getOriginalResource();
+        }
 
-            return is_object($resource) && method_exists($resource, 'getName') ? $resource->getName() : null;
+        if ($upload instanceof FileInterface) {
+            return $upload->getName();
         }
 
         if (is_iterable($upload)) {
@@ -158,7 +166,7 @@ class SaveFormToDatabaseFinisher extends AbstractFinisher
             return $names;
         }
 
-        return null;
+        return [];
     }
 
     /**

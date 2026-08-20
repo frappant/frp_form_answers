@@ -52,7 +52,9 @@ final class UploadPathEnrichmentEventListener
             $entry = $values[$fieldIdentifier];
 
             // Expect documented structure: ['value' => string|array, 'conf' => ...]
-            if (is_array($entry) && array_key_exists('value', $entry)) {
+            // Anything else - an element without a file, or a value another
+            // listener replaced - is left untouched
+            if (is_array($entry) && (is_string($entry['value'] ?? null) || is_array($entry['value'] ?? null))) {
 
                 // Determine final prefix per file (handles form_<hash> folder)
                 $entry['value'] = $this->prependWithSubmissionPrefix(
