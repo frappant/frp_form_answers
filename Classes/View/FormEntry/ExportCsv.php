@@ -97,13 +97,15 @@ class ExportCsv
      */
     public function render(): string
     {
+        $demand = $this->variables['formEntryDemand'];
+        // The quick export on the overview submits no csv options, so fall
+        // back to the defaults instead of passing null into fputcsv2()
+        $delimiter = $this->delimiter[$demand->getDelimiter()] ?? ';';
+        $enclosure = $this->enclosure[$demand->getEnclosure()] ?? '"';
+
         ob_start();
         foreach ($this->variables['rows'] as $fields) {
-            echo $this->fputcsv2(
-                $fields,
-                $this->delimiter[$this->variables['formEntryDemand']->getDelimiter()],
-                $this->enclosure[$this->variables['formEntryDemand']->getEnclosure()]
-            );
+            echo $this->fputcsv2($fields, $delimiter, $enclosure);
         }
         return ob_get_clean();
     }
