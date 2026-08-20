@@ -114,13 +114,13 @@ class DataExporter
         }
 
         try {
+            // An empty setting means "export every type", so only a missing
+            // setting falls back to the defaults
             $configured = (string)($this->extensionConfiguration->get('frp_form_answers', 'nonExportableTypes') ?? '');
         } catch (ExtensionConfigurationExtensionNotConfiguredException | ExtensionConfigurationPathDoesNotExistException) {
-            $configured = '';
+            return $this->nonExportableTypes = self::DEFAULT_NON_EXPORTABLE_TYPES;
         }
 
-        $types = GeneralUtility::trimExplode(',', $configured, true);
-
-        return $this->nonExportableTypes = $types !== [] ? $types : self::DEFAULT_NON_EXPORTABLE_TYPES;
+        return $this->nonExportableTypes = GeneralUtility::trimExplode(',', $configured, true);
     }
 }

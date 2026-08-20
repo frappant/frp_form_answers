@@ -7,6 +7,7 @@ use Frappant\FrpFormAnswers\Database\QueryGenerator;
 use Frappant\FrpFormAnswers\Domain\Model\FormEntry;
 use Frappant\FrpFormAnswers\Domain\Model\FormEntryDemand;
 use Frappant\FrpFormAnswers\Utility\BackendUtility;
+use TYPO3\CMS\Core\Database\Connection;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Persistence\QueryInterface;
@@ -136,7 +137,6 @@ class FormEntryRepository extends Repository
     {
         $uids = [];
         foreach ($forms as $entry) {
-            $entry->setExported(true);
             $uids[] = $entry->getUid();
         }
 
@@ -152,7 +152,7 @@ class FormEntryRepository extends Repository
             $queryBuilder = $connection->createQueryBuilder();
             $queryBuilder
                 ->update(self::TABLE_NAME)
-                ->set('exported', 1)
+                ->set('exported', 1, true, Connection::PARAM_INT)
                 ->where(
                     $queryBuilder->expr()->in(
                         'uid',

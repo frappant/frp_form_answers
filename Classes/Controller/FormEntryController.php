@@ -266,19 +266,21 @@ class FormEntryController extends ActionController
         $exporter->assign('rows', $exportData);
         $exporter->assign('formEntryDemand', $formEntryDemand);
 
-        // Render before flagging the entries: if rendering runs out of memory
-        // the entries must stay unexported, otherwise the next export with
-        // "only new entries" silently returns nothing
-        $renderedExport = $exporter->render();
-
-        $this->formEntryRepository->setFormsToExported($formEntries);
-
-        return $this->createDownloadResponse(
-            $renderedExport,
+        // Build the whole response before flagging the entries: if rendering
+        // or encoding fails - which is what happens on large data sets when
+        // the memory limit is hit - the entries must stay unexported,
+        // otherwise the next export with "only new entries" silently returns
+        // nothing and the submissions look lost
+        $response = $this->createDownloadResponse(
+            $exporter->render(),
             $format,
             $arguments['formEntryDemand']['charset'] ?? null,
             $formEntryDemand->getFileName() ?: (string)$formEntryDemand->getFormName(),
         );
+
+        $this->formEntryRepository->setFormsToExported($formEntries);
+
+        return $response;
     }
 
     /**
@@ -377,8 +379,17 @@ class FormEntryController extends ActionController
         ?string $charset,
         string $fileName = '',
     ): ResponseInterface {
-        $charset = $charset !== null && $charset !== '' ? $charset : 'utf-8';
+        $charset = $this->normalizeCharset($charset);
         $baseName = $this->sanitizeFileName($fileName);
+
+        // Only the csv export is converted. The xlsx is a binary zip, and the
+        // xml declares no encoding in its prolog, so both have to stay as
+        // they were rendered - UTF-8.
+        if ($format === 'Csv') {
+            $content = $this->convertCharset($content, $charset);
+        } else {
+            $charset = 'utf-8';
+        }
 
         [$filename, $contentType] = match ($format) {
             'Csv' => [$baseName . '.csv', 'text/csv; charset=' . $charset],
@@ -386,12 +397,6 @@ class FormEntryController extends ActionController
             'Xml' => [$baseName . '.xml', 'application/xml; charset=' . $charset],
             default => throw new \InvalidArgumentException('Unsupported export format: ' . $format, 1710001001),
         };
-
-        // Only the text formats carry a charset. Converting the xlsx would
-        // destroy the binary zip it consists of.
-        if ($format !== 'Xls') {
-            $content = $this->convertCharset($content, $charset);
-        }
 
         return $this->responseFactory->createResponse()
             ->withHeader('Content-Type', $contentType)
@@ -401,29 +406,40 @@ class FormEntryController extends ActionController
     }
 
     /**
+     * The charset arrives from the request, so it has to be checked against
+     * the encodings the export actually offers. Anything else would reach
+     * mb_convert_encoding(), which throws on an unknown encoding.
+     */
+    private function normalizeCharset(?string $charset): string
+    {
+        return match (strtolower(trim((string)$charset))) {
+            'iso-8859-1' => 'iso-8859-1',
+            'utf-16le' => 'utf-16le',
+            default => 'utf-8',
+        };
+    }
+
+    /**
      * The exported content is built as UTF-8. Convert it when the editor asked
      * for a legacy charset, so that the Content-Type header does not lie about
      * the bytes we send.
      */
     private function convertCharset(string $content, string $charset): string
     {
-        $target = strtolower($charset);
-        if ($target === 'utf-8' || $content === '') {
+        if ($charset === 'utf-8' || $content === '') {
             return $content;
         }
 
-        $converted = mb_convert_encoding($content, $charset, 'UTF-8');
-
-        return $converted !== false ? $converted : $content;
+        return mb_convert_encoding($content, $charset, 'UTF-8');
     }
 
     private function sanitizeFileName(string $fileName): string
     {
-        // Replace separators before dropping an extension, so that a name like
-        // "my report/2026" keeps both parts instead of collapsing to "2026"
         $fileName = (string)preg_replace('/[^A-Za-z0-9._-]/', '-', $fileName);
-        $fileName = pathinfo($fileName, PATHINFO_FILENAME);
+        $fileName = (string)preg_replace('/\.(csv|xml|xlsx?)$/i', '', $fileName);
         $fileName = trim($fileName, '-.');
+        // Keep the Content-Disposition header within what proxies accept
+        $fileName = substr($fileName, 0, 100);
 
         return $fileName !== '' ? $fileName : 'export';
     }
