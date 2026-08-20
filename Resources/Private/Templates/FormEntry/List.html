@@ -13,6 +13,7 @@
 
     <f:variable name="title"><f:translate key="LLL:EXT:frp_form_answers/Resources/Private/Language/locallang_be.xlf:deleteFormName.confirmation.title"/></f:variable>
     <f:variable name="content"><f:translate key="LLL:EXT:frp_form_answers/Resources/Private/Language/locallang_be.xlf:deleteFormName.confirmation.content"/></f:variable>
+    <f:variable name="cancel"><f:translate key="LLL:EXT:core/Resources/Private/Language/locallang_common.xlf:cancel"/></f:variable>
 
     <f:for each="{formNames}" as="formName">
         <div class="panel panel-default mb-4">
@@ -44,7 +45,7 @@
                         </div>
                         <div class="col-auto">
                             <f:link.action action="deleteFormname" class="btn btn-danger t3js-modal-trigger"
-                                           arguments="{formName: formName}" data="{title:title,content:content}">
+                                           arguments="{formName: formName}" data="{title:title,content:content,severity:'warning','button-close-text':cancel}">
                                 <core:icon identifier="actions-delete" size="small"/>
                                 <f:translate
                                         key="LLL:EXT:frp_form_answers/Resources/Private/Language/locallang_be.xlf:tx_frpformanswers_backend_templates_formentry_show.delete"/>

@@ -51,6 +51,22 @@
 				<source>Entries removed</source>
 				<target>Einträge entfernt</target>
 			</trans-unit>
+			<trans-unit id="flashmessage.removeEntry.header">
+				<source>Entry deleted</source>
+				<target>Eintrag gelöscht</target>
+			</trans-unit>
+			<trans-unit id="flashmessage.removeEntry.body">
+				<source>The entry with the UID %s has been deleted.</source>
+				<target>Der Eintrag mit der UID %s wurde gelöscht.</target>
+			</trans-unit>
+			<trans-unit id="flashmessage.entryNotFound.header">
+				<source>Entry not found</source>
+				<target>Eintrag nicht gefunden</target>
+			</trans-unit>
+			<trans-unit id="flashmessage.entryNotFound.body">
+				<source>The requested entry could not be found.</source>
+				<target>Der angeforderte Eintrag konnte nicht gefunden werden.</target>
+			</trans-unit>
 			<trans-unit id="flashmessage.removeEntries.body">
 				<source>The deleted entries on Page %s have been ultimately deleted.</source>
 				<target>Die gelöschten Einträge der Seite %s wurden entgültig entfernt.</target>
@@ -64,12 +80,40 @@
 				<target>Wollen Sie wirklich alle Einträge dieser Tabelle löschen?</target>
 			</trans-unit>
 			<trans-unit id="countDeletedEntries">
-				<source>There are %s deleted entries to remove</source>
-				<target>Es gibt %s gelöschte Einträge, die Sie entfernen können.</target>
+				<source>Deleted entries on this page: %s</source>
+				<target>Gelöschte Einträge auf dieser Seite: %s</target>
 			</trans-unit>
 			<trans-unit id="removeDeletedEntries">
 				<source>Ultimate delete form entries</source>
 				<target>Einträge endgültig löschen</target>
+			</trans-unit>
+			<trans-unit id="tx_frpformanswers_backend_templates_formentry_prepareremove.h1">
+				<source>Remove deleted entries</source>
+				<target>Gelöschte Einträge entfernen</target>
+			</trans-unit>
+			<trans-unit id="removeDeletedEntries.warning">
+				<source>Removing them deletes the records for good. They cannot be restored from the recycler afterwards.</source>
+				<target>Beim Entfernen werden die Datensätze endgültig gelöscht. Sie lassen sich danach auch nicht mehr über den Papierkorb wiederherstellen.</target>
+			</trans-unit>
+			<trans-unit id="removeDeletedEntries.nothingToRemove">
+				<source>There are no deleted entries on this page.</source>
+				<target>Auf dieser Seite gibt es keine gelöschten Einträge.</target>
+			</trans-unit>
+			<trans-unit id="removeDeletedEntries.confirmation.title">
+				<source>Really remove the deleted entries</source>
+				<target>Gelöschte Einträge wirklich entfernen</target>
+			</trans-unit>
+			<trans-unit id="removeDeletedEntries.confirmation.content">
+				<source>The entries are deleted for good and cannot be restored. Do you want to continue?</source>
+				<target>Die Einträge werden endgültig gelöscht und lassen sich nicht wiederherstellen. Möchten Sie fortfahren?</target>
+			</trans-unit>
+			<trans-unit id="removeEntry.confirmation.title">
+				<source>Really delete this entry</source>
+				<target>Diesen Eintrag wirklich löschen</target>
+			</trans-unit>
+			<trans-unit id="removeEntry.confirmation.content">
+				<source>Do you really want to delete this entry?</source>
+				<target>Möchten Sie diesen Eintrag wirklich löschen?</target>
 			</trans-unit>
             <trans-unit id="tx_frpformanswers_backend_templates_formentry_prepareexport.selectedentries">
                 <source>Selected entries</source>

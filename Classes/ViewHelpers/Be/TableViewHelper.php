@@ -237,7 +237,14 @@ final class TableViewHelper extends AbstractViewHelper
 
             $output .= '<td>';
             $output .= '<a href="' . $this->escape($editUri) . '" class="btn btn-default btn-sm">' . $pencilIcon . '</a>';
-            $output .= '<a href="' . $this->escape($deleteUri) . '" class="btn btn-default btn-sm">' . $trashIcon . '</a>';
+            // Same confirmation the backend puts on its own delete buttons -
+            // the link deletes as soon as it is followed
+            $output .= '<a href="' . $this->escape($deleteUri) . '" class="btn btn-default btn-sm t3js-modal-trigger"'
+                . ' data-severity="warning"'
+                . ' data-title="' . $this->escape($this->translate('removeEntry.confirmation.title')) . '"'
+                . ' data-content="' . $this->escape($this->translate('removeEntry.confirmation.content')) . '"'
+                . ' data-button-close-text="' . $this->escape($this->translateCore('cancel')) . '">'
+                . $trashIcon . '</a>';
             $output .= '</td>';
 
             $output .= '</tr>';
@@ -338,6 +345,17 @@ final class TableViewHelper extends AbstractViewHelper
         $rawValue = (string)($value ?? '');
 
         return BackendUtility::getProcessedValue($table, $column, $rawValue) ?? $rawValue;
+    }
+
+    /**
+     * A label of the backend itself, so that the buttons of a dialog read the
+     * same here as everywhere else.
+     */
+    private function translateCore(string $key): string
+    {
+        return LocalizationUtility::translate(
+            'LLL:EXT:core/Resources/Private/Language/locallang_common.xlf:' . $key,
+        ) ?? $key;
     }
 
     /**
