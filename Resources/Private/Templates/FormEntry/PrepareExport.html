@@ -59,6 +59,17 @@
                     </div>
                 </td>
             </tr>
+            <tr>
+                <td>
+                    <label class="t3js-formengine-label">
+                        <f:translate
+                                key="LLL:EXT:frp_form_answers/Resources/Private/Language/locallang_be.xlf:tx_frpformanswers_backend_templates_formentry_prepareexport.filename"/>
+                    </label>
+                    <div class="t3js-formengine-field-item">
+                        <f:form.textfield property="fileName" value="export"/>
+                    </div>
+                </td>
+            </tr>
             <f:comment>
             <!--<tr>
                 <td>
@@ -92,7 +103,7 @@
                                 key="LLL:EXT:frp_form_answers/Resources/Private/Language/locallang_be.xlf:tx_frpformanswers_backend_templates_formentry_prepareexport.charset"/>
                     </label>
                     <div class="t3js-formengine-field-item">
-                        <f:form.select options="{iso-8859-1: 'ISO-8859-1', UTF-8: 'UTF-8', UTF-F16: 'UTF-16LE'}"
+                        <f:form.select options="{UTF-8: 'UTF-8', iso-8859-1: 'ISO-8859-1', UTF-16LE: 'UTF-16LE'}"
                                        property="charset"/>
                     </div>
                 </td>

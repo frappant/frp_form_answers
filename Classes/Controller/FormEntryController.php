@@ -273,7 +273,12 @@ class FormEntryController extends ActionController
 
         $this->formEntryRepository->setFormsToExported($formEntries);
 
-        return $this->createDownloadResponse($renderedExport, $format, $arguments['formEntryDemand']['charset'] ?? null);
+        return $this->createDownloadResponse(
+            $renderedExport,
+            $format,
+            $arguments['formEntryDemand']['charset'] ?? null,
+            $formEntryDemand->getFileName() ?: (string)$formEntryDemand->getFormName(),
+        );
     }
 
     /**
@@ -366,14 +371,20 @@ class FormEntryController extends ActionController
         };
     }
 
-    private function createDownloadResponse(string $content, string $format, ?string $charset): ResponseInterface
-    {
-        $charset = $charset !== null && $charset !== '' ? $charset : 'iso-8859-1';
+    private function createDownloadResponse(
+        string $content,
+        string $format,
+        ?string $charset,
+        string $fileName = '',
+    ): ResponseInterface {
+        $charset = $charset !== null && $charset !== '' ? $charset : 'utf-8';
+        $content = $this->convertCharset($content, $charset);
+        $baseName = $this->sanitizeFileName($fileName);
 
         [$filename, $contentType] = match ($format) {
-            'Csv' => ['export.csv', 'text/csv; charset=' . $charset],
-            'Xls' => ['export.xlsx', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'],
-            'Xml' => ['export.xml', 'application/xml; charset=' . $charset],
+            'Csv' => [$baseName . '.csv', 'text/csv; charset=' . $charset],
+            'Xls' => [$baseName . '.xlsx', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'],
+            'Xml' => [$baseName . '.xml', 'application/xml; charset=' . $charset],
             default => throw new \InvalidArgumentException('Unsupported export format: ' . $format, 1710001001),
         };
 
@@ -382,6 +393,34 @@ class FormEntryController extends ActionController
             ->withHeader('Content-Disposition', sprintf('attachment; filename="%s"', $filename))
             ->withHeader('Content-Transfer-Encoding', 'binary')
             ->withBody($this->streamFactory->createStream($content));
+    }
+
+    /**
+     * The exported content is built as UTF-8. Convert it when the editor asked
+     * for a legacy charset, so that the Content-Type header does not lie about
+     * the bytes we send.
+     */
+    private function convertCharset(string $content, string $charset): string
+    {
+        $target = strtolower($charset);
+        if ($target === 'utf-8' || $content === '') {
+            return $content;
+        }
+
+        $converted = mb_convert_encoding($content, $charset, 'UTF-8');
+
+        return $converted !== false ? $converted : $content;
+    }
+
+    private function sanitizeFileName(string $fileName): string
+    {
+        // Replace separators before dropping an extension, so that a name like
+        // "my report/2026" keeps both parts instead of collapsing to "2026"
+        $fileName = (string)preg_replace('/[^A-Za-z0-9._-]/', '-', $fileName);
+        $fileName = pathinfo($fileName, PATHINFO_FILENAME);
+        $fileName = trim($fileName, '-.');
+
+        return $fileName !== '' ? $fileName : 'export';
     }
 
     /**
