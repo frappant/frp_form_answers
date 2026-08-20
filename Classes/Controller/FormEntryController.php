@@ -263,12 +263,17 @@ class FormEntryController extends ActionController
         $useSubmitUid = (bool)($extensionConfiguration['useSubmitUid']['value'] ?? $extensionConfiguration['useSubmitUid'] ?? false);
         $exportData = $this->dataExporter->getExport($formEntries->toArray(), $formEntryDemand, $useSubmitUid);
 
-        $this->formEntryRepository->setFormsToExported($formEntries);
-
         $exporter->assign('rows', $exportData);
         $exporter->assign('formEntryDemand', $formEntryDemand);
 
-        return $this->createDownloadResponse($exporter->render(), $format, $arguments['formEntryDemand']['charset'] ?? null);
+        // Render before flagging the entries: if rendering runs out of memory
+        // the entries must stay unexported, otherwise the next export with
+        // "only new entries" silently returns nothing
+        $renderedExport = $exporter->render();
+
+        $this->formEntryRepository->setFormsToExported($formEntries);
+
+        return $this->createDownloadResponse($renderedExport, $format, $arguments['formEntryDemand']['charset'] ?? null);
     }
 
     /**
