@@ -86,29 +86,11 @@ class FormEntryRepository extends Repository
             $query->matching($query->logicalAnd(...$constraints));
         }
 
+        // A stable order is required: the export reads the result in chunks,
+        // and without it the database may return a row twice or not at all
+        $query->setOrderings(['uid' => QueryInterface::ORDER_ASCENDING]);
+
         return $query;
-    }
-
-    /**
-     * Find all within a Page and all subpages
-     *
-     * @param int $pid start page identifier
-     * @return QueryResultInterface<int, FormEntry>
-     */
-    public function findAllInPidAndRootline(int $pid): QueryResultInterface
-    {
-        $query = $this->createQuery();
-        $query->getQuerySettings()->setRespectStoragePage(false);
-
-        $pids = $this->findAccessiblePidsInRootline($pid);
-
-        if (count($pids)) {
-            $query->matching($query->in('pid', $pids));
-        }
-
-        $query->setOrderings(['pid' => QueryInterface::ORDER_ASCENDING]);
-
-        return $query->execute();
     }
 
     /**
@@ -261,19 +243,6 @@ class FormEntryRepository extends Repository
 
         $first = $query->execute()->getFirst();
         return $first instanceof FormEntry ? $first : null;
-    }
-
-    /**
-     * @param QueryResultInterface<int, FormEntry> $forms
-     */
-    public function setFormsToExported(QueryResultInterface $forms): void
-    {
-        $uids = [];
-        foreach ($forms as $entry) {
-            $uids[] = $entry->getUid();
-        }
-
-        $this->setExportedByUids($uids);
     }
 
     /**
