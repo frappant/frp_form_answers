@@ -41,6 +41,8 @@ class SaveFormToDatabaseFinisher extends AbstractFinisher
         $event = $this->eventDispatcher->dispatch(new ManipulateFormValuesEvent($values, $formRuntime));
         $values = $event->getValues();
         $this->formEntry->setExported(false);
+        // The int-typed crdate property is persisted as-is; Extbase no longer auto-fills it
+        $this->formEntry->setCrdate(time());
         $this->formEntry->setAnswers($values);
 
         $this->formEntry->setForm($identifier);
