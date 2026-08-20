@@ -17,14 +17,10 @@ $EM_CONF[$_EXTKEY] = [
     'author' => '!frappant',
     'author_email' => 'support@frappant.ch',
     'state' => 'stable',
-    'internal' => '',
-    'uploadfolder' => '0',
-    'createDirs' => '',
-    'clearCacheOnLoad' => 0,
-    'version' => '6.1.2',
+    'version' => '7.0.0',
     'constraints' => [
         'depends' => [
-            'typo3' => '13.1.0-13.9.99',
+            'typo3' => '14.0.0-14.9.99',
         ],
         'conflicts' => [],
         'suggests' => [],

@@ -1,6 +1,9 @@
 <?php
+
 namespace Frappant\FrpFormAnswers\View\FormEntry;
 
+use PhpOffice\PhpSpreadsheet\Cell\Cell;
+use PhpOffice\PhpSpreadsheet\Cell\StringValueBinder;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
@@ -34,7 +37,6 @@ use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
  */
 class ExportXls
 {
-
     /**
      * @var Spreadsheet|null
      */
@@ -43,7 +45,7 @@ class ExportXls
     /**
      * View variables and their values
      *
-     * @var array
+     * @var array<string, mixed>
      * @see assign()
      */
     protected $variables = [];
@@ -56,7 +58,7 @@ class ExportXls
      * @param mixed $value Value of object
      * @return ExportXls an instance of $this, to enable chaining
      */
-    public function assign($key, $value)
+    public function assign(string $key, mixed $value): self
     {
         $this->variables[$key] = $value;
         return $this;
@@ -65,7 +67,7 @@ class ExportXls
     /**
      * Add multiple variables to $this->viewData.
      *
-     * @param array $values array in the format array(key1 => value1, key2 => value2).
+     * @param array<string, mixed> $values array in the format array(key1 => value1, key2 => value2).
      * @return ExportXls an instance of $this, to enable chaining
      */
     public function assignMultiple(array $values)
@@ -77,16 +79,16 @@ class ExportXls
     }
 
     /**
-     * @return string|void
+     * @return string
      * @throws \PhpOffice\PhpSpreadsheet\Exception
      * @throws \PhpOffice\PhpSpreadsheet\Writer\Exception
      */
-    public function render($data = null)
+    public function render(mixed $data = null): string
     {
-        if (null === self::$spreadsheet) {
+        if (self::$spreadsheet === null) {
             self::$spreadsheet = new Spreadsheet();
-            self::$spreadsheet->getProperties()->setCreator("Frappant Forms Export")
-                ->setLastModifiedBy("Frappant Forms Export")
+            self::$spreadsheet->getProperties()->setCreator('Frappant Forms Export')
+                ->setLastModifiedBy('Frappant Forms Export')
                 ->setCreated(time());
         }
 
@@ -96,20 +98,32 @@ class ExportXls
             $this->setIndexedArray($rows[$key]);
         }
 
-        self::$spreadsheet->getActiveSheet()->fromArray($rows, null, 'A1');
+        // Bind all values as strings: user-submitted values starting with "="
+        // must not be treated as formulas (crashes the writer and enables
+        // spreadsheet formula injection against the person opening the export)
+        $previousValueBinder = Cell::getValueBinder();
+        Cell::setValueBinder(new StringValueBinder());
 
-        $objWriter = new Xlsx(self::$spreadsheet);
+        try {
+            self::$spreadsheet->getActiveSheet()->fromArray($rows, null, 'A1');
 
-        ob_start();
-        $objWriter->save('php://output');
-        return ob_get_clean();
+            $objWriter = new Xlsx(self::$spreadsheet);
+
+            ob_start();
+            $objWriter->save('php://output');
+            return (string)ob_get_clean();
+        } finally {
+            Cell::setValueBinder($previousValueBinder);
+        }
     }
 
     /**
      * function setIndexedArray
      * Sets an associative array to an indexed array
+     *
+     * @param array<int, mixed> $arr
      */
-    private function setIndexedArray(&$arr)
+    private function setIndexedArray(array &$arr): void
     {
         $arr = array_values($arr);
     }

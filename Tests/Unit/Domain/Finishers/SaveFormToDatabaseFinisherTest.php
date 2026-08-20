@@ -1,47 +1,31 @@
 <?php
+
 namespace Frappant\FrpFormAnswers\Tests\Unit\Domain\Finishers;
 
 use Frappant\FrpFormAnswers\Domain\Finishers\SaveFormToDatabaseFinisher;
-use TYPO3\CMS\Form\Domain\Finishers\FinisherContext;
-use TYPO3\CMS\Extbase\Object\ObjectManager;
-use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Extbase\SignalSlot\Dispatcher;
-use TYPO3\CMS\Extbase\Object\Container\ClassInfoCache;
+use Frappant\FrpFormAnswers\Domain\Model\FormEntry;
 use Frappant\FrpFormAnswers\Domain\Repository\FormEntryRepository;
+use Frappant\FrpFormAnswers\Event\ManipulateFormValuesEvent;
+use PHPUnit\Framework\MockObject\MockObject;
+use Psr\EventDispatcher\EventDispatcherInterface;
+use TYPO3\CMS\Extbase\Mvc\RequestInterface;
+use TYPO3\CMS\Extbase\Persistence\Generic\PersistenceManager;
+use TYPO3\CMS\Form\Domain\Finishers\FinisherContext;
+use TYPO3\CMS\Form\Domain\Runtime\FormRuntime;
+use TYPO3\TestingFramework\Core\Unit\UnitTestCase;
 
 /**
  * Test case.
  *
  * @author !frappant <support@frappant.ch>
  */
-class SaveFormToDatabaseFinisherTest extends \TYPO3\CMS\Core\Tests\UnitTestCase
+class SaveFormToDatabaseFinisherTest extends UnitTestCase
 {
-    /**
-     * @var \Frappant\FrpFormAnswers\Domain\Finishers\SaveFormToDatabaseFinisher
-     */
-    protected $subject = null;
-
-    protected function setUp()
-    {
-        parent::setUp();
-        $this->subject = $this->getMock(SaveFormToDatabaseFinisher::class, ['getFormValues'], [], '', true, true, true, false, false);
-
-        // Prevent ObjectManager from accessing database cache.
-        $classInfoCacheMock = $this->getMock(ClassInfoCache::class);
-        GeneralUtility::addInstance(ClassInfoCache::class, $classInfoCacheMock);
-    }
-
-    protected function tearDown()
-    {
-        parent::tearDown();
-    }
-
     /**
      * @test
      */
-    public function canRegisterSignalSlotDispatcher()
+    public function eventDispatcherCanManipulateFormValuesBeforeInsert(): void
     {
-        $finisherContextFixture = $this->getMock(FinisherContext::class, [], [], '', false);
         $valuesFixture = [
             'name' => [
                 'value' => '!frappant',
@@ -52,45 +36,56 @@ class SaveFormToDatabaseFinisherTest extends \TYPO3\CMS\Core\Tests\UnitTestCase
             ],
         ];
 
-        /** @var \TYPO3\CMS\Extbase\Object\ObjectManager $objectManager */
-        $objectManager = GeneralUtility::makeInstance(ObjectManager::class);
-        $this->inject($this->subject, 'objectManager', $objectManager);
+        $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
+        $eventDispatcher->expects(self::once())
+            ->method('dispatch')
+            ->with(self::isInstanceOf(ManipulateFormValuesEvent::class))
+            ->willReturnCallback(static function (ManipulateFormValuesEvent $event): ManipulateFormValuesEvent {
+                $event->addValue([
+                    'test' => [
+                        'value' => 'Test',
+                        'conf' => [
+                            'label' => 'Test',
+                            'inputType' => 'Text',
+                        ],
+                    ],
+                ]);
 
-        /** @var \TYPO3\CMS\Extbase\SignalSlot\Dispatcher $signalSlotDispatcher */
-        $signalSlotDispatcher = $objectManager->get(Dispatcher::class);
-        $this->inject($this->subject, 'signalSlotDispatcher', $signalSlotDispatcher);
+                return $event;
+            });
 
-        $formEntryRepositoryMock = $this->getMock(FormEntryRepository::class, ['add', 'getLastFormAnswerByIdentifyer'], [], '', false);
-        $this->inject($this->subject, 'formEntryRepository', $formEntryRepositoryMock);
-
-        $this->subject
-            ->expects($this->once())
-            ->method('getFormValues')
-            ->will($this->returnValue($valuesFixture));
-
-
-        $formEntryRepositoryMock
-            ->expects($this->once())
+        $formEntry = new FormEntry();
+        $formEntryRepository = $this->createMock(FormEntryRepository::class);
+        $formEntryRepository->expects(self::once())
+            ->method('getLastFormAnswerByIdentifyer')
+            ->willReturn(null);
+        $formEntryRepository->expects(self::once())
             ->method('add')
-            ->with($this->callback(function ($formEntry) {
-                return key_exists('test', $formEntry->getAnswers());
+            ->with(self::callback(static function (FormEntry $entry): bool {
+                return array_key_exists('test', $entry->getAnswers());
             }));
 
+        $persistenceManager = $this->createMock(PersistenceManager::class);
+        $persistenceManager->expects(self::once())->method('persistAll');
 
-        $formEntryRepositoryMock
-            ->expects($this->once())
-            ->method('getLastFormAnswerByIdentifyer')
-            ->will($this->returnValue(null));
+        /** @var SaveFormToDatabaseFinisher&MockObject $subject */
+        $subject = $this->getMockBuilder(SaveFormToDatabaseFinisher::class)
+            ->setConstructorArgs([$eventDispatcher, $formEntryRepository, $formEntry, $persistenceManager])
+            ->onlyMethods(['getFormValues'])
+            ->getMock();
+        $subject->expects(self::once())
+            ->method('getFormValues')
+            ->willReturn($valuesFixture);
 
+        $formRuntime = $this->createMock(FormRuntime::class);
+        $formRuntime->method('getIdentifier')->willReturn('test-form');
+        $request = $this->createMock(RequestInterface::class);
+        $request->method('getAttributes')->willReturn(['routing' => ['pageId' => 1]]);
+        $formRuntime->method('getRequest')->willReturn($request);
 
-        $signalSlotDispatcher->connect(
-            SaveFormToDatabaseFinisher::class,
-            'preInsertSignal',
-            function (&$values) {
-                $values['test'] = 'Test';
-            }
-        );
+        $finisherContext = $this->createMock(FinisherContext::class);
+        $finisherContext->method('getFormRuntime')->willReturn($formRuntime);
 
-        $this->subject->execute($finisherContextFixture);
+        $subject->execute($finisherContext);
     }
 }

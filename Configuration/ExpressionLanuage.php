@@ -1,6 +1,9 @@
 <?php
+
+use Frappant\FrpFormAnswers\ExpressionLanguage\CustomTypoScriptConditionProvider;
+
 return [
     'typoscript' => [
-        \Frappant\FrpFormAnswers\ExpressionLanguage\CustomTypoScriptConditionProvider::class,
-    ]
+        CustomTypoScriptConditionProvider::class,
+    ],
 ];

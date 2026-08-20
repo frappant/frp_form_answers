@@ -1,16 +1,18 @@
 <?php
+
 return [
     'ctrl' => [
         'title'    => 'LLL:EXT:frp_form_answers/Resources/Private/Language/locallang_db.xlf:tx_frpformanswers_domain_model_formentry',
         'label' => 'uid',
         'tstamp' => 'tstamp',
         'crdate' => 'crdate',
-        'cruser_id' => 'cruser_id',
         'delete' => 'deleted',
         'enablecolumns' => [
         ],
-        'searchFields' => 'answers,field_hash,form,exported',
-        'iconfile' => 'EXT:frp_form_answers/Resources/Public/Icons/tx_frpformanswers_domain_model_formentry.svg'
+        'security' => [
+            'ignorePageTypeRestriction' => true,
+        ],
+        'iconfile' => 'EXT:frp_form_answers/Resources/Public/Icons/tx_frpformanswers_domain_model_formentry.svg',
     ],
     'types' => [
         '1' => ['showitem' => 'submit_uid, answers, field_hash, form, exported'],
@@ -22,7 +24,7 @@ return [
             'config' => [
                 'type' => 'user',
                 'renderType' => 'formAnswersJsonElement',
-            ]
+            ],
         ],
         'submit_uid' => [
             'exclude' => true,
@@ -30,8 +32,9 @@ return [
             'config' => [
                 'type' => 'input',
                 'size' => 30,
-                'readOnly' =>1,
-                'eval' => 'trim, int'
+                'readOnly' => 1,
+                'eval' => 'trim, int',
+                'searchable' => false,
             ],
         ],
         'field_hash' => [
@@ -40,8 +43,8 @@ return [
             'config' => [
                 'type' => 'input',
                 'size' => 30,
-                'readOnly' =>1,
-                'eval' => 'trim'
+                'readOnly' => 1,
+                'eval' => 'trim',
             ],
         ],
         'form' => [
@@ -50,8 +53,8 @@ return [
             'config' => [
                 'type' => 'input',
                 'size' => 30,
-                'readOnly' =>1,
-                'eval' => 'trim'
+                'readOnly' => 1,
+                'eval' => 'trim',
             ],
         ],
         'exported' => [
@@ -61,12 +64,12 @@ return [
                 'type' => 'check',
                 'items' => [
                     0 => [
-                        '0' => 'LLL:EXT:frp_form_answers/Resources/Private/Language/locallang_db.xlf:tx_frpformanswers_domain_model_formentry.exported'
-                    ]
+                        'label' => 'LLL:EXT:frp_form_answers/Resources/Private/Language/locallang_db.xlf:tx_frpformanswers_domain_model_formentry.exported',
+                    ],
                 ],
-                'readOnly' =>1,
-                'default' => 0
-            ]
+                'readOnly' => 1,
+                'default' => 0,
+            ],
         ],
         'crdate' => [
             'exclude' => true,
@@ -77,6 +80,7 @@ return [
                 'renderType' => 'InputDateTime',
                 'size' => 20,
                 'readOnly' => true,
+                'searchable' => false,
             ],
         ],
     ],

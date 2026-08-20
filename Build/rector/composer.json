@@ -1,0 +1,12 @@
+{
+    "require-dev": {
+        "ssch/typo3-rector": "^3.14"
+    },
+    "config": {
+        "allow-plugins": {
+            "rector/extension-installer": true
+        },
+        "bin-dir": ".Build/bin",
+        "vendor-dir": ".Build/vendor"
+    }
+}

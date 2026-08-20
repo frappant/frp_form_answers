@@ -1,34 +1,35 @@
 <?php
+
+declare(strict_types=1);
+
 namespace Frappant\FrpFormAnswers\Controller;
 
 use Frappant\FrpFormAnswers\DataExporter\DataExporter;
+use Frappant\FrpFormAnswers\Domain\Model\FormEntry;
 use Frappant\FrpFormAnswers\Domain\Model\FormEntryDemand;
 use Frappant\FrpFormAnswers\Domain\Repository\FormEntryRepository;
 use Frappant\FrpFormAnswers\Utility\FormAnswersUtility;
 use Frappant\FrpFormAnswers\View\FormEntry\ExportCsv;
 use Frappant\FrpFormAnswers\View\FormEntry\ExportXls;
 use Frappant\FrpFormAnswers\View\FormEntry\ExportXml;
-use JetBrains\PhpStorm\NoReturn;
 use Psr\Http\Message\ResponseInterface;
+use TYPO3\CMS\Backend\Attribute\AsController;
 use TYPO3\CMS\Backend\Template\Components\ButtonBar;
-use TYPO3\CMS\Backend\Template\Components\Menu\Menu;
+use TYPO3\CMS\Backend\Template\ModuleTemplate;
 use TYPO3\CMS\Backend\Template\ModuleTemplateFactory;
 use TYPO3\CMS\Core\Database\Connection;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Domain\Repository\PageRepository;
-use TYPO3\CMS\Core\Http\Stream;
-use TYPO3\CMS\Core\Http\Response;
-use TYPO3\CMS\Core\Imaging\Icon;
+use TYPO3\CMS\Core\Http\NormalizedParams;
 use TYPO3\CMS\Core\Imaging\IconFactory;
+use TYPO3\CMS\Core\Imaging\IconSize;
 use TYPO3\CMS\Core\Localization\LanguageService;
-use TYPO3\CMS\Core\Messaging\FlashMessage;
 use TYPO3\CMS\Core\Type\ContextualFeedbackSeverity;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Mvc\Controller\ActionController;
 use TYPO3\CMS\Extbase\Persistence\Exception\IllegalObjectTypeException;
 use TYPO3\CMS\Extbase\Persistence\Generic\PersistenceManager;
 use TYPO3\CMS\Extbase\Utility\LocalizationUtility;
-use TYPO3\CMS\Extbase\Utility\DebuggerUtility;
 
 /***
  *
@@ -44,142 +45,90 @@ use TYPO3\CMS\Extbase\Utility\DebuggerUtility;
 /**
  * FormEntryController
  */
+#[AsController]
 class FormEntryController extends ActionController
 {
-    /**
-     * @var ModuleTemplateFactory $moduleTemplateFactory
-     */
-    protected ModuleTemplateFactory $moduleTemplateFactory;
+    protected int $pid = 0;
 
-    /**
-     * @var IconFactory $iconFactory
-     */
-    protected IconFactory $iconFactory;
-
-    /**
-     * @var FormAnswersUtility $formAnswersUtility
-     */
-    protected FormAnswersUtility $formAnswersUtility;
-
-    /**
-     * @var FormEntryRepository $formEntryRepository
-     */
-    protected FormEntryRepository $formEntryRepository;
-
-    /**
-     * @var \Frappant\FrpFormAnswers\DataExporter\DataExporter
-     */
-    protected DataExporter $dataExporter;
-
-    /**
-    * @var PageRepository $pageRepository
-    */
-    protected PageRepository $pageRepository;
-
-    /**
-     * @var PersistenceManager  $persistenceManager
-     */
-    protected PersistenceManager $persistenceManager;
-
-    /**
-     * @var string $filename
-     */
-    protected string $filename = '';
-
-    /**
-     * @var integer
-     */
-   protected $pid;
-
-    /**
-     * http headers to send with filedownload request @see exportAction
-     *
-     * @var array
-     */
-    protected $requestHeaders = [];
-
-    protected FormEntryDemand $formEntryDemand;
-
+    protected ?FormEntryDemand $formEntryDemand = null;
 
     public function __construct(
-        ModuleTemplateFactory $moduleTemplateFactory,
-        IconFactory $iconFactory,
-        FormAnswersUtility $formAnswersUtility,
-        FormEntryRepository $formEntryRepository,
-        DataExporter $dataExporter,
-        PageRepository $pageRepository,
-        PersistenceManager $persistenceManager
-    ) {
-        $this->moduleTemplateFactory = $moduleTemplateFactory;
-        $this->iconFactory = $iconFactory;
-        $this->formAnswersUtility = $formAnswersUtility;
-        $this->formEntryRepository = $formEntryRepository;
-        $this->dataExporter = $dataExporter;
-        $this->pageRepository = $pageRepository;
-        $this->pid = $_GET['id'] ?? 0;
-        $this->persistenceManager = $persistenceManager;
+        protected readonly ModuleTemplateFactory $moduleTemplateFactory,
+        protected readonly IconFactory $iconFactory,
+        protected readonly FormAnswersUtility $formAnswersUtility,
+        protected readonly FormEntryRepository $formEntryRepository,
+        protected readonly DataExporter $dataExporter,
+        protected readonly PageRepository $pageRepository,
+        protected readonly PersistenceManager $persistenceManager,
+        protected readonly ConnectionPool $connectionPool,
+    ) {}
+
+    protected function initializeAction(): void
+    {
+        $queryParams = $this->request->getQueryParams();
+        $parsedBody = $this->request->getParsedBody();
+
+        $this->pid = (int)($queryParams['id'] ?? (is_array($parsedBody) ? ($parsedBody['id'] ?? 0) : 0));
     }
 
     /**
      * action list, Show saved form entries from database
-     *
-     * @return ResponseInterface
      */
     public function listAction(): ResponseInterface
     {
-        $pageIds = $this->formAnswersUtility->prepareFormAnswersArray();
+        $pageIds = $this->formAnswersUtility->prepareFormAnswersArray($this->request);
         $moduleTemplate = $this->moduleTemplateFactory->create($this->request);
 
-        if (count($pageIds) > 0) {
+        if ($pageIds !== []) {
             $moduleTemplate->assign('subPagesWithFormEntries', $this->pageRepository->getMenuForPages(array_keys($pageIds)));
             $moduleTemplate->assign('formEntriesStatus', $pageIds);
         }
+
         $moduleTemplate->assign('pid', $this->pid);
-        $moduleTemplate->assign('formNames', $this->formAnswersUtility->getAllFormNames([$this->pid]));
+        $moduleTemplate->assign('formNames', $this->formAnswersUtility->getAllFormNames($this->pid));
         $moduleTemplate->assign('settings', $this->settings);
 
-
         $this->createMenu($moduleTemplate);
-	    $this->createButtons($moduleTemplate);
+        $this->createButtons($moduleTemplate);
+
         return $moduleTemplate->renderResponse($this->templateFilenameFromRequest());
     }
 
     /**
      * action show
-     *
-     * @param \Frappant\FrpFormAnswers\Domain\Model\FormEntry $formEntry
-     * @return ResponseInterface
      */
-    public function showAction(\Frappant\FrpFormAnswers\Domain\Model\FormEntry $formEntry): ResponseInterface
+    public function showAction(FormEntry $formEntry): ResponseInterface
     {
-        $this->view->assign('formEntry', $formEntry);
-
         $moduleTemplate = $this->moduleTemplateFactory->create($this->request);
-        $moduleTemplate->setContent($this->view->render());
-        return $this->htmlResponse($moduleTemplate->renderContent());
+        $moduleTemplate->assign('formEntry', $formEntry);
+
+        $this->createMenu($moduleTemplate);
+        $this->createButtons($moduleTemplate);
+
+        return $moduleTemplate->renderResponse($this->templateFilenameFromRequest());
     }
 
     /**
      * action prepareRemove, Show form entries which are marked as deleted
-     *
-     * @return ResponseInterface
      */
     public function prepareRemoveAction(): ResponseInterface
     {
-        $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('tx_frpformanswers_domain_model_formentry');
+        $queryBuilder = $this->connectionPool->getQueryBuilderForTable('tx_frpformanswers_domain_model_formentry');
         $queryBuilder->getRestrictions()->removeAll();
 
-        $count = $queryBuilder->count('*')
+        $count = (int)$queryBuilder
+            ->count('*')
             ->from('tx_frpformanswers_domain_model_formentry')
             ->where($queryBuilder->expr()->eq('pid', $queryBuilder->createNamedParameter($this->pid, Connection::PARAM_INT)))
             ->andWhere($queryBuilder->expr()->eq('deleted', $queryBuilder->createNamedParameter(1, Connection::PARAM_INT)))
-            ->executeQuery()->fetchFirstColumn();
-        //DebuggerUtility::var_dump($count);
+            ->executeQuery()
+            ->fetchOne();
+
         $moduleTemplate = $this->moduleTemplateFactory->create($this->request);
-        $moduleTemplate->assign('count', $count[0]);
+        $moduleTemplate->assign('count', $count);
 
         $this->createMenu($moduleTemplate);
-	    $this->createButtons($moduleTemplate);
+        $this->createButtons($moduleTemplate);
 
         return $moduleTemplate->renderResponse($this->templateFilenameFromRequest());
     }
@@ -187,15 +136,25 @@ class FormEntryController extends ActionController
     /**
      * action mark single entry as deleted
      *
-     * @return void
      * @throws IllegalObjectTypeException
      */
-    public function removeEntryAction(): \Psr\Http\Message\ResponseInterface
+    public function removeEntryAction(): ResponseInterface
     {
         $arguments = $this->request->getArguments();
-        $uid = $arguments['uid'];
-        $pid = $arguments['pid'];
+        $uid = (int)($arguments['uid'] ?? 0);
+        $pid = (int)($arguments['pid'] ?? $this->pid);
         $entry = $this->formEntryRepository->findByUid($uid);
+
+        if ($entry === null) {
+            $this->addFlashMessage(
+                'The requested entry could not be found.',
+                'Entry not found',
+                ContextualFeedbackSeverity::WARNING,
+                true,
+            );
+
+            return $this->redirect('list', null, null, ['id' => $pid]);
+        }
 
         $this->formEntryRepository->remove($entry);
         $this->persistenceManager->persistAll();
@@ -203,8 +162,8 @@ class FormEntryController extends ActionController
         $this->addFlashMessage(
             'Deleted entry with uid: ' . $uid,
             'Entry deleted',
-            \TYPO3\CMS\Core\Type\ContextualFeedbackSeverity::OK,
-            true
+            ContextualFeedbackSeverity::OK,
+            true,
         );
 
         return $this->redirect('list', null, null, ['id' => $pid]);
@@ -212,12 +171,10 @@ class FormEntryController extends ActionController
 
     /**
      * action remove, Remove form entries which are marked as deleted
-     *
-     * @return ResponseInterface
      */
-    public function removeAction()
+    public function removeAction(): ResponseInterface
     {
-        $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('tx_frpformanswers_domain_model_formentry');
+        $queryBuilder = $this->connectionPool->getQueryBuilderForTable('tx_frpformanswers_domain_model_formentry');
 
         $queryBuilder->delete('tx_frpformanswers_domain_model_formentry')
             ->where($queryBuilder->expr()->eq('pid', $queryBuilder->createNamedParameter($this->pid, Connection::PARAM_INT)))
@@ -225,18 +182,23 @@ class FormEntryController extends ActionController
             ->executeStatement();
 
         $this->addFlashMessage(
-            LocalizationUtility::translate('LLL:EXT:frp_form_answers/Resources/Private/Language/locallang_be.xlf:flashmessage.removeEntries.body', null, [$this->pid]),
-            LocalizationUtility::translate('LLL:EXT:frp_form_answers/Resources/Private/Language/locallang_be.xlf:flashmessage.removeEntries.header'),
-            \TYPO3\CMS\Core\Type\ContextualFeedbackSeverity::OK,
-            true);
+            LocalizationUtility::translate(
+                'LLL:EXT:frp_form_answers/Resources/Private/Language/locallang_be.xlf:flashmessage.removeEntries.body',
+                null,
+                [$this->pid],
+            ) ?? '',
+            LocalizationUtility::translate(
+                'LLL:EXT:frp_form_answers/Resources/Private/Language/locallang_be.xlf:flashmessage.removeEntries.header',
+            ) ?? '',
+            ContextualFeedbackSeverity::OK,
+            true,
+        );
 
         return $this->redirect('list', null, null, ['id' => $this->pid]);
     }
 
     /**
      * action prepareExport
-     *
-     * @return ResponseInterface
      */
     public function prepareExportAction(): ResponseInterface
     {
@@ -248,188 +210,103 @@ class FormEntryController extends ActionController
         $moduleTemplate->assign('formHashes', $this->formAnswersUtility->getAllFormHashes($this->pid));
 
         $this->createMenu($moduleTemplate);
-	    $this->createButtons($moduleTemplate);
+        $this->createButtons($moduleTemplate);
 
         return $moduleTemplate->renderResponse($this->templateFilenameFromRequest());
     }
 
-    public function initializeExportAction(){
-
-        $args = $this->request->getArguments();
-        $format = $args['format'];
-        // $this->filename = $args['formEntryDemand']['formName'];
-
-        $charset = (strlen($args['formEntryDemand']['charset'] ?? '') > 0 ? $args['formEntryDemand']['charset'] : 'iso-8859-1');
-
-        switch ($format){
-            case 'Csv':
-                $this->filename = (strlen($this->filename) > 0 ? $this->filename.'.csv' : 'export.csv');
-                $this->setRequestHeader('Content-Type', 'application/force-download');
-                $this->setRequestHeader('Content-Type', 'text/csv');
-                $this->setRequestHeader('Content-Disposition', "attachment;filename=$this->filename");
-                $this->setRequestHeader('Content-Transfer-Encoding', 'binary');
-                $this->setRequestHeader('Content-Type', "application/download; charset=$charset");
-            break;
-            case 'Xls':
-                $this->filename = (strlen($this->filename) > 0 ? $this->filename.'.xlsx' : 'export.xlsx');
-                $this->setRequestHeader('Content-Type', 'application/force-download');
-                $this->setRequestHeader('Content-Disposition', "attachment;filename=$this->filename");
-                $this->setRequestHeader('Content-Type', "application/download; charset=$charset");
-            break;
-            case 'Xml':
-                $this->filename = (strlen($this->filename) > 0 ? $this->filename.'.xml' : 'export.xml');
-                $this->setRequestHeader('Content-Type', 'application/force-download');
-                $this->setRequestHeader('Content-Type', 'application/xml');
-                $this->setRequestHeader('Content-Disposition', "attachment;filename=$this->filename");
-                $this->setRequestHeader('Content-Transfer-Encoding', 'binary');
-                $this->setRequestHeader('Content-Type', "application/download; charset=$charset");
-            break;
-        }
-    }
-
-	/**
-	 * export Action
-     *
-	 * @param FormEntryDemand $formEntryDemand
-	 * @throws \TYPO3\CMS\Extbase\Mvc\Exception\StopActionException
-	 * @throws \TYPO3\CMS\Extbase\Mvc\Exception\UnsupportedRequestTypeException
-	 */
-    public function exportAction(?\Frappant\FrpFormAnswers\Domain\Model\FormEntryDemand $formEntryDemand = null)
+    /**
+     * export Action
+     */
+    public function exportAction(?FormEntryDemand $formEntryDemand = null): ResponseInterface
     {
-
-        $format = $this->request->getArguments()['format'];
-        $formEntryDemand->setAllPids($this->request->getArguments()['allPids'] ?? false);
-        $pid = $_GET['id'];
-
-        if($formEntryDemand) {
-            $formEntries = $this->formEntryRepository->findbyDemand($formEntryDemand, $pid);
-            if (count($formEntries) === 0) {
-                $this->addFlashMessage('No entries found with your criteria',
-                    'No Entries found',
-                    \TYPO3\CMS\Core\Type\ContextualFeedbackSeverity::WARNING,
-                    true
-                );
-                return $this->redirect('list', null, null, ['id' => $this->pid]);
-            }
-        } else {
-            $this->addFlashMessage('No Demand set',
+        if ($formEntryDemand === null) {
+            $this->addFlashMessage(
+                'No Demand set',
                 'No Demand found',
-                \TYPO3\CMS\Core\Type\ContextualFeedbackSeverity::ERROR,
-                true
+                ContextualFeedbackSeverity::ERROR,
+                true,
             );
+
             return $this->redirect('list', null, null, ['id' => $this->pid]);
         }
 
-        $extensionConfiguration = $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['frp_formanswers'] ?? null;
-        $exportData = $this->dataExporter->getExport($formEntries, $formEntryDemand, $extensionConfiguration['useSubmitUid']['value'] ?? false);
+        $arguments = $this->request->getArguments();
+        $format = (string)($arguments['format'] ?? '');
+        $formEntryDemand->setAllPids((bool)($arguments['allPids'] ?? false));
 
-        $this->formEntryRepository->setFormsToExported($formEntries);
+        $exporter = $this->createExporter($format);
+        if ($exporter === null) {
+            $this->addFlashMessage(
+                'The requested export format is not supported.',
+                'Unsupported export format',
+                ContextualFeedbackSeverity::ERROR,
+                true,
+            );
 
-
-        $exporter = Null;
-        switch ($format) {
-            case 'Csv':
-                $exporter = new ExportCsv();
-                break;
-            case 'Xls':
-                $exporter = new ExportXls();
-                break;
-            case 'Xml':
-                $exporter = new ExportXml();
-                break;
+            return $this->redirect('list', null, null, ['id' => $this->pid]);
         }
 
+        $formEntries = $this->formEntryRepository->findbyDemand($formEntryDemand, $this->pid);
+        if (count($formEntries) === 0) {
+            $this->addFlashMessage(
+                'No entries found with your criteria',
+                'No Entries found',
+                ContextualFeedbackSeverity::WARNING,
+                true,
+            );
 
+            return $this->redirect('list', null, null, ['id' => $this->pid]);
+        }
+
+        $extensionConfiguration = $this->getExtensionConfiguration();
+        $useSubmitUid = (bool)($extensionConfiguration['useSubmitUid']['value'] ?? $extensionConfiguration['useSubmitUid'] ?? false);
+        $exportData = $this->dataExporter->getExport($formEntries->toArray(), $formEntryDemand, $useSubmitUid);
+
+        $this->formEntryRepository->setFormsToExported($formEntries);
 
         $exporter->assign('rows', $exportData);
         $exporter->assign('formEntryDemand', $formEntryDemand);
 
-        // Get the content as a string
-        $content = $exporter->render();
-
-        // Prepare a PSR-7 Response
-        $stream = new Stream('php://memory', 'rw');
-        $stream->write($content);
-
-        switch ($format) {
-            case 'Csv':
-                $response = new Response($stream, 200, [
-                    'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-                    'Content-Disposition' => 'attachment; filename="export.csv"',
-                ]);
-                break;
-            case 'Xls':
-                $response = new Response($stream, 200, [
-                    'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-                    'Content-Disposition' => 'attachment; filename="export.xlsx"',
-                ]);
-                break;
-            case 'Xml':
-                $response = new Response($stream, 200, [
-                    'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-                    'Content-Disposition' => 'attachment; filename="export.xml"',
-                ]);
-                break;
-        }
-
-        return $response;
-    }
-
-    /**
-     * Prepare the download request
-     *
-     * @param string File Contents wich would be downloaded
-     * @return ResponseInterface http response with http headers and file contents
-     */
-    protected function generateDownloadResponse($renderedContent): ResponseInterface
-    {
-        $response = $this->responseFactory->createResponse();
-
-        foreach($this->getRequestHeaders() as $header) {
-            $response = $response->withHeader("$header[0]", "$header[1]");
-        }
-
-        $response = $response->withBody($this->streamFactory->createStream($renderedContent));
-
-        return $response;
+        return $this->createDownloadResponse($exporter->render(), $format, $arguments['formEntryDemand']['charset'] ?? null);
     }
 
     /**
      * @todo check where this method is used
-     * @param string $formName
-     * @throws \TYPO3\CMS\Extbase\Mvc\Exception\StopActionException
      */
-    public function deleteFormnameAction($formName = ''){
+    public function deleteFormnameAction(string $formName = ''): ResponseInterface
+    {
+        if ($formName !== '') {
+            $connection = $this->connectionPool->getConnectionForTable('tx_frpformanswers_domain_model_formentry');
 
-        if(strlen($formName) > 0){
-
-            $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getConnectionForTable('tx_frpformanswers_domain_model_formentry');
-
-            $queryBuilder->update(
+            $connection->update(
                 'tx_frpformanswers_domain_model_formentry',
-                [ 'deleted' => 1 ], // set
-                [ 'form' => $formName, 'pid' => $this->pid]
+                ['deleted' => 1],
+                ['form' => $formName, 'pid' => $this->pid],
             );
 
             $this->addFlashMessage(
-                LocalizationUtility::translate('LLL:EXT:frp_form_answers/Resources/Private/Language/de.locallang_be.xlf:flashmessage.deleteFormName.body', 'frp_form_answers', [$formName, $this->pid]),
-                LocalizationUtility::translate('LLL:EXT:frp_form_answers/Resources/Private/Language/de.locallang_be.xlf:flashmessage.deleteFormName.header'),
-                \TYPO3\CMS\Core\Type\ContextualFeedbackSeverity::OK,
-                true);
+                LocalizationUtility::translate(
+                    'LLL:EXT:frp_form_answers/Resources/Private/Language/de.locallang_be.xlf:flashmessage.deleteFormName.body',
+                    'FrpFormAnswers',
+                    [$formName, $this->pid],
+                ) ?? '',
+                LocalizationUtility::translate(
+                    'LLL:EXT:frp_form_answers/Resources/Private/Language/de.locallang_be.xlf:flashmessage.deleteFormName.header',
+                ) ?? '',
+                ContextualFeedbackSeverity::OK,
+                true,
+            );
         }
+
         return $this->redirect('list', null, null, ['id' => $this->pid]);
     }
 
-    /**
-     * Create menu
-     *
-     */
-    protected function createMenu($moduleTemplate)
+    protected function createMenu(ModuleTemplate $moduleTemplate): void
     {
         $this->uriBuilder->setRequest($this->request);
 
         $menu = $moduleTemplate->getDocHeaderComponent()->getMenuRegistry()->makeMenu();
-        // $menu = $this->view->getModuleTemplate()->getDocHeaderComponent()->getMenuRegistry()->makeMenu();
         $menu->setIdentifier('frpformanswers_main');
 
         $actions = [
@@ -446,60 +323,77 @@ class FormEntryController extends ActionController
             $menu->addMenuItem($item);
         }
 
-        if ($menu instanceof Menu) {
-            $moduleTemplate->getDocHeaderComponent()->getMenuRegistry()->addMenu($menu);
-        }
+        $moduleTemplate->getDocHeaderComponent()->getMenuRegistry()->addMenu($menu);
     }
 
-    /**
-     * Create the panel of buttons
-     *
-     */
-    protected function createButtons($moduleTemplate)
+    protected function createButtons(ModuleTemplate $moduleTemplate): void
     {
         $buttonBar = $moduleTemplate->getDocHeaderComponent()->getButtonBar();
 
-        $this->uriBuilder->setRequest($this->request);
+        /** @var NormalizedParams|null $normalizedParams */
+        $normalizedParams = $this->request->getAttribute('normalizedParams');
+        $requestUri = $normalizedParams instanceof NormalizedParams
+            ? $normalizedParams->getRequestUri()
+            : (string)$this->request->getUri();
 
-        // Refresh
         $refreshButton = $buttonBar->makeLinkButton()
-            ->setHref(GeneralUtility::getIndpEnv('REQUEST_URI'))
-            ->setTitle($this->getLanguageService()->sL('LLL:EXT:core/Resources/Private/Language/locallang_core.xlf:labels.reload'))
-            ->setIcon($this->iconFactory->getIcon('actions-refresh', Icon::SIZE_SMALL));
+            ->setHref($requestUri)
+            ->setTitle($this->getLanguageService()->sL('core.core:labels.reload'))
+            ->setIcon($this->iconFactory->getIcon('actions-refresh', IconSize::SMALL));
         $buttonBar->addButton($refreshButton, ButtonBar::BUTTON_POSITION_RIGHT);
-
-    }
-
-    /**
-     * @param string $name — Case-insensitive header field name.
-     * @param string|string[] $value — Header value(s).
-     */
-    protected function setRequestHeader($name, $value) {
-        $this->requestHeaders[] = [$name, $value];
-    }
-
-    /**
-     * @return array headers wich should set on response
-     */
-    protected function getRequestHeaders()
-    {
-        return $this->requestHeaders;
     }
 
     /**
      * Returns the LanguageService
-     *
-     * @return LanguageService
      */
     protected function getLanguageService(): LanguageService
     {
         return $GLOBALS['LANG'];
     }
 
-    private function templateFilenameFromRequest() {
-        $extbaseRequestParameters = $this->request->getAttribute('extbase');
-        $templateFileName = $extbaseRequestParameters->getControllerName() . '/' .
-            ucfirst($extbaseRequestParameters->getControllerActionName());
-        return $templateFileName;
+    private function createExporter(string $format): ExportCsv|ExportXls|ExportXml|null
+    {
+        return match ($format) {
+            'Csv' => new ExportCsv(),
+            'Xls' => new ExportXls(),
+            'Xml' => new ExportXml(),
+            default => null,
+        };
+    }
+
+    private function createDownloadResponse(string $content, string $format, ?string $charset): ResponseInterface
+    {
+        $charset = $charset !== null && $charset !== '' ? $charset : 'iso-8859-1';
+
+        [$filename, $contentType] = match ($format) {
+            'Csv' => ['export.csv', 'text/csv; charset=' . $charset],
+            'Xls' => ['export.xlsx', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'],
+            'Xml' => ['export.xml', 'application/xml; charset=' . $charset],
+            default => throw new \InvalidArgumentException('Unsupported export format: ' . $format, 1710001001),
+        };
+
+        return $this->responseFactory->createResponse()
+            ->withHeader('Content-Type', $contentType)
+            ->withHeader('Content-Disposition', sprintf('attachment; filename="%s"', $filename))
+            ->withHeader('Content-Transfer-Encoding', 'binary')
+            ->withBody($this->streamFactory->createStream($content));
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function getExtensionConfiguration(): array
+    {
+        $extensionConfigurations = $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS'] ?? [];
+        $configuration = $extensionConfigurations['frp_form_answers']
+            ?? $extensionConfigurations['frp_formanswers']
+            ?? [];
+
+        return is_array($configuration) ? $configuration : [];
+    }
+
+    private function templateFilenameFromRequest(): string
+    {
+        return $this->request->getControllerName() . '/' . ucfirst($this->request->getControllerActionName());
     }
 }

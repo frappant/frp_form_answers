@@ -1,5 +1,7 @@
 <?php
 
+use Frappant\FrpFormAnswers\Controller\FormEntryController;
+
 return [
     'web_FrpFormAnswersFormanswers' => [
         'parent' => 'web',
@@ -11,16 +13,15 @@ return [
         'labels' => 'LLL:EXT:frp_form_answers/Resources/Private/Language/locallang_formanswers.xlf',
         'extensionName' => 'frp_form_answers',
         'controllerActions' => [
-            \Frappant\FrpFormAnswers\Controller\FormEntryController::class => [
+            FormEntryController::class => [
                 'list',
                 'show',
                 'prepareRemove',
                 'remove',
                 'prepareExport',
-                'initializeExport',
                 'export',
                 'deleteFormname',
-                'removeEntry'
+                'removeEntry',
             ],
         ],
     ],

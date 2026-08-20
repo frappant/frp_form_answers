@@ -2,32 +2,40 @@
 
 namespace Frappant\FrpFormAnswers\Utility;
 
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+
 class FormExportUtility
 {
-
     /**
      * tableName
      *
-     * @var \PHPExcel
+     * @var Spreadsheet
      */
-    private static $phpExcel = null;
+    private Spreadsheet $spreadsheet;
 
     public function __construct()
     {
-        $this -> phpExcel = new \PHPExcel();
+        $this->spreadsheet = new Spreadsheet();
     }
-
 
     /**
      * function export
-     * @var array $formEntries
+     * @param iterable<object> $formEntries
+     * @throws \PhpOffice\PhpSpreadsheet\Writer\Exception
      */
-    public function export($formEntries)
+    public function export(iterable $formEntries): string
     {
-        $rows = array();
-        $header = array();
+        $rows = [];
         foreach ($formEntries as $entry) {
-            $rows[$entry->getUid()] = (array)json_decode($entry->getAnswers());
+            if (!is_object($entry) || !method_exists($entry, 'getUid') || !method_exists($entry, 'getAnswers')) {
+                continue;
+            }
+            $rows[(int)$entry->getUid()] = (array)$entry->getAnswers();
+        }
+
+        if ($rows === []) {
+            return '';
         }
 
         $header = array_keys(array_values($rows)[0]);
@@ -38,21 +46,21 @@ class FormExportUtility
         }
         array_unshift($rows, $header);
 
+        $this->spreadsheet->setActiveSheetIndex(0);
+        $this->spreadsheet->getActiveSheet()->fromArray($rows, null, 'A1');
 
-
-        $this->phpExcel->setActiveSheetIndex(0);
-        $this->phpExcel->getActiveSheet()->fromArray($rows, null, 'A1');
-
-        $objWriter = \PHPExcel_IOFactory::createWriter($this->phpExcel, 'Excel2007');
-        $objWriter->save('php://output');
+        $writer = new Xlsx($this->spreadsheet);
+        ob_start();
+        $writer->save('php://output');
+        return (string)ob_get_clean();
     }
 
     /**
      * function setIndexedArray
      * Sets an associative array to an indexed array
-     * @var array $arr
+     * @param array<mixed> $arr
      */
-    private function setIndexedArray(&$arr)
+    private static function setIndexedArray(array &$arr): void
     {
         $arr = array_values($arr);
     }

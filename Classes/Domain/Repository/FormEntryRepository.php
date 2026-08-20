@@ -1,15 +1,15 @@
 <?php
+
 namespace Frappant\FrpFormAnswers\Domain\Repository;
 
 use Frappant\FrpFormAnswers\Database\QueryGenerator;
+use Frappant\FrpFormAnswers\Domain\Model\FormEntry;
 use Frappant\FrpFormAnswers\Domain\Model\FormEntryDemand;
-use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Extbase\Persistence\Exception\IllegalObjectTypeException;
-use TYPO3\CMS\Extbase\Persistence\Generic\PersistenceManager;
-use TYPO3\CMS\Extbase\Persistence\Generic\QueryResult;
-use TYPO3\CMS\Extbase\Persistence\Generic\Typo3QuerySettings;
-use TYPO3\CMS\Extbase\Persistence\QueryInterface;
 use Frappant\FrpFormAnswers\Utility\BackendUtility;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Extbase\Persistence\QueryInterface;
+use TYPO3\CMS\Extbase\Persistence\QueryResultInterface;
+use TYPO3\CMS\Extbase\Persistence\Repository;
 
 /***
  *
@@ -25,14 +25,22 @@ use Frappant\FrpFormAnswers\Utility\BackendUtility;
 /**
  * The repository for FormEntries
  */
-class FormEntryRepository extends \TYPO3\CMS\Extbase\Persistence\Repository
+/**
+ * @extends Repository<FormEntry>
+ */
+class FormEntryRepository extends Repository
 {
+    public function __construct(private readonly QueryGenerator $queryGenerator)
+    {
+        parent::__construct();
+    }
+
     /**
      * Finds all FormEntries given by conf Array
-     * @param  \Frappant\FrpFormAnswers\Domain\Model\FormEntryDemand $formEntryDemand
-     * @return QueryResult
+     * @param FormEntryDemand $formEntryDemand
+     * @return QueryResultInterface<int, FormEntry>
      */
-    public function findByDemand(FormEntryDemand $formEntryDemand, int $pid = 0)
+    public function findByDemand(FormEntryDemand $formEntryDemand, int $pid = 0): QueryResultInterface
     {
 
         $query = $this->createQuery();
@@ -45,7 +53,6 @@ class FormEntryRepository extends \TYPO3\CMS\Extbase\Persistence\Repository
             $query->getQuerySettings()->setRespectStoragePage(true);
             $query->getQuerySettings()->setStoragePageIds([$pid]);
         }
-
 
         $constraints = [];
 
@@ -71,21 +78,20 @@ class FormEntryRepository extends \TYPO3\CMS\Extbase\Persistence\Repository
      * Find all within a Page and all subpages
      *
      * @param int $pid start page identifier
-     * @return QueryResult
+     * @return QueryResultInterface<int, FormEntry>
      */
-    public function findAllInPidAndRootline($pid)
+    public function findAllInPidAndRootline(int $pid): QueryResultInterface
     {
         $query = $this->createQuery();
         $query->getQuerySettings()->setRespectStoragePage(false);
 
-        $queryGenerator = GeneralUtility::makeInstance(QueryGenerator::class);
-        $pids = GeneralUtility::trimExplode(',', $queryGenerator->getTreeList($pid, 20, 0, 1), true);
+        $pids = GeneralUtility::trimExplode(',', $this->queryGenerator->getTreeList($pid, 20, 0, '1'), true);
 
         if (!BackendUtility::isBackendAdmin()) {
             $pids = BackendUtility::filterPagesForAccess($pids);
         }
 
-        if (is_array($pids) && count($pids)) {
+        if (count($pids)) {
             $query->matching($query->in('pid', $pids));
         }
 
@@ -97,34 +103,36 @@ class FormEntryRepository extends \TYPO3\CMS\Extbase\Persistence\Repository
     /**
      * Finds the last Form Entry of a given yaml File (form) - used to set the submitUid in SaveFormToDatabaseFinisher
      *
-     * @param String $form
-     * @return QueryResult
+     * @param string $form
+     * @return FormEntry|null
      */
-    public function getLastFormAnswerByIdentifyer($form)
+    public function getLastFormAnswerByIdentifyer(string $form): ?FormEntry
     {
         $query = $this->createQuery();
         $query->getQuerySettings()->setRespectStoragePage(false);
         $query->setOrderings(
-            array(
-                'submitUid' => \TYPO3\CMS\Extbase\Persistence\QueryInterface::ORDER_DESCENDING
-            )
+            [
+                'submitUid' => QueryInterface::ORDER_DESCENDING,
+            ]
         );
 
         $query->matching($query->equals('form', $form));
         $query->setLimit(1);
 
-        return $query->execute()->getFirst();
+        $first = $query->execute()->getFirst();
+        return $first instanceof FormEntry ? $first : null;
     }
 
-    public function setFormsToExported($forms)
+    /**
+     * @param QueryResultInterface<int, FormEntry> $forms
+     */
+    public function setFormsToExported(QueryResultInterface $forms): void
     {
         foreach ($forms as $entry) {
             $entry->setExported(true);
             $this->update($entry);
         }
 
-        $persistenceManager = GeneralUtility::makeInstance(PersistenceManager::class);
-
-        $persistenceManager->persistAll();
+        $this->persistenceManager->persistAll();
     }
 }

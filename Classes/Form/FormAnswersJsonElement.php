@@ -3,10 +3,12 @@
 namespace Frappant\FrpFormAnswers\Form;
 
 use TYPO3\CMS\Backend\Form\Element\AbstractFormElement;
-use TYPO3\CMS\Extbase\Utility\DebuggerUtility;
 
 class FormAnswersJsonElement extends AbstractFormElement
 {
+    /**
+     * @return array<string, mixed>
+     */
     public function render(): array
     {
         // Custom TCA properties and other data can be found in $this->data, for example the above
@@ -21,7 +23,7 @@ class FormAnswersJsonElement extends AbstractFormElement
                 if ($fieldValue['conf']['label']) {
                     $out .= '<li>' .
                         htmlspecialchars($fieldValue['conf']['label']) .
-                        ' - '.
+                        ' - ' .
                         htmlspecialchars(
                             is_array($fieldValue['value']) ? implode(',', $fieldValue['value']) : $fieldValue['value']
                         )

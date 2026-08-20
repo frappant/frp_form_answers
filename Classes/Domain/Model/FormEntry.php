@@ -1,5 +1,10 @@
 <?php
+
+declare(strict_types=1);
+
 namespace Frappant\FrpFormAnswers\Domain\Model;
+
+use TYPO3\CMS\Extbase\DomainObject\AbstractEntity;
 
 /***
  *
@@ -11,74 +16,73 @@ namespace Frappant\FrpFormAnswers\Domain\Model;
  *  (c) 2017 !frappant <support@frappant.ch>
  *
  ***/
-
 /**
  * FormEntry
  */
-class FormEntry extends \TYPO3\CMS\Extbase\DomainObject\AbstractEntity
+class FormEntry extends AbstractEntity
 {
     /**
      * answers
      *
      * @var string
      */
-    protected $answers = '';
+    protected string $answers = '';
 
     /**
      * fieldHash
      *
      * @var string
      */
-    protected $fieldHash = '';
+    protected string $fieldHash = '';
 
     /**
      * form
      *
      * @var string
      */
-    protected $form = '';
+    protected string $form = '';
 
     /**
      * exported
      *
      * @var bool
      */
-    protected $exported = false;
+    protected bool $exported = false;
 
     /**
-     * @var \DateTime
+     * TYPO3 "crdate" is stored as unix timestamp.
      */
-    protected $crdate;
+    protected int $crdate = 0;
 
     /**
      * exported
      *
      * @var int
      */
-    protected $submitUid = '';
+    protected int $submitUid = 0;
 
     /**
      * Returns the answers
      *
-     * @return array $answers
+     * @return array<string, mixed>
      */
-    public function getAnswers()
+    public function getAnswers(): array
     {
-        return json_decode($this->answers, 1);
+        $decoded = json_decode($this->answers, true);
+        return is_array($decoded) ? $decoded : [];
     }
 
     /**
      * Sets the answers
      *
-     * @param array $answers
-     * @return void
+     * @param array<string, mixed> $answers
      */
-    public function setAnswers(array $answers)
+    public function setAnswers(array $answers): void
     {
-        $this->answers = json_encode($answers);
+        $this->answers = (string)json_encode($answers);
         ksort($answers);
 
-        $fields = "";
+        $fields = '';
         foreach ($answers as $field => $value) {
             $fields .= $field;
         }
@@ -90,7 +94,7 @@ class FormEntry extends \TYPO3\CMS\Extbase\DomainObject\AbstractEntity
      *
      * @return string $fieldHash
      */
-    public function getFieldHash()
+    public function getFieldHash(): string
     {
         return $this->fieldHash;
     }
@@ -99,9 +103,8 @@ class FormEntry extends \TYPO3\CMS\Extbase\DomainObject\AbstractEntity
      * Sets the fieldHash
      *
      * @param string $fieldHash
-     * @return void
      */
-    public function setFieldHash($fieldHash)
+    public function setFieldHash(string $fieldHash): void
     {
         $this->fieldHash = md5($fieldHash);
     }
@@ -111,7 +114,7 @@ class FormEntry extends \TYPO3\CMS\Extbase\DomainObject\AbstractEntity
      *
      * @return string $form
      */
-    public function getForm()
+    public function getForm(): string
     {
         return $this->form;
     }
@@ -120,9 +123,8 @@ class FormEntry extends \TYPO3\CMS\Extbase\DomainObject\AbstractEntity
      * Sets the form
      *
      * @param string $form
-     * @return void
      */
-    public function setForm($form)
+    public function setForm(string $form): void
     {
         $this->form = $form;
     }
@@ -132,7 +134,7 @@ class FormEntry extends \TYPO3\CMS\Extbase\DomainObject\AbstractEntity
      *
      * @return bool $exported
      */
-    public function getExported()
+    public function getExported(): bool
     {
         return $this->exported;
     }
@@ -141,9 +143,8 @@ class FormEntry extends \TYPO3\CMS\Extbase\DomainObject\AbstractEntity
      * Sets the exported
      *
      * @param bool $exported
-     * @return void
      */
-    public function setExported($exported)
+    public function setExported(bool $exported): void
     {
         $this->exported = $exported;
     }
@@ -153,7 +154,7 @@ class FormEntry extends \TYPO3\CMS\Extbase\DomainObject\AbstractEntity
      *
      * @return bool
      */
-    public function isExported()
+    public function isExported(): bool
     {
         return $this->exported;
     }
@@ -163,7 +164,7 @@ class FormEntry extends \TYPO3\CMS\Extbase\DomainObject\AbstractEntity
      *
      * @param int $crdate
      */
-    public function setCrdate($crdate)
+    public function setCrdate(int $crdate): void
     {
         $this->crdate = $crdate;
     }
@@ -173,7 +174,7 @@ class FormEntry extends \TYPO3\CMS\Extbase\DomainObject\AbstractEntity
      *
      * @return int
      */
-    public function getCrdate()
+    public function getCrdate(): int
     {
         return $this->crdate;
     }
@@ -182,9 +183,8 @@ class FormEntry extends \TYPO3\CMS\Extbase\DomainObject\AbstractEntity
      * Sets the submitUid
      *
      * @param int $submitUid
-     * @return void
      */
-    public function setSubmitUid($submitUid)
+    public function setSubmitUid(int $submitUid): void
     {
         $this->submitUid = $submitUid;
     }
@@ -194,7 +194,7 @@ class FormEntry extends \TYPO3\CMS\Extbase\DomainObject\AbstractEntity
      *
      * @return int
      */
-    public function getSubmitUid()
+    public function getSubmitUid(): int
     {
         return $this->submitUid;
     }

@@ -1,4 +1,5 @@
 <?php
+
 namespace Frappant\FrpFormAnswers\View\FormEntry;
 
 /***************************************************************
@@ -34,7 +35,7 @@ class ExportXml
     /**
      * View variables and their values
      *
-     * @var array
+     * @var array<string, mixed>
      * @see assign()
      */
     protected $variables = [];
@@ -47,7 +48,7 @@ class ExportXml
      * @param mixed $value Value of object
      * @return ExportXml an instance of $this, to enable chaining
      */
-    public function assign($key, $value)
+    public function assign(string $key, mixed $value): self
     {
         $this->variables[$key] = $value;
         return $this;
@@ -56,7 +57,7 @@ class ExportXml
     /**
      * Add multiple variables to $this->viewData.
      *
-     * @param array $values array in the format array(key1 => value1, key2 => value2).
+     * @param array<string, mixed> $values array in the format array(key1 => value1, key2 => value2).
      * @return ExportXml an instance of $this, to enable chaining
      */
     public function assignMultiple(array $values)
@@ -67,9 +68,7 @@ class ExportXml
         return $this;
     }
 
-    public function initializeView($view) {
-        return null;
-    }
+    public function initializeView(mixed $view): void {}
 
     /**
      * Renders the view
@@ -77,7 +76,7 @@ class ExportXml
      * @return string The rendered view
      * @api
      */
-    public function render()
+    public function render(): string
     {
         ob_start();
 
@@ -99,23 +98,27 @@ class ExportXml
     /**
      * function array_shift
      * Function array_shift with resetting the key values (Indexed!)
-     * @param array $arr
+     * @param array<int, mixed> $arr
      */
-    protected function array_shift(&$arr)
+    protected function array_shift(array &$arr): void
     {
         array_shift($arr);
-        $rows = array_values($arr);
+        $arr = array_values($arr);
     }
 
-    protected function arr2xml($arr, $index)
+    /**
+     * @param array<string, mixed> $arr
+     */
+    protected function arr2xml(array $arr, int $index): string
     {
-        $str = "\t<row index=\"".$index."\" type=\"array\">\n";
+        $str = "\t<row index=\"" . $index . "\" type=\"array\">\n";
 
         foreach ($arr as $field => $value) {
             if ($value instanceof \DateTime) {
                 $value = $value->format('c');
             }
-            $str .= "\t\t<".$field.">".htmlspecialchars(stripslashes($value))."</".$field.">\n";
+            $value = (string)$value;
+            $str .= "\t\t<" . $field . '>' . htmlspecialchars(stripslashes($value)) . '</' . $field . ">\n";
         }
 
         $str .= "\t</row>\n";

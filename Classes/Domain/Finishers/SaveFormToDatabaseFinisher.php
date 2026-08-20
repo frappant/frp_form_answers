@@ -1,50 +1,21 @@
 <?php
+
 namespace Frappant\FrpFormAnswers\Domain\Finishers;
 
-use Frappant\FrpFormAnswers\Event\ManipulateFormValuesEvent;
 use Frappant\FrpFormAnswers\Domain\Model\FormEntry;
+use Frappant\FrpFormAnswers\Domain\Repository\FormEntryRepository;
+use Frappant\FrpFormAnswers\Event\ManipulateFormValuesEvent;
+use Psr\EventDispatcher\EventDispatcherInterface;
 use TYPO3\CMS\Core\Context\Exception\AspectNotFoundException;
-use TYPO3\CMS\Core\EventDispatcher\EventDispatcher;
 use TYPO3\CMS\Extbase\Persistence\Generic\PersistenceManager;
-use TYPO3\CMS\Extbase\SignalSlot\Dispatcher;
 use TYPO3\CMS\Form\Domain\Finishers\AbstractFinisher;
 use TYPO3\CMS\Form\Domain\Model\FormElements\FormElementInterface;
-use Frappant\FrpFormAnswers\Domain\Repository\FormEntryRepository;
-use Psr\EventDispatcher\EventDispatcherInterface;
-use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 class SaveFormToDatabaseFinisher extends AbstractFinisher
 {
-    /**
-     * formEntryRepository
-     *
-     * @var \Frappant\FrpFormAnswers\Domain\Repository\FormEntryRepository
-     */
-    protected $formEntryRepository = null;
-
-    protected EventDispatcherInterface $eventDispatcher;
-
-    public function injectEventDispatcherInterface(EventDispatcherInterface $eventDispatcher) {
-        $this->eventDispatcher = $eventDispatcher;
-    }
-
-    /**
-     * @param \Frappant\FrpFormAnswers\Domain\Repository\FormEntryRepository $formEntryRepository
-     */
-    public function injectFormEntryRepository(FormEntryRepository $formEntryRepository) {
-        $this->formEntryRepository = $formEntryRepository;
-    }
-
-
-    protected FormEntry $formEntry;
-
-    public function injectFormEntry(FormEntry $formEntry) {
+    public function __construct(protected EventDispatcherInterface $eventDispatcher, protected FormEntryRepository $formEntryRepository, protected FormEntry $formEntry, protected PersistenceManager $persistenceManager)
+    {
         $this->formEntry = $formEntry;
-    }
-
-    protected PersistenceManager $persistenceManager;
-
-    public function injectPersistenceManager(PersistenceManager $persistenceManager) {
         $this->persistenceManager = $persistenceManager;
     }
 
@@ -53,12 +24,9 @@ class SaveFormToDatabaseFinisher extends AbstractFinisher
      * @throws AspectNotFoundException
      * @see AbstractFinisher::execute()
      */
-    protected function executeInternal()
+    protected function executeInternal(): void
     {
-        $this->eventDispatcher = GeneralUtility::makeInstance(EventDispatcher::class);
-
-        // Values of all fields, getFormValues() also gives pages,
-        // so it will be filled in foreach
+        // Values of all fields, getFormValues() also gives pages, so it will be filled in foreach
         $values = $this->getFormValues();
         // Identifier for the yaml file of the form
         $formRuntime = $this->finisherContext->getFormRuntime();
@@ -73,12 +41,14 @@ class SaveFormToDatabaseFinisher extends AbstractFinisher
         $event = $this->eventDispatcher->dispatch(new ManipulateFormValuesEvent($values, $formRuntime));
         $values = $event->getValues();
         $this->formEntry->setExported(false);
+        // The int-typed crdate property is persisted as-is; Extbase no longer auto-fills it
+        $this->formEntry->setCrdate(time());
         $this->formEntry->setAnswers($values);
 
         $this->formEntry->setForm($identifier);
 
-
-        $pageId = $this->finisherContext->getFormRuntime()->getRequest()->getAttributes()['routing']['pageId'];
+        $attrs = $this->finisherContext->getFormRuntime()->getRequest()->getAttributes();
+        $pageId = (int)($attrs['routing']['pageId'] ?? 0);
         $this->formEntry->setPid($pageId);
 
         $lastForm = $this->formEntryRepository->getLastFormAnswerByIdentifyer($identifier);
@@ -97,7 +67,7 @@ class SaveFormToDatabaseFinisher extends AbstractFinisher
     /**
      * Returns the values of the submitted form
      *
-     * @return []
+     * @return array<string, array{value:mixed, conf: array{label:mixed, inputType:string}}>
      */
     protected function getFormValues(): array
     {
@@ -109,13 +79,17 @@ class SaveFormToDatabaseFinisher extends AbstractFinisher
         foreach ($this->finisherContext->getFormRuntime()->getPages() as $page) {
             foreach ($page->getElementsRecursively() as $pageElem) {
                 if ($pageElem->getType() !== 'Honeypot') {
-                	if($pageElem->getType() !== 'FileUpload' && $pageElem->getType() !== 'ImageUpload'){
-		                $values[$pageElem->getIdentifier()]['value'] = $valuesWithPages[$pageElem->getIdentifier()];
-	                }else{
-                		if($valuesWithPages[$pageElem->getIdentifier()]){
-			                $values[$pageElem->getIdentifier()]['value'] = $valuesWithPages[$pageElem->getIdentifier()]->getOriginalResource()->getName();
-		                }
-	                }
+                    if ($pageElem->getType() !== 'FileUpload' && $pageElem->getType() !== 'ImageUpload') {
+                        $values[$pageElem->getIdentifier()]['value'] = $valuesWithPages[$pageElem->getIdentifier()] ?? null;
+                    } else {
+                        $upload = $valuesWithPages[$pageElem->getIdentifier()] ?? null;
+                        if (is_object($upload) && method_exists($upload, 'getOriginalResource')) {
+                            $resource = $upload->getOriginalResource();
+                            if (is_object($resource) && method_exists($resource, 'getName')) {
+                                $values[$pageElem->getIdentifier()]['value'] = $resource->getName();
+                            }
+                        }
+                    }
                     $values[$pageElem->getIdentifier()]['conf']['label'] = $pageElem->getLabel();
                     $values[$pageElem->getIdentifier()]['conf']['inputType'] = $pageElem->getType();
                 }
@@ -128,9 +102,9 @@ class SaveFormToDatabaseFinisher extends AbstractFinisher
      * Returns a form element object for a given identifier.
      *
      * @param string $elementIdentifier
-     * @return NULL|FormElementInterface
+     * @return FormElementInterface|null
      */
-    protected function getElementByIdentifier(string $elementIdentifier)
+    protected function getElementByIdentifier(string $elementIdentifier): ?FormElementInterface
     {
         return $this
             ->finisherContext
