@@ -2,10 +2,13 @@
 
 namespace Frappant\FrpFormAnswers\Domain\Repository;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Frappant\FrpFormAnswers\Database\QueryGenerator;
 use Frappant\FrpFormAnswers\Domain\Model\FormEntry;
 use Frappant\FrpFormAnswers\Domain\Model\FormEntryDemand;
 use Frappant\FrpFormAnswers\Utility\BackendUtility;
+use TYPO3\CMS\Core\Database\Connection;
+use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Persistence\QueryInterface;
 use TYPO3\CMS\Extbase\Persistence\QueryResultInterface;
@@ -30,8 +33,12 @@ use TYPO3\CMS\Extbase\Persistence\Repository;
  */
 class FormEntryRepository extends Repository
 {
-    public function __construct(private readonly QueryGenerator $queryGenerator)
-    {
+    private const TABLE_NAME = 'tx_frpformanswers_domain_model_formentry';
+
+    public function __construct(
+        private readonly QueryGenerator $queryGenerator,
+        private readonly ConnectionPool $connectionPool,
+    ) {
         parent::__construct();
     }
 
@@ -128,11 +135,31 @@ class FormEntryRepository extends Repository
      */
     public function setFormsToExported(QueryResultInterface $forms): void
     {
+        $uids = [];
         foreach ($forms as $entry) {
-            $entry->setExported(true);
-            $this->update($entry);
+            $uids[] = $entry->getUid();
         }
 
-        $this->persistenceManager->persistAll();
+        $uids = array_values(array_filter($uids, static fn(?int $uid): bool => $uid !== null));
+        if ($uids === []) {
+            return;
+        }
+
+        // One statement instead of an update per entry - exports can cover
+        // tens of thousands of rows
+        $connection = $this->connectionPool->getConnectionForTable(self::TABLE_NAME);
+        foreach (array_chunk($uids, 500) as $chunk) {
+            $queryBuilder = $connection->createQueryBuilder();
+            $queryBuilder
+                ->update(self::TABLE_NAME)
+                ->set('exported', 1, true, Connection::PARAM_INT)
+                ->where(
+                    $queryBuilder->expr()->in(
+                        'uid',
+                        $queryBuilder->createNamedParameter($chunk, ArrayParameterType::INTEGER),
+                    ),
+                )
+                ->executeStatement();
+        }
     }
 }

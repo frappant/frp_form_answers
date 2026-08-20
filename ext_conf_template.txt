@@ -6,3 +6,6 @@ enableUploadPathEnrichment = false
 
 # cat=basic/enable; type=boolean; label=use the public path to the uploaded files (false = FAL path)
 savePublicUploadPath = false
+
+# cat=basic/enable; type=string; label=Form element types that are left out of exports (comma-separated)
+nonExportableTypes = Fieldset,StaticText,GridRow

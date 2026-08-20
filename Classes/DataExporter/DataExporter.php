@@ -4,10 +4,30 @@ namespace Frappant\FrpFormAnswers\DataExporter;
 
 use Frappant\FrpFormAnswers\Domain\Model\FormEntry;
 use Frappant\FrpFormAnswers\Domain\Model\FormEntryDemand;
+use TYPO3\CMS\Core\Configuration\Exception\ExtensionConfigurationExtensionNotConfiguredException;
+use TYPO3\CMS\Core\Configuration\Exception\ExtensionConfigurationPathDoesNotExistException;
+use TYPO3\CMS\Core\Configuration\ExtensionConfiguration;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Utility\LocalizationUtility;
 
 class DataExporter
 {
+    /**
+     * @var list<string>
+     */
+    private const DEFAULT_NON_EXPORTABLE_TYPES = [
+        'Fieldset',
+        'StaticText',
+        'GridRow',
+    ];
+
+    /**
+     * @var list<string>|null
+     */
+    private ?array $nonExportableTypes = null;
+
+    public function __construct(private readonly ExtensionConfiguration $extensionConfiguration) {}
+
     /**
      * getExport
      * @param array<int, FormEntry> $rowAnswers
@@ -77,11 +97,30 @@ class DataExporter
 
     private function isExportableType(string $inputType): bool
     {
-        $typesToSkip = [
-            'Fieldset',
-            'StaticText',
-            'GridRow',
-        ];
-        return !\in_array($inputType, $typesToSkip);
+        return !\in_array($inputType, $this->getNonExportableTypes(), true);
+    }
+
+    /**
+     * Form element types that carry no answer and are therefore left out of
+     * the export. Configurable, because which types are meaningful depends on
+     * the form elements an installation uses.
+     *
+     * @return list<string>
+     */
+    private function getNonExportableTypes(): array
+    {
+        if ($this->nonExportableTypes !== null) {
+            return $this->nonExportableTypes;
+        }
+
+        try {
+            // An empty setting means "export every type", so only a missing
+            // setting falls back to the defaults
+            $configured = (string)($this->extensionConfiguration->get('frp_form_answers', 'nonExportableTypes') ?? '');
+        } catch (ExtensionConfigurationExtensionNotConfiguredException | ExtensionConfigurationPathDoesNotExistException) {
+            return $this->nonExportableTypes = self::DEFAULT_NON_EXPORTABLE_TYPES;
+        }
+
+        return $this->nonExportableTypes = GeneralUtility::trimExplode(',', $configured, true);
     }
 }

@@ -263,12 +263,24 @@ class FormEntryController extends ActionController
         $useSubmitUid = (bool)($extensionConfiguration['useSubmitUid']['value'] ?? $extensionConfiguration['useSubmitUid'] ?? false);
         $exportData = $this->dataExporter->getExport($formEntries->toArray(), $formEntryDemand, $useSubmitUid);
 
-        $this->formEntryRepository->setFormsToExported($formEntries);
-
         $exporter->assign('rows', $exportData);
         $exporter->assign('formEntryDemand', $formEntryDemand);
 
-        return $this->createDownloadResponse($exporter->render(), $format, $arguments['formEntryDemand']['charset'] ?? null);
+        // Build the whole response before flagging the entries: if rendering
+        // or encoding fails - which is what happens on large data sets when
+        // the memory limit is hit - the entries must stay unexported,
+        // otherwise the next export with "only new entries" silently returns
+        // nothing and the submissions look lost
+        $response = $this->createDownloadResponse(
+            $exporter->render(),
+            $format,
+            $arguments['formEntryDemand']['charset'] ?? null,
+            $formEntryDemand->getFileName() ?: (string)$formEntryDemand->getFormName(),
+        );
+
+        $this->formEntryRepository->setFormsToExported($formEntries);
+
+        return $response;
     }
 
     /**
@@ -287,12 +299,12 @@ class FormEntryController extends ActionController
 
             $this->addFlashMessage(
                 LocalizationUtility::translate(
-                    'LLL:EXT:frp_form_answers/Resources/Private/Language/de.locallang_be.xlf:flashmessage.deleteFormName.body',
+                    'LLL:EXT:frp_form_answers/Resources/Private/Language/locallang_be.xlf:flashmessage.deleteFormName.body',
                     'FrpFormAnswers',
                     [$formName, $this->pid],
                 ) ?? '',
                 LocalizationUtility::translate(
-                    'LLL:EXT:frp_form_answers/Resources/Private/Language/de.locallang_be.xlf:flashmessage.deleteFormName.header',
+                    'LLL:EXT:frp_form_answers/Resources/Private/Language/locallang_be.xlf:flashmessage.deleteFormName.header',
                 ) ?? '',
                 ContextualFeedbackSeverity::OK,
                 true,
@@ -361,14 +373,28 @@ class FormEntryController extends ActionController
         };
     }
 
-    private function createDownloadResponse(string $content, string $format, ?string $charset): ResponseInterface
-    {
-        $charset = $charset !== null && $charset !== '' ? $charset : 'iso-8859-1';
+    private function createDownloadResponse(
+        string $content,
+        string $format,
+        ?string $charset,
+        string $fileName = '',
+    ): ResponseInterface {
+        $charset = $this->normalizeCharset($charset);
+        $baseName = $this->sanitizeFileName($fileName);
+
+        // Only the csv export is converted. The xlsx is a binary zip, and the
+        // xml declares no encoding in its prolog, so both have to stay as
+        // they were rendered - UTF-8.
+        if ($format === 'Csv') {
+            $content = $this->convertCharset($content, $charset);
+        } else {
+            $charset = 'utf-8';
+        }
 
         [$filename, $contentType] = match ($format) {
-            'Csv' => ['export.csv', 'text/csv; charset=' . $charset],
-            'Xls' => ['export.xlsx', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'],
-            'Xml' => ['export.xml', 'application/xml; charset=' . $charset],
+            'Csv' => [$baseName . '.csv', 'text/csv; charset=' . $charset],
+            'Xls' => [$baseName . '.xlsx', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'],
+            'Xml' => [$baseName . '.xml', 'application/xml; charset=' . $charset],
             default => throw new \InvalidArgumentException('Unsupported export format: ' . $format, 1710001001),
         };
 
@@ -377,6 +403,45 @@ class FormEntryController extends ActionController
             ->withHeader('Content-Disposition', sprintf('attachment; filename="%s"', $filename))
             ->withHeader('Content-Transfer-Encoding', 'binary')
             ->withBody($this->streamFactory->createStream($content));
+    }
+
+    /**
+     * The charset arrives from the request, so it has to be checked against
+     * the encodings the export actually offers. Anything else would reach
+     * mb_convert_encoding(), which throws on an unknown encoding.
+     */
+    private function normalizeCharset(?string $charset): string
+    {
+        return match (strtolower(trim((string)$charset))) {
+            'iso-8859-1' => 'iso-8859-1',
+            'utf-16le' => 'utf-16le',
+            default => 'utf-8',
+        };
+    }
+
+    /**
+     * The exported content is built as UTF-8. Convert it when the editor asked
+     * for a legacy charset, so that the Content-Type header does not lie about
+     * the bytes we send.
+     */
+    private function convertCharset(string $content, string $charset): string
+    {
+        if ($charset === 'utf-8' || $content === '') {
+            return $content;
+        }
+
+        return mb_convert_encoding($content, $charset, 'UTF-8');
+    }
+
+    private function sanitizeFileName(string $fileName): string
+    {
+        $fileName = (string)preg_replace('/[^A-Za-z0-9._-]/', '-', $fileName);
+        $fileName = (string)preg_replace('/\.(csv|xml|xlsx?)$/i', '', $fileName);
+        $fileName = trim($fileName, '-.');
+        // Keep the Content-Disposition header within what proxies accept
+        $fileName = substr($fileName, 0, 100);
+
+        return $fileName !== '' ? $fileName : 'export';
     }
 
     /**
