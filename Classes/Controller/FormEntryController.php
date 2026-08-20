@@ -147,8 +147,12 @@ class FormEntryController extends ActionController
 
         if ($entry === null) {
             $this->addFlashMessage(
-                'The requested entry could not be found.',
-                'Entry not found',
+                LocalizationUtility::translate(
+                    'LLL:EXT:frp_form_answers/Resources/Private/Language/locallang_be.xlf:flashmessage.entryNotFound.body',
+                ) ?? '',
+                LocalizationUtility::translate(
+                    'LLL:EXT:frp_form_answers/Resources/Private/Language/locallang_be.xlf:flashmessage.entryNotFound.header',
+                ) ?? '',
                 ContextualFeedbackSeverity::WARNING,
                 true,
             );
@@ -160,8 +164,14 @@ class FormEntryController extends ActionController
         $this->persistenceManager->persistAll();
 
         $this->addFlashMessage(
-            'Deleted entry with uid: ' . $uid,
-            'Entry deleted',
+            LocalizationUtility::translate(
+                'LLL:EXT:frp_form_answers/Resources/Private/Language/locallang_be.xlf:flashmessage.removeEntry.body',
+                null,
+                [$uid],
+            ) ?? '',
+            LocalizationUtility::translate(
+                'LLL:EXT:frp_form_answers/Resources/Private/Language/locallang_be.xlf:flashmessage.removeEntry.header',
+            ) ?? '',
             ContextualFeedbackSeverity::OK,
             true,
         );

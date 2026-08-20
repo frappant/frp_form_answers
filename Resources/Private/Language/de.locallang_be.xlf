@@ -51,6 +51,22 @@
 				<source>Entries removed</source>
 				<target>Einträge entfernt</target>
 			</trans-unit>
+			<trans-unit id="flashmessage.removeEntry.header">
+				<source>Entry deleted</source>
+				<target>Eintrag gelöscht</target>
+			</trans-unit>
+			<trans-unit id="flashmessage.removeEntry.body">
+				<source>The entry with the uid %s has been deleted.</source>
+				<target>Der Eintrag mit der uid %s wurde gelöscht.</target>
+			</trans-unit>
+			<trans-unit id="flashmessage.entryNotFound.header">
+				<source>Entry not found</source>
+				<target>Eintrag nicht gefunden</target>
+			</trans-unit>
+			<trans-unit id="flashmessage.entryNotFound.body">
+				<source>The requested entry could not be found.</source>
+				<target>Der angeforderte Eintrag konnte nicht gefunden werden.</target>
+			</trans-unit>
 			<trans-unit id="flashmessage.removeEntries.body">
 				<source>The deleted entries on Page %s have been ultimately deleted.</source>
 				<target>Die gelöschten Einträge der Seite %s wurden entgültig entfernt.</target>

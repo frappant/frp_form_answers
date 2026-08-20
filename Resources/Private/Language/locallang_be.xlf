@@ -39,6 +39,18 @@
 			<trans-unit id="flashmessage.removeEntries.header">
 				<source>Entries removed</source>
 			</trans-unit>
+			<trans-unit id="flashmessage.removeEntry.header">
+				<source>Entry deleted</source>
+			</trans-unit>
+			<trans-unit id="flashmessage.removeEntry.body">
+				<source>The entry with the uid %s has been deleted.</source>
+			</trans-unit>
+			<trans-unit id="flashmessage.entryNotFound.header">
+				<source>Entry not found</source>
+			</trans-unit>
+			<trans-unit id="flashmessage.entryNotFound.body">
+				<source>The requested entry could not be found.</source>
+			</trans-unit>
 			<trans-unit id="flashmessage.removeEntries.body">
 				<source>The deleted entries on Page %s have been ultimately deleted.</source>
 			</trans-unit>
