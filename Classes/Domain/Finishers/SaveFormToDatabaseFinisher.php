@@ -7,6 +7,9 @@ use Frappant\FrpFormAnswers\Domain\Repository\FormEntryRepository;
 use Frappant\FrpFormAnswers\Event\ManipulateFormValuesEvent;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use TYPO3\CMS\Core\Context\Exception\AspectNotFoundException;
+use TYPO3\CMS\Core\Resource\FileInterface;
+use TYPO3\CMS\Core\Utility\ArrayUtility;
+use TYPO3\CMS\Core\Utility\Exception\MissingArrayPathException;
 use TYPO3\CMS\Extbase\Persistence\Generic\PersistenceManager;
 use TYPO3\CMS\Form\Domain\Finishers\AbstractFinisher;
 use TYPO3\CMS\Form\Domain\Model\FormElements\FormElementInterface;
@@ -78,24 +81,92 @@ class SaveFormToDatabaseFinisher extends AbstractFinisher
         // Goes trough all form-pages - and there trough all PageElements (Questions)
         foreach ($this->finisherContext->getFormRuntime()->getPages() as $page) {
             foreach ($page->getElementsRecursively() as $pageElem) {
-                if ($pageElem->getType() !== 'Honeypot') {
-                    if ($pageElem->getType() !== 'FileUpload' && $pageElem->getType() !== 'ImageUpload') {
-                        $values[$pageElem->getIdentifier()]['value'] = $valuesWithPages[$pageElem->getIdentifier()] ?? null;
-                    } else {
-                        $upload = $valuesWithPages[$pageElem->getIdentifier()] ?? null;
-                        if (is_object($upload) && method_exists($upload, 'getOriginalResource')) {
-                            $resource = $upload->getOriginalResource();
-                            if (is_object($resource) && method_exists($resource, 'getName')) {
-                                $values[$pageElem->getIdentifier()]['value'] = $resource->getName();
-                            }
-                        }
-                    }
-                    $values[$pageElem->getIdentifier()]['conf']['label'] = $pageElem->getLabel();
-                    $values[$pageElem->getIdentifier()]['conf']['inputType'] = $pageElem->getType();
+                if ($pageElem->getType() === 'Honeypot') {
+                    continue;
                 }
+
+                $identifier = $pageElem->getIdentifier();
+                $submittedValue = $this->getSubmittedValue($valuesWithPages, $identifier);
+
+                if ($pageElem->getType() === 'FileUpload' || $pageElem->getType() === 'ImageUpload') {
+                    $values[$identifier]['value'] = $this->getUploadedFileNames($submittedValue);
+                } else {
+                    $values[$identifier]['value'] = $submittedValue;
+                }
+
+                $values[$identifier]['conf']['label'] = $pageElem->getLabel();
+                $values[$identifier]['conf']['inputType'] = $pageElem->getType();
             }
         }
         return $values;
+    }
+
+    /**
+     * Reads one submitted value.
+     *
+     * Element identifiers can contain dots, and the form framework stores the
+     * values by that path (a "foo.0.bar" element lives in
+     * $values['foo'][0]['bar']), so a flat lookup would miss them.
+     */
+    private function getSubmittedValue(mixed $submittedValues, string $identifier): mixed
+    {
+        if (!is_array($submittedValues)) {
+            return null;
+        }
+
+        // An identifier that is stored as it is wins, so the usual case keeps
+        // working exactly as before
+        if (array_key_exists($identifier, $submittedValues)) {
+            return $submittedValues[$identifier];
+        }
+
+        if ($identifier === '' || !str_contains($identifier, '.')) {
+            return null;
+        }
+
+        try {
+            return ArrayUtility::getValueByPath($submittedValues, $identifier, '.');
+        } catch (MissingArrayPathException) {
+            return null;
+        }
+    }
+
+    /**
+     * The name of the uploaded file, or a list of names when the element
+     * accepts multiple files - those arrive as an ObjectStorage of file
+     * references instead of a single one.
+     *
+     * An element without a file gives an empty list rather than null, so that
+     * consumers of the stored values - the upload path enrichment among them -
+     * always see a string or a list. Anything that does not resolve to a file
+     * name is left out of that list.
+     *
+     * @return string|list<string>
+     */
+    private function getUploadedFileNames(mixed $upload): string|array
+    {
+        // Same order as the core finishers use when they read an upload
+        if (is_object($upload) && method_exists($upload, 'getOriginalResource')) {
+            $upload = $upload->getOriginalResource();
+        }
+
+        if ($upload instanceof FileInterface) {
+            return $upload->getName();
+        }
+
+        if (is_iterable($upload)) {
+            $names = [];
+            foreach ($upload as $file) {
+                $name = $this->getUploadedFileNames($file);
+                if (is_string($name) && $name !== '') {
+                    $names[] = $name;
+                }
+            }
+
+            return $names;
+        }
+
+        return [];
     }
 
     /**
